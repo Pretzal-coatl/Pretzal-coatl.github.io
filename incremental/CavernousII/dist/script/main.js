@@ -114,21 +114,21 @@ function resetprogress() {
     /*sets stats to 0*/
     stats.forEach(s => {
         s.base = 0;
-        });
-    stats[12].base=10;
+    });
+    stats[12].base = 10;
     /*reset realms*/
-    realms.forEach(re =>{
+    realms.forEach(re => {
         re.locked = true;
         re.completed = false;
         re.machineCompletions = 0;
-        });
-    realms[0].unlock()
+    });
+    realms[0].unlock();
     /*resets runes*/
     runes.forEach(r => {
         r.unlocked = false;
         r.node = null;
         r.upgradeCount = 0;
-        });
+    });
     /*clear route*/
     routes = [];
     grindRoutes = [];
@@ -139,17 +139,17 @@ function resetprogress() {
     currentRealm = 0;
     /*Initialize*/
     Clone.addNewClone();
-    for(let i=0; i<prestige[0].level; ++i)
-        {Clone.addNewClone();}
+    for (let i = 0; i < prestige[0].level; ++i) {
+        Clone.addNewClone();
+    }
     /*Remove Message*/
     messages.forEach(m => {
         m.displayed = true;
-        });
+    });
     resetLoop();
     save();
     window.location.reload();
 }
-
 // Fix Prestige Values for Hover - need help
 /*
     let prestigenumber= document.querySelector("prestigenumber") = writeNumber(prestigecount);
