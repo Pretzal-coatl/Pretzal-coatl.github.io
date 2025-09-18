@@ -219,13 +219,11 @@ function canMineMana(location) {
     return CanStartReturnCode.Now;
 }
 function multiMineManaRockCostDifferential(location, completions) {
-    currentRoutes;
     const formula = 1 +
         (0.1 + 0.05 * (location.zone.index + currentRealm)) *
             longZoneCompletionMult(location.x, location.y, location.zone.index) *
             0.95 ** (prestige[2].level ** 0.75);
-    return Math.pow(formula, location.priorCompletions + completions) -
-        completions > 0 ? Math.pow(formula, location.priorCompletions + completions - 1) : 0;
+    return Math.pow(formula, location.priorCompletions + completions) - completions > 0 ? Math.pow(formula, location.priorCompletions + completions - 1) : 0;
 }
 function mineManaRockCost(location, clone = null, realm = null, completionOveride) {
     /* Prestige, add mana rock reducer for point spend */
@@ -242,8 +240,7 @@ function mineManaRockCost(location, clone = null, realm = null, completionOverid
             0.95 ** (prestige[2].level ** 0.75);
     // If completed previously in this route, subtract previous time.
     if (location.completions && !completionOveride) {
-        return Math.pow(formula, location.priorCompletions + location.completions) -
-            Math.pow(formula, location.priorCompletions + location.completions - 1);
+        return Math.pow(formula, location.priorCompletions + location.completions) - Math.pow(formula, location.priorCompletions + location.completions - 1);
     }
     return Math.pow(formula, completionOveride ?? location.priorCompletions);
 }
@@ -344,7 +341,8 @@ function tickFight(usedTime, loc, baseTime, clone) {
     if (!loc.creature)
         throw new Error("No creature to fight");
     let damage = (Math.max(loc.creature.attack - getStat("Defense").current, 0) * baseTime) / 1000;
-    if (loc.creature.defense >= getStat("Attack").current && loc.creature.attack <= getStat("Defense").current) {
+    /* Prestige - fixes edge case of taking fractional damage when unable to hurt enemy */
+    if (loc.creature.defense >= getStat("Attack").current && loc.creature.attack <= Math.ceil(getStat("Defense").current)) {
         damage = baseTime / 1000;
     }
     clone.inCombat = true;
