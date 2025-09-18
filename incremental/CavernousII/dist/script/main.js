@@ -114,13 +114,21 @@ function resetprogress() {
     /*sets stats to 0*/
     stats.forEach(s => {
         s.base = 0;
-    });
-    stats[12].base = 10;
+        });
+    stats[12].base=10;
+    /*reset realms*/
+    realms.forEach(re =>{
+        re.locked = true;
+        re.completed = false;
+        re.machineCompletions = 0;
+        });
+    realms[0].unlock()
     /*resets runes*/
     runes.forEach(r => {
         r.unlocked = false;
         r.node = null;
-    });
+        r.upgradeCount = 0;
+        });
     /*clear route*/
     routes = [];
     grindRoutes = [];
@@ -131,57 +139,17 @@ function resetprogress() {
     currentRealm = 0;
     /*Initialize*/
     Clone.addNewClone();
-    for (let i = 0; i < prestige[0].level; ++i) {
-        Clone.addNewClone();
-    }
-    for (let i = 0; i < prestige[0].level; ++i) {
-        Clone.addNewClone();
-    }
+    for(let i=0; i<prestige[0].level; ++i)
+        {Clone.addNewClone();}
     /*Remove Message*/
     messages.forEach(m => {
         m.displayed = true;
-    });
+        });
     resetLoop();
     save();
     window.location.reload();
 }
-/*function prestigeGame() { -- Dangerous, should fix
-    if(GameComplete == 1)
-    {
-        exportGame();
-        localStorage.removeItem(saveName);
-        load();
-        prestigepoints += 90;
-        GameComplete = 0;
-        save();
-    }
-}*/
-/*
-function BonusClones()
-{
-  
-}
-function FasterStats()
-{
-  
-}
-function ManaScaling()
-{
-  
-}
-function BonusResc()
-{
-  
-}
-function BetterEquip()
-{
-  
-}
-function SoftCap()
-{
-  
-}
-*/
+
 // Fix Prestige Values for Hover - need help
 /*
     let prestigenumber= document.querySelector("prestigenumber") = writeNumber(prestigecount);
