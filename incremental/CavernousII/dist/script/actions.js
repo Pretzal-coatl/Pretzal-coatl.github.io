@@ -218,13 +218,6 @@ function canMineMana(location) {
     // if (location.completions) return CanStartReturnCode.Never;
     return CanStartReturnCode.Now;
 }
-function multiMineManaRockCostDifferential(location, completions) {
-    const formula = 1 +
-        (0.1 + 0.05 * (location.zone.index + currentRealm)) *
-            longZoneCompletionMult(location.x, location.y, location.zone.index) *
-            0.95 ** (prestige[2].level ** 0.75);
-    return Math.pow(formula, location.priorCompletions + completions) - completions > 0 ? Math.pow(formula, location.priorCompletions + completions - 1) : 0;
-}
 function mineManaRockCost(location, clone = null, realm = null, completionOveride) {
     /* Prestige, add mana rock reducer for point spend */
     // return Math.pow(
