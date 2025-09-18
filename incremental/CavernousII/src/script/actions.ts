@@ -226,7 +226,7 @@ function completeCollectMana(loc: MapLocation) {
 	}
 	// Check if estimate can do one more run.
 	const mana = getStat("Mana");
-    if (settings.autoRestart == AutoRestart.RestartDone && settings.grindMana) {
+	if (settings.autoRestart == AutoRestart.RestartDone && settings.grindMana) {
 		const cur = currentRoutes.find(r => r.x == loc.x && r.y == loc.y && r.zone == currentZone);
 		if (!cur || cur.estimateRefineManaLeft() < 0) {
 			shouldReset = true;
@@ -253,14 +253,13 @@ function canMineMana(location: MapLocation) {
 }
 
 function multiMineManaRockCostDifferential(location: MapLocation, completions: number) {
-	currentRoutes
-	const formula = 1 +
-			(0.1 + 0.05 * (location.zone.index + currentRealm)) *
-				longZoneCompletionMult(location.x, location.y, location.zone.index) *
-				0.95 ** (prestige[2].level ** 0.75);
+	const formula =
+		1 +
+		(0.1 + 0.05 * (location.zone.index + currentRealm)) *
+			longZoneCompletionMult(location.x, location.y, location.zone.index) *
+			0.95 ** (prestige[2].level ** 0.75);
 
-	return Math.pow(formula, location.priorCompletions + completions) - 
-			completions > 0 ? Math.pow(formula, location.priorCompletions + completions - 1) : 0;
+	return Math.pow(formula, location.priorCompletions + completions) - completions > 0 ? Math.pow(formula, location.priorCompletions + completions - 1) : 0;
 }
 
 function mineManaRockCost(location: MapLocation, clone: Clone | null = null, realm: number | null = null, completionOveride?: number) {
@@ -272,14 +271,14 @@ function mineManaRockCost(location: MapLocation, clone: Clone | null = null, rea
 	// 					0.95 ** (prestige[2].level ** 0.75),
 	// 			completionOveride ?? location.priorCompletions
 	// 	  );
-	const formula = 1 +
-			(0.1 + 0.05 * (location.zone.index + (realm == null ? currentRealm : realm))) *
-				longZoneCompletionMult(location.x, location.y, location.zone.index) *
-				0.95 ** (prestige[2].level ** 0.75);
+	const formula =
+		1 +
+		(0.1 + 0.05 * (location.zone.index + (realm == null ? currentRealm : realm))) *
+			longZoneCompletionMult(location.x, location.y, location.zone.index) *
+			0.95 ** (prestige[2].level ** 0.75);
 	// If completed previously in this route, subtract previous time.
 	if (location.completions && !completionOveride) {
-		return Math.pow(formula, location.priorCompletions + location.completions) - 
-			Math.pow(formula, location.priorCompletions + location.completions - 1);
+		return Math.pow(formula, location.priorCompletions + location.completions) - Math.pow(formula, location.priorCompletions + location.completions - 1);
 	}
 	return Math.pow(formula, completionOveride ?? location.priorCompletions);
 }

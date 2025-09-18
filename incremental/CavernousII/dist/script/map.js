@@ -277,7 +277,7 @@ function viewCell(target) {
                 }
                 let primaryAction = type.presentAction || location.temporaryPresent || type.enterAction;
                 document.querySelector("#location-name").innerHTML =
-                    type.name + (type.name == "Mana-infused Rock" || type.name == "Mana Spring" ? ` (${location.priorCompletions})` : "");
+                    type.name + (type.name == "Mana-infused Rock" || type.name == "Mana Spring" ? ` (${location.priorCompletions + location.completions})` : "");
                 let description = type.description;
                 if (description.includes("{STATS}")) {
                     let statsDesc = `Attack: ${location.creature?.attack}\nDefense: ${location.creature?.defense}\nHealth: ${location.creature?.health}`;
