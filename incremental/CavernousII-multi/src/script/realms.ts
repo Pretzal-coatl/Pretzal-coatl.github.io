@@ -1,6 +1,18 @@
-let currentRealm = 0;
+import { simpleRequire } from "./actions";
+import { Clone, clones } from "./clones";
+import { writeNumber } from "./functions";
+import { grindRoutes } from "./grind_routes";
+import { resetLoop } from "./loop";
+import { getMessage } from "./messages";
+import { prestige } from "./prestige";
+import { routes } from "./routes";
+import { getRune, runes } from "./runes";
+import { settings, toggleGrindStats, toggleGrindMana } from "./settings";
+import { recalculateMana, zones, type Zone } from "./zones";
 
-class Realm {
+export let currentRealm = 0;
+
+export class Realm {
 	name: string;
 	description: string;
 	getMachineCount: () => number;
@@ -81,7 +93,7 @@ class Realm {
 	}
 }
 
-function changeRealms(newRealm: number) {
+export function changeRealms(newRealm: number) {
 	if (realms[newRealm].completed) return;
 	// Reset the zones first to apply mana gained to the appropriate realm.
 	zones.forEach(z => z.resetZone());
@@ -99,7 +111,7 @@ function changeRealms(newRealm: number) {
 	resetLoop();
 }
 
-function getRealmMult(name: string, force = false) {
+export function getRealmMult(name: string, force = false) {
 	const realm = getRealm(name);
 	if (realm.mult === undefined || realm.mult === null || force) {
 		realm.mult =
@@ -116,15 +128,15 @@ function getRealmMult(name: string, force = false) {
 	return Math.min(realm.mult + 1, realm.maxMult);
 }
 
-function getVerdantMultDesc() {
+export function getVerdantMultDesc() {
 	return `Total multiplier: x${writeNumber(getRealmMult("Verdant Realm", true), 4)}`;
 }
 
-function getCompoundingMultDesc() {
+export function getCompoundingMultDesc() {
 	return `Stat slowdown start: ${writeNumber(99 + getRealmMult("Compounding Realm", true), 4)}`;
 }
 
-function getRealmComplete(realm: Realm) {
+export function getRealmComplete(realm: Realm) {
 	if (realm.name == "Verdant Realm") {
 		const wither = getRune("Wither");
 		if ((getRealmMult(realm.name, true) === realm.maxMult && wither.upgradeCount >= 3) || realm.completed) {
@@ -140,7 +152,7 @@ function getRealmComplete(realm: Realm) {
 	}
 }
 
-const verdantMapping: { [key: string]: string } = {
+export const verdantMapping: { [key: string]: string } = {
 	"#": "♠", // Limestone -> Mushroom
 	"√": "♠", // Limestone (Goal) -> Mushroom
 	"«": "♣", // Travertine -> Kudzushroom
@@ -149,7 +161,7 @@ const verdantMapping: { [key: string]: string } = {
 	"■": "δ" // Chert -> Springshroom (you can't get here, but still...)
 };
 
-function convertMapToVerdant(map: Zone["map"], zoneNumber: number): string[] {
+export function convertMapToVerdant(map: Zone["map"], zoneNumber: number): string[] {
 	const notReUnlocked = getRealm("Verdant Realm").maxMult === 2;
 	return map.map(row =>
 		[...row]
@@ -158,7 +170,7 @@ function convertMapToVerdant(map: Zone["map"], zoneNumber: number): string[] {
 	);
 }
 
-const realms: Realm[] = [];
+export const realms: Realm[] = [];
 realms.push(
 	// Default realm, no special effects. /* Prestige have clones.length remove prestige bonus clones from cost */
 	new Realm(
@@ -219,7 +231,7 @@ realms.push(
 	)
 );
 
-function getRealm(name: string) {
+export function getRealm(name: string) {
 	let realm = realms.find(a => a.name == name);
 	if (realm === undefined) throw new Error(`No realm with name "${name}" found`);
 	return realm;

@@ -1,6 +1,23 @@
+import { getAction } from "./actions";
+import { clones } from "./clones";
+import { writeNumber } from "./functions";
+import { showFinalLocation } from "./highlights";
+import { MapLocation } from "./locations";
+import { currentLoopLog, type LoopLog } from "./loop_log";
+import { getMapLocation } from "./map";
+import { queueToString, redrawQueues } from "./queues";
+import { currentRealm, getRealmMult, realms } from "./realms";
+import { saveName } from "./save";
+import { settings, toggleGrindStats, toggleGrindMana } from "./settings";
+import { getBaseMana, getStat } from "./stats";
+import { displayStuff, getEquipHealth, getStuff, GOLD_VALUE, type simpleStuffList } from "./stuff";
+import type { PropertiesOf } from "./util";
+import type { ZoneRoute } from "./zone_routes";
+import { currentZone, displayZone, markRoutesChanged, totalDrain, zones } from "./zones";
+
 let currentRoutes: Route[] = [];
 
-class Route {
+export class Route {
 	actionCount: number = 0;
 	allDead!: boolean;
 	_cachedEstimate: number = 0;
@@ -416,11 +433,11 @@ class Route {
 	}
 }
 
-function getBestRoute(x: number, y: number, z: number) {
+export function getBestRoute(x: number, y: number, z: number) {
 	return routes.find(r => r.x == x && r.y == y && r.zone == z && r.realm == currentRealm);
 }
 
-function loadRoute() {
+export function loadRoute() {
 	let x = +document.querySelector<HTMLInputElement>("#x-loc")!.value;
 	let y = +document.querySelector<HTMLInputElement>("#y-loc")!.value;
 	let bestRoute = getBestRoute(x, y, displayZone);
@@ -428,7 +445,7 @@ function loadRoute() {
 	(<HTMLInputElement>document.activeElement)?.blur();
 }
 
-function updateGrindStats() {
+export function updateGrindStats() {
 	let rockCounts = realms
 		.filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
 		.map(r =>
@@ -530,4 +547,4 @@ function updateGrindStats() {
 	}
 }
 
-let routes: Route[] = [];
+export let routes: Route[] = [];

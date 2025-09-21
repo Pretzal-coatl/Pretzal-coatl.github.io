@@ -1,4 +1,13 @@
-class LoopLog {
+import { getAction, type anyActionName } from "./actions";
+import { writeNumber } from "./functions";
+import { GrindRoute } from "./grind_routes";
+import { resetLoop } from "./loop";
+import { longImportQueues } from "./queues";
+import { stats } from "./stats";
+import { setRGBContrast } from "./stuff";
+import { zones } from "./zones";
+
+export class LoopLog {
 	actions: { [key in string]: number[] } = {};
 	current = true;
 	goldVaporizedCount = 0;
@@ -197,9 +206,9 @@ class LoopLog {
 	}
 }
 
-let currentLoopLog: LoopLog = new LoopLog();
-let previousLoopLogs: LoopLog[] = [];
-let displayedLog: LoopLog | null = null;
+export let currentLoopLog: LoopLog = new LoopLog();
+export let previousLoopLogs: LoopLog[] = [];
+export let displayedLog: LoopLog | null = null;
 const loopLogBox = document.querySelector("#loop-log-box") as HTMLElement;
 if (loopLogBox === null) throw new Error("No loop log box found");
 const logEntryTemplate = document.querySelector("#log-entry-template") as HTMLElement;
@@ -214,7 +223,7 @@ const loopGoldValueNode = document.querySelector("#loop-gold-value") as HTMLElem
 const loopZoneTemplate = document.querySelector("#loop-zone-template") as HTMLElement;
 const loadLoopNode = document.querySelector("#load-loop-log") as HTMLElement;
 
-function displayLogs() {
+export function displayLogs() {
 	const loopPrevNode = loopLogBox.querySelector("#loop-prev-list") as HTMLElement;
 	while (loopPrevNode.lastChild) {
 		loopPrevNode.removeChild(loopPrevNode.lastChild);
@@ -259,7 +268,7 @@ function displayLogs() {
 	}
 }
 
-function hideLoopLog() {
+export function hideLoopLog() {
 	loopLogBox.hidden = true;
 	displayedLog = null;
 }

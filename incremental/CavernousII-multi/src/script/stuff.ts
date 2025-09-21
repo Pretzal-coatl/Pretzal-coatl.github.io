@@ -1,11 +1,19 @@
-type simpleStuffList = {
+import { clones } from "./clones";
+import { writeNumber } from "./functions";
+import { hammerSVG, rightArrowSVG } from "./icons";
+import { prestige } from "./prestige";
+import type { Route } from "./routes";
+import { getStat, type anyStatName } from "./stats";
+import { ZoneRoute } from "./zone_routes";
+
+export type simpleStuffList = {
 	name: anyStuffName;
 	count: number;
 }[];
 
-const GOLD_VALUE = 5;
+export const GOLD_VALUE = 5;
 
-class Stuff<stuffName extends string> {
+export class Stuff<stuffName extends string> {
 	name: stuffName;
 	icon: string;
 	description: string;
@@ -99,7 +107,7 @@ class Stuff<stuffName extends string> {
 	}
 }
 
-function calcCombatStats() {
+export function calcCombatStats() {
 	let attack = [];
 	attack.push(...Array(getStuff("+1 Sword").count).fill(4));
 	attack.push(...Array(getStuff("Steel Sword").count).fill(2));
@@ -121,14 +129,14 @@ function calcCombatStats() {
 	clones.forEach(c => c.styleDamage());
 }
 
-function getStatBonus(name: anyStatName, mult: number) {
+export function getStatBonus(name: anyStatName, mult: number) {
 	/* Prestige, place to add stat increases */
 	let stat = getStat(name);
 	return (oldAmount: number, amount: number) =>
 		stat.getBonus((Math.floor(amount + 0.01) - Math.floor(oldAmount + 0.01)) * mult * (1 + 0.1 * prestige[4].level));
 }
-type anyStuffName = typeof stuff[number]["name"];
-const stuff = [
+export type anyStuffName = typeof stuff[number]["name"];
+export const stuff = [
 	/* Prestige, place to add stat increases */ new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),
 	new Stuff("Salt", "⌂", "A pile of salt.  You're not hungry, so what's this good for?", "#ffffff", 0),
 	new Stuff("Iron Ore", "•", "A chunk of iron ore.  Not useful in its current form.", "#777777", 0),
@@ -194,23 +202,23 @@ const stuff = [
 	)
 ];
 
-function setContrast(colour: string) {
+export function setContrast(colour: string) {
 	const darkness = (parseInt(colour.slice(1, 3), 16) * 299 + parseInt(colour.slice(3, 5), 16) * 587 + parseInt(colour.slice(5, 7), 16) * 114) / 1000;
 	return darkness > 125 ? "#000000" : "#ffffff";
 }
 
-function setRGBContrast(colour: string) {
+export function setRGBContrast(colour: string) {
 	let colourComponents = [...colour.matchAll(/\d+/g)] as unknown as number[];
 	if (colourComponents.length == 4) return "#000000";
 	let darkness = (colourComponents[0] * 299 + colourComponents[1] * 587 + colourComponents[2] * 114) / 1000;
 	return darkness > 125 ? "#000000" : "#ffffff";
 }
 
-function getStuff<T extends anyStuffName>(name: T) {
+export function getStuff<T extends anyStuffName>(name: T) {
 	return stuff.find(a => a.name == name) as Stuff<T>;
 }
 
-function displayStuff(node: HTMLElement, route: Route | ZoneRoute) {
+export function displayStuff(node: HTMLElement, route: Route | ZoneRoute) {
 	function displaySingleThing(thing: simpleStuffList[number]) {
 		let stuff = getStuff(thing.name);
 		return `<span style="color: ${stuff.colour}">${Math.round(thing.count * 1000) / 1000}${stuff.icon}</span>`;
@@ -235,7 +243,7 @@ function displayStuff(node: HTMLElement, route: Route | ZoneRoute) {
 	}
 }
 
-function getEquipHealth(stuff: simpleStuffList) {
+export function getEquipHealth(stuff: simpleStuffList) {
 	/* Prestige, place to add stat increases */
 	const equipmentHealth: { [key in simpleStuffList[number]["name"]]?: number } = {
 		"Iron Armour": 5 * (1 + 0.1 * prestige[4].level),

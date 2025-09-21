@@ -1,6 +1,15 @@
+import { writeNumber } from "./functions";
+import { GrindRoute } from "./grind_routes";
+import { hammerSVG } from "./icons";
+import { getMessage } from "./messages";
+import { prestige } from "./prestige";
+import { currentRealm, getRealmMult, realms } from "./realms";
+import { settings } from "./settings";
+import { currentZone, zones } from "./zones";
+
 const MANA_START = 5;
 
-class Stat<statName extends anyStatName> {
+export class Stat<statName extends anyStatName> {
 	name: statName;
 	icon: string;
 	description: string;
@@ -222,7 +231,7 @@ class Stat<statName extends anyStatName> {
 	}
 }
 
-type anyStatName =
+export type anyStatName =
 	| "Mana"
 	| "Mining"
 	| "Woodcutting"
@@ -237,7 +246,7 @@ type anyStatName =
 	| "Defense"
 	| "Health";
 
-const stats: Stat<anyStatName>[] = [
+export const stats: Stat<anyStatName>[] = [
 	new Stat("Mana", "", "How long you can resist being pulled back to your cave.  Also increases the maximum speed the game runs at.", MANA_START, false),
 	new Stat("Mining", "⛏", "Your skill at mining, reducing the time it takes to do mining-type tasks."),
 	new Stat("Woodcutting", "", "How good you are at chopping down mushrooms of various kinds."),
@@ -253,11 +262,11 @@ const stats: Stat<anyStatName>[] = [
 	new Stat("Health", "♥", "How many hits you can take until you're nothing more than meat. (Armour increases all clones' stats)", 10, false)
 ];
 
-function getStat<nameType extends anyStatName>(name: nameType): Stat<nameType> {
+export function getStat<nameType extends anyStatName>(name: nameType): Stat<nameType> {
 	return stats.find(a => a.name === name) as Stat<nameType>;
 }
 
-function getBaseMana(zone: number = currentZone, realm: number = currentRealm): number {
+export function getBaseMana(zone: number = currentZone, realm: number = currentRealm): number {
 	return (
 		MANA_START +
 		zones.reduce((a, z, i) => {

@@ -1,7 +1,24 @@
-let currentZone = 0;
-let displayZone = 0;
+import { clones } from "./clones";
+import { getLocationTypeBySymbol, writeNumber } from "./functions";
+import { showFinalLocation } from "./highlights";
+import { MapLocation } from "./locations";
+import { currentLoopLog } from "./loop_log";
+import { mapStain, mapDirt, isDrawn, drawMap, classMapping } from "./map";
+import { getMessage } from "./messages";
+import { ActionQueue, clearCursors, redrawQueues, resetQueueHighlights } from "./queues";
+import { convertMapToVerdant, currentRealm, getRealm, getRealmMult, Realm, realms } from "./realms";
+import { routes } from "./routes";
+import { getRune } from "./runes";
+import { settings, toggleRunning } from "./settings";
+import { getStat, stats } from "./stats";
+import { displayStuff, GOLD_VALUE, stuff, type simpleStuffList } from "./stuff";
+import { clearUnusedZoneRoutes, findUsedZoneRoutes, ZoneRoute } from "./zone_routes";
 
-class Zone {
+export let currentZone = 0;
+export let displayZone = 0;
+export let totalDrain = 0;
+
+export class Zone {
 	name: string;
 	originalMap: string[];
 	goalReward: (() => void) | null;
@@ -420,11 +437,11 @@ class Zone {
 	}
 }
 
-function markRoutesChanged() {
+export function markRoutesChanged() {
 	zones.forEach(z => (z.routesChanged = true));
 }
 
-function moveToZone(zone: string | number, complete = true) {
+export function moveToZone(zone: string | number, complete = true) {
 	if (typeof zone == "string") {
 		zone = zones.findIndex(z => z.name == zone);
 	}
@@ -438,11 +455,11 @@ function moveToZone(zone: string | number, complete = true) {
 		clearCursors();
 	}
 	currentZone = zone;
-	(<HTMLElement>document.querySelector("#barrier-mult")!).style.display = "none";
+	(document.querySelector<HTMLElement>("#barrier-mult")!).style.display = "none";
 	zones[zone].enterZone();
 }
 
-function recalculateMana() {
+export function recalculateMana() {
 	zones.forEach(z => (z.manaGain = 0));
 	zones.forEach((z, i) => {
 		z.manaGain = z.mapLocations
@@ -461,7 +478,7 @@ function recalculateMana() {
 	});
 }
 
-const zones = [
+export const zones = [
 	new Zone(
 		"Zone 1",
 		[

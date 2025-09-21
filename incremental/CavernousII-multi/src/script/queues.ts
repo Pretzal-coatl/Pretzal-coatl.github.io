@@ -1,3 +1,15 @@
+import { ActionInstance, getAction } from "./actions";
+import { Clone, clones } from "./clones";
+import { showCursorLocations, showFinalLocation } from "./highlights";
+import { leftArrowSVG, rightArrowSVG, upArrowSVG, downArrowSVG, interactSVG, repeatInteractSVG, repeatListSVG, syncSVG, noSyncSVG, pauseSVG, pathfindSVG } from "./icons";
+import { MapLocation } from "./locations";
+import { currentLoopLog } from "./loop_log";
+import { getMapLocation, getOffsetCurrentMapTile, walkable } from "./map";
+import { runes } from "./runes";
+import { settings } from "./settings";
+import { ActionStatus, CanStartReturnCode } from "./util";
+import { currentZone, displayZone, Zone, zones } from "./zones";
+
 let actionBarWidth: number = 0;
 
 class QueueAction {
@@ -248,7 +260,7 @@ class QueueAction {
 	}
 }
 
-class QueuePathfindAction extends QueueAction {
+export class QueuePathfindAction extends QueueAction {
 	targetXOffset: number;
 	targetYOffset: number;
 	cacheAction: string | null = null;
@@ -364,7 +376,7 @@ class QueuePathfindAction extends QueueAction {
 	}
 }
 
-class ActionQueue extends Array<QueueAction> {
+export class ActionQueue extends Array<QueueAction> {
 	index: number;
 	cursorPos: number | null = null;
 	queueNode: HTMLElement | null = null;
@@ -571,7 +583,7 @@ class ActionQueue extends Array<QueueAction> {
 	}
 }
 
-function selectClone(target: HTMLElement | number, event: MouseEvent) {
+export function selectClone(target: HTMLElement | number, event: MouseEvent) {
 	let index: number;
 	if (target instanceof HTMLElement) {
 		index = +target.id.replace("queue", "");
@@ -587,30 +599,30 @@ function selectClone(target: HTMLElement | number, event: MouseEvent) {
 	clones[zones[currentZone].queues.findIndex(q => q.selected)].writeStats();
 }
 
-function getActionValue(action: string) {
+export function getActionValue(action: string) {
 	return +(action.match(/\d+/)?.[0] || 0);
 }
 
-function setActionBarWidth(node: HTMLElement) {
+export function setActionBarWidth(node: HTMLElement) {
 	actionBarWidth = node.parentElement!.clientWidth;
 }
 
-function addActionToQueue(action: string) {
+export function addActionToQueue(action: string) {
 	zones[displayZone].queues.filter(q => q.selected).forEach(q => q.addAction(action));
 	showFinalLocation();
 	countMultipleActions();
 }
 
-function addRuneAction(index: number) {
+export function addRuneAction(index: number) {
 	if (index < runes.length && runes[index].canAddToQueue()) addActionToQueue("N" + index + ";");
 }
 
-function clearQueues() {
+export function clearQueues() {
 	if (settings.warnings && !confirm("Really clear selected queues?")) return;
 	zones[displayZone].queues.forEach(q => (q.selected ? q.clear() : null));
 }
 
-function createActionNode(action: string) {
+export function createActionNode(action: string) {
 	const actionTemplate = document.querySelector("#action-template");
 	if (actionTemplate === null) throw new Error("No action template found");
 
@@ -638,14 +650,14 @@ function createActionNode(action: string) {
 	return actionNode;
 }
 
-function resetQueueHighlights() {
+export function resetQueueHighlights() {
 	zones[currentZone].queues.forEach(queue => {
 		queue.forEach(action => action.drawProgress());
 		queue.scrollQueue();
 	});
 }
 
-function countMultipleActions() {
+export function countMultipleActions() {
 	if (!queuesNode) return;
 	queuesNode.querySelectorAll(".action-count").forEach(node => {
 		node.parentNode?.removeChild(node);
@@ -679,11 +691,11 @@ function countMultipleActions() {
 	});
 }
 
-function clearWorkProgressBars() {
+export function clearWorkProgressBars() {
 	[...(queuesNode?.querySelectorAll<HTMLElement>(".work-progress") || [])].forEach(bar => (bar.style.width = "0%"));
 }
 
-function redrawQueues() {
+export function redrawQueues() {
 	zones[displayZone].queues.forEach(q => {
 		while (q.node.lastChild) {
 			q.node.removeChild(q.node.lastChild);
@@ -707,7 +719,7 @@ function redrawQueues() {
 	clearWorkProgressBars();
 }
 
-function setCursor(event: MouseEvent, el: HTMLElement) {
+export function setCursor(event: MouseEvent, el: HTMLElement) {
 	const offsetX = event.offsetX;
 	setTimeout(() => {
 		let nodes = Array.from(el.parentNode?.children || []);
@@ -716,30 +728,30 @@ function setCursor(event: MouseEvent, el: HTMLElement) {
 	});
 }
 
-function clearCursors(event?: Event, el?: Element) {
+export function clearCursors(event?: Event, el?: Element) {
 	if (!event || event.target == el) {
 		zones[currentZone].queues.forEach(q => (q.cursor = null));
 	}
 }
 
-function queueToString(queue: ActionQueue) {
+export function queueToString(queue: ActionQueue) {
 	return queue.toString();
 }
 
-function exportQueues() {
+export function exportQueues() {
 	let exportString = zones[displayZone].queues.map(queue => queueToString(queue));
 	navigator.clipboard.writeText(JSON.stringify(exportString));
 }
 
-function getLongExport(all = true) {
+export function getLongExport(all = true) {
 	return JSON.stringify(zones.map(z => (z.node && (all || currentZone >= z.index) ? z.queues.map(queue => queueToString(queue)) : "")).filter(q => q));
 }
 
-function longExportQueues() {
+export function longExportQueues() {
 	navigator.clipboard.writeText(getLongExport());
 }
 
-function importQueues() {
+export function importQueues() {
 	let queueString = prompt("Input your queues");
 	if (!queueString) return;
 	let tempQueues = zones[displayZone].queues.slice();
@@ -761,7 +773,7 @@ function importQueues() {
 	}
 }
 
-function longImportQueues(queueString: string | string[][] | null) {
+export function longImportQueues(queueString: string | string[][] | null) {
 	if (!queueString) {
 		queueString = prompt("Input your queues");
 		if (!queueString) return;

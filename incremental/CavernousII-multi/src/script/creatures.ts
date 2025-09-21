@@ -1,3 +1,5 @@
+import { displayCreatureHealth } from "./map";
+
 class BaseCreature {
 	name: string;
 	attack: number;
@@ -21,7 +23,7 @@ let baseCreatures = [
 	new BaseCreature("Guardian", 25, 20, 100)
 ];
 
-class Creature {
+export class Creature {
 	creature: BaseCreature;
 	name: string;
 	attack: number;
@@ -45,7 +47,7 @@ class Creature {
 	}
 }
 
-function getCreature(search: string | [number, number]) {
+export function getCreature(search: string | [number, number]) {
 	if (typeof search == "string") {
 		return baseCreatures.find(a => a.name == search);
 	} else {
@@ -53,4 +55,4 @@ function getCreature(search: string | [number, number]) {
 	}
 }
 
-let creatures: Creature[] = [];
+export let creatures: Creature[] = [];

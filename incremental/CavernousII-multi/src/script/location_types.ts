@@ -1,4 +1,10 @@
-class LocationType<locationTypeName extends string = string> {
+import { getAction, type anyAction, type anyActionName } from "./actions";
+import { writeNumber } from "./functions";
+import { getMapLocation } from "./map";
+import { currentRealm, realms } from "./realms";
+import { currentZone, zones, type Zone } from "./zones";
+
+export class LocationType<locationTypeName extends string = string> {
 	canWorkTogether: boolean;
 	description: string;
 	enterAction: anyAction | null;
@@ -52,26 +58,26 @@ class LocationType<locationTypeName extends string = string> {
 	}
 }
 
-function storeCompletions(completions: number, priorCompletions: number) {
+export function storeCompletions(completions: number, priorCompletions: number) {
 	return completions + priorCompletions;
 }
 
-function getNextActivateCost() {
+export function getNextActivateCost() {
 	return `${realms[currentRealm].getNextActivateAmount()} gold nuggets, 1s`;
 }
 
-function startCollectManaCost(this: LocationType, completions: number, priorCompletions: number, zone: Zone, x: number, y: number): string {
+export function startCollectManaCost(this: LocationType, completions: number, priorCompletions: number, zone: Zone, x: number, y: number): string {
 	return `${writeNumber(this.presentAction ? this.presentAction.getProjectedDuration(getMapLocation(x, y, true, zone.index)!) / 1000 : -1, 2)}s`;
 }
-function getLocationType<T extends anyLocationTypeName>(name: T): LocationType<T>;
-function getLocationType(name: string): LocationType<anyLocationTypeName> | undefined;
-function getLocationType(name: string): LocationType | undefined {
+export function getLocationType<T extends anyLocationTypeName>(name: T): LocationType<T>;
+export function getLocationType(name: string): LocationType<anyLocationTypeName> | undefined;
+export function getLocationType(name: string): LocationType | undefined {
 	return locationTypes.find(a => a.name == name);
 }
 
-type anyLocationTypeName = typeof locationTypes[number]["name"];
+export type anyLocationTypeName = typeof locationTypes[number]["name"];
 
-const locationTypes = [
+export const locationTypes = [
 	new LocationType("Solid Rock", "█", "Some kind of rock, too hard to dig through.", null, null, null),
 	new LocationType("Tunnel", ".", "A bare stone passage, empty of any ornamentation.", "Walk", null, null),
 	new LocationType("Limestone", "#", "A whole bunch of relatively soft rock.", "Mine", null, null),

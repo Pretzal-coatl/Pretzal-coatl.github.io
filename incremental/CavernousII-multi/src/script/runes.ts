@@ -1,4 +1,13 @@
-class Rune<runeName extends anyRuneName = anyRuneName> {
+import { simpleRequire, type anyActionName } from "./actions";
+import { clones } from "./clones";
+import type { MapLocation } from "./locations";
+import { getMapLocation, setMined } from "./map";
+import { addRuneAction } from "./queues";
+import { currentRealm, getRealm } from "./realms";
+import { CanStartReturnCode } from "./util";
+import { currentZone, zones } from "./zones";
+
+export class Rune<runeName extends anyRuneName = anyRuneName> {
 	name: runeName;
 	icon: string;
 	isInscribable: {
@@ -102,7 +111,7 @@ class Rune<runeName extends anyRuneName = anyRuneName> {
 	}
 }
 
-function updateRunes() {
+export function updateRunes() {
 	for (let i = 0; i < runes.length; i++) {
 		if (runes[i].unlocked) {
 			runes[i].createNode(i);
@@ -117,7 +126,7 @@ function createChargableRune(location: MapLocation) {
 	action?.start(clones[0]);
 }
 
-function weakenCreatures(location: MapLocation) {
+export function weakenCreatures(location: MapLocation) {
 	let x = location.x;
 	let y = location.y;
 	let locations = [getMapLocation(x - 1, y, true), getMapLocation(x + 1, y, true), getMapLocation(x, y - 1, true), getMapLocation(x, y + 1, true)];
@@ -129,7 +138,7 @@ function weakenCreatures(location: MapLocation) {
 	}
 }
 
-function canPlaceTeleport() {
+export function canPlaceTeleport() {
 	for (let y = 0; y < zones[currentZone].map.length; y++) {
 		for (let x = 0; x < zones[currentZone].map[y].length; x++) {
 			if (zones[currentZone].map[y][x] == "T" || zones[currentZone].map[y][x] == "t") {
@@ -140,13 +149,13 @@ function canPlaceTeleport() {
 	return CanStartReturnCode.Now;
 }
 
-function getRune<runeName extends typeof runes[number]["name"]>(name: runeName) {
+export function getRune<runeName extends typeof runes[number]["name"]>(name: runeName) {
 	return runes.find(a => a.name == name) as Rune<runeName>;
 }
 
-type anyRuneName = "Weaken" | "Wither" | "Duplication" | "Teleport To" | "Teleport From" | "Pump";
+export type anyRuneName = "Weaken" | "Wither" | "Duplication" | "Teleport To" | "Teleport From" | "Pump";
 
-const runes: Rune[] = [
+export const runes: Rune[] = [
 	new Rune(
 		"Weaken",
 		"W",

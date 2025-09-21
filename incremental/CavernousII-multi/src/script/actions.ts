@@ -1,3 +1,18 @@
+import { clones, type Clone } from "./clones";
+import type { MapLocation } from "./locations";
+import { currentLoopLog } from "./loop_log";
+import { setMined, shrooms } from "./map";
+import { getMessage } from "./messages";
+import { GameComplete, prestige } from "./prestige";
+import { currentRealm, getRealm, getRealmComplete, getRealmMult, realms } from "./realms";
+import { Route, routes } from "./routes";
+import { getRune } from "./runes";
+import { AutoRestart, settings, toggleRunning } from "./settings";
+import { getStat, type anyStatName, type Stat } from "./stats";
+import { getStuff, GOLD_VALUE, stuff, type anyStuffName, type Stuff } from "./stuff";
+import { CanStartReturnCode } from "./util";
+import { currentZone, moveToZone, zones } from "./zones";
+
 const BARRIER_DRAIN = 5;
 const VERDANT_GROW_MULT = 5;
 
@@ -5,7 +20,7 @@ type statList = [Stat<anyStatName>, number][];
 
 let actionIdCounter = 0;
 
-class ActionInstance {
+export class ActionInstance {
 	action: Action;
 	appliedWither: number = 0;
 	id: number = actionIdCounter++; // Every ActionInstance gets a unique id!
@@ -59,7 +74,7 @@ class ActionInstance {
 	}
 }
 
-class Action<actionName extends anyActionName = anyActionName> {
+export class Action<actionName extends anyActionName = anyActionName> {
 	name: actionName;
 	baseDuration: number | (() => number);
 	stats: statList;
@@ -153,23 +168,23 @@ class Action<actionName extends anyActionName = anyActionName> {
 	}
 }
 
-function baseWalkLength() {
+export function baseWalkLength() {
 	return 100 * (realms[currentRealm].name == "Long Realm" ? 3 : 1);
 }
 
-function completeMove(loc: MapLocation, clone: Clone, action: ActionInstance) {
+export function completeMove(loc: MapLocation, clone: Clone, action: ActionInstance) {
 	clone.x = loc.x;
 	clone.y = loc.y;
 	setMined(loc.x, loc.y);
 	action.moved = true;
 }
 
-function completeMine(loc: MapLocation) {
+export function completeMine(loc: MapLocation) {
 	setMined(loc.x, loc.y);
 	getMessage("Digging").display();
 }
 
-function getDuplicationAmount(loc: MapLocation) {
+export function getDuplicationAmount(loc: MapLocation) {
 	let x = loc.x,
 		y = loc.y;
 	let amount = Math.round((1 + 0.1 * prestige[3].level) * 1000) / 1000; /* Prestige, add multiplier for point spend */
@@ -295,7 +310,7 @@ function completeActivateMachine() {
 	getRealmComplete(realms[currentRealm]);
 }
 
-function simpleCreate(target: [anyStuffName, number][]) {
+export function simpleCreate(target: [anyStuffName, number][]) {
 	function create() {
 		for (let i = 0; i < target.length; i++) {
 			const stuff = getStuff(target[i][0]);
@@ -305,7 +320,7 @@ function simpleCreate(target: [anyStuffName, number][]) {
 	return create;
 }
 
-function simpleRequire(requirement: [anyStuffName, number][], doubleExcempt = false) {
+export function simpleRequire(requirement: [anyStuffName, number][], doubleExcempt = false) {
 	function haveEnough(): CanStartReturnCode {
 		const mult = realms[currentRealm].name == "Long Realm" && !doubleExcempt ? 2 : 1;
 		for (let i = 0; i < requirement.length; i++) {
@@ -395,7 +410,7 @@ let combatTools: [Stuff<anyStuffName>, number, Stat<anyStatName>][] = [
 	[getStuff("Iron Hammer"), 0.01 * 1 /*+0.1*prestige[4].level*/, getStat("Smithing")]
 ];
 
-function combatDuration() {
+export function combatDuration() {
 	let duration = 1;
 	for (let i = 0; i < combatTools.length; i++) {
 		duration *= Math.pow(combatTools[i][2].value, combatTools[i][1] * combatTools[i][0].count);
@@ -403,7 +418,7 @@ function combatDuration() {
 	return duration;
 }
 
-function completeFight(loc: MapLocation) {
+export function completeFight(loc: MapLocation) {
 	const attack = getStat("Attack").current;
 	const creature = loc.creature;
 	if (!creature) throw new Error("No creature to fight");
@@ -422,24 +437,24 @@ function completeFight(loc: MapLocation) {
 }
 
 // Prevent backing out of combat
-function startHeal(loc: MapLocation, clone: Clone) {
+export function startHeal(loc: MapLocation, clone: Clone) {
 	return clone.inCombat ? CanStartReturnCode.Never : CanStartReturnCode.Now;
 }
 
-function tickHeal(usedTime: number, loc: MapLocation, baseTime: number, clone: Clone) {
+export function tickHeal(usedTime: number, loc: MapLocation, baseTime: number, clone: Clone) {
 	clone.takeDamage(-usedTime / 1000);
 }
 
-function completeHeal(loc: MapLocation, clone: Clone) {
+export function completeHeal(loc: MapLocation, clone: Clone) {
 	return clone.damage > 0;
 }
 
-function predictHeal(loc: MapLocation, clone: Clone | null = null) {
+export function predictHeal(loc: MapLocation, clone: Clone | null = null) {
 	if (!clone) return 1;
 	return Math.max(clone.damage * getStat("Runic Lore").value, 0.01);
 }
 
-function startChargeTeleport() {
+export function startChargeTeleport() {
 	for (let y = 0; y < zones[currentZone].map.length; y++) {
 		for (let x = 0; x < zones[currentZone].map[y].length; x++) {
 			if (zones[currentZone].map[y][x] == "t") {
@@ -450,7 +465,7 @@ function startChargeTeleport() {
 	return CanStartReturnCode.Now;
 }
 
-function startTeleport(): CanStartReturnCode {
+export function startTeleport(): CanStartReturnCode {
 	for (let y = 0; y < zones[currentZone].map.length; y++) {
 		for (let x = 0; x < zones[currentZone].map[y].length; x++) {
 			if (zones[currentZone].map[y][x] == "t") {
@@ -461,7 +476,7 @@ function startTeleport(): CanStartReturnCode {
 	return CanStartReturnCode.NotNow;
 }
 
-function completeTeleport(loc: MapLocation, clone: Clone) {
+export function completeTeleport(loc: MapLocation, clone: Clone) {
 	for (let y = 0; y < zones[currentZone].map.length; y++) {
 		for (let x = 0; x < zones[currentZone].map[y].length; x++) {
 			if (zones[currentZone].map[y][x] == "t") {
@@ -473,7 +488,7 @@ function completeTeleport(loc: MapLocation, clone: Clone) {
 	}
 }
 
-function predictTeleport() {
+export function predictTeleport() {
 	for (let y = 0; y < zones[currentZone].map.length; y++) {
 		for (let x = 0; x < zones[currentZone].map[y].length; x++) {
 			if (zones[currentZone].map[y][x] == "t") {
@@ -484,14 +499,14 @@ function predictTeleport() {
 	return Infinity;
 }
 
-function startChargableRune(location: MapLocation) {
+export function startChargableRune(location: MapLocation) {
 	if (location.completions > 0) {
 		return CanStartReturnCode.Never;
 	}
 	return CanStartReturnCode.Now;
 }
 
-function duplicateDuration() {
+export function duplicateDuration() {
 	let runes = 0;
 	for (let y = 0; y < zones[currentZone].map.length; y++) {
 		runes += zones[currentZone].map[y].split(/[dD]/).length - 1;
@@ -499,11 +514,11 @@ function duplicateDuration() {
 	return 2 ** (runes - 1);
 }
 
-function completeChargeRune(loc: MapLocation) {
+export function completeChargeRune(loc: MapLocation) {
 	setMined(loc.x, loc.y, zones[currentZone].map[loc.y + zones[currentZone].yOffset][loc.x + zones[currentZone].xOffset].toLowerCase());
 }
 
-function tickWither(usedTime: number, loc: MapLocation) {
+export function tickWither(usedTime: number, loc: MapLocation) {
 	let x = loc.x + zones[currentZone].xOffset;
 	let y = loc.y + zones[currentZone].yOffset;
 	const wither = getRune("Wither");
@@ -605,7 +620,7 @@ function tickSpore(usedTime: number, loc: MapLocation, baseTime: number, clone: 
 
 function completeBarrier(loc: MapLocation) {
 	zones[currentZone].manaDrain += BARRIER_DRAIN;
-	(<HTMLElement>document.querySelector("#barrier-mult")!).style.display = "block";
+	(document.querySelector<HTMLElement>("#barrier-mult")!).style.display = "block";
 	document.querySelector("#current-barrier-mult")!.innerHTML = `x${zones[currentZone].manaDrain + 1}`;
 	setMined(loc.x, loc.y);
 }
@@ -689,9 +704,9 @@ enum ACTION {
 	EXIT = "Exit"
 }
 
-type anyActionName = `${ACTION}`;
-type anyAction = Action<anyActionName>;
-const actions: anyAction[] = [
+export type anyActionName = `${ACTION}`;
+export type anyAction = Action<anyActionName>;
+export const actions: anyAction[] = [
 	new Action("Walk", 100, [["Speed", 1]], completeMove),
 	new Action("Wait", 100, [["Speed", 1]], () => {}),
 	new Action(
@@ -976,7 +991,7 @@ const actions: anyAction[] = [
 	)
 ];
 
-function getAction<actionName extends anyActionName>(name: actionName): anyAction {
+export function getAction<actionName extends anyActionName>(name: actionName): anyAction {
 	return actions.find(a => a.name == name) as Action<actionName>;
 }
 

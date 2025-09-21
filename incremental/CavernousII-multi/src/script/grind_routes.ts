@@ -1,4 +1,11 @@
-class GrindRoute {
+import { redrawQueues } from "./queues";
+import { changeRealms, currentRealm, getRealmMult } from "./realms";
+import { settings } from "./settings";
+import { getStat, type anyStatName } from "./stats";
+import type { PropertiesOf } from "./util";
+import { zones } from "./zones";
+
+export class GrindRoute {
 	statName!: anyStatName;
 	totalStatGain!: number;
 	totalTime!: number;
@@ -117,4 +124,4 @@ class GrindRoute {
 	}
 }
 
-let grindRoutes: GrindRoute[] = [];
+export let grindRoutes: GrindRoute[] = [];

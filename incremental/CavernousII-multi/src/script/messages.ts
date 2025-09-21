@@ -27,11 +27,11 @@ class Message<messageName extends string> {
 	}
 }
 
-function hideMessages(): void {
+export function hideMessages(): void {
 	messageBox.hidden = true;
 }
 
-function viewMessages() {
+export function viewMessages() {
 	document.querySelector("#message-title")!.innerHTML = "Messages";
 	messageBox.hidden = false;
 	const text = messageBox.querySelector("#message-text")!;
@@ -51,16 +51,16 @@ function viewMessages() {
 	}
 }
 
-function viewMessage(event: Event, el: HTMLElement) {
+export function viewMessage(event: Event, el: HTMLElement) {
 	messages[parseInt(el.id.replace("message", ""))].display(true);
 	event.stopPropagation();
 }
 
-function getMessage<nameType extends typeof messages[number]["name"]>(name: nameType): Message<nameType> {
+export function getMessage<nameType extends typeof messages[number]["name"]>(name: nameType): Message<nameType> {
 	return messages.find(a => a.name === name) as Message<nameType>;
 }
 
-const messages = [
+export const messages = [
 	new Message(
 		"Welcome to Cavernous!",
 		`

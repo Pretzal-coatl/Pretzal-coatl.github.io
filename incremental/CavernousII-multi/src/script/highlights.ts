@@ -1,3 +1,8 @@
+import { getMapNode, getMapTile, viewCell } from "./map";
+import type { ActionQueue } from "./queues";
+import type { DOMEvent } from "./util";
+import { displayZone, zones } from "./zones";
+
 let finalLocations: HTMLElement[] = [];
 let cursorLocations: HTMLElement[] = [];
 let hoverLocation: HTMLElement | null = null;
@@ -8,7 +13,7 @@ const HIGHLIGHT_TYPES = {
 	CURSOR: 2
 };
 
-function showLocationAfterSteps(index: number, queueNumber: number, isDraw = false, highlightType = HIGHLIGHT_TYPES.FINAL) {
+export function showLocationAfterSteps(index: number, queueNumber: number, isDraw = false, highlightType = HIGHLIGHT_TYPES.FINAL) {
 	if (index == -1) return;
 	let x: number | undefined = zones[displayZone].xOffset,
 		y: number | undefined = zones[displayZone].yOffset;
@@ -62,12 +67,12 @@ function getActionOffset(x: number, y: number, action: string) {
 	return [x, y];
 }
 
-function stopHovering() {
+export function stopHovering() {
 	hoverLocation && hoverLocation.classList.remove("hover-location");
 	hoverLocation = null;
 }
 
-function showFinalLocation(isDraw = false) {
+export function showFinalLocation(isDraw = false) {
 	finalLocations.forEach(f => f.classList.remove("final-location"));
 	finalLocations = [];
 	zones[displayZone].queues.forEach(q => {
@@ -76,7 +81,7 @@ function showFinalLocation(isDraw = false) {
 	});
 }
 
-function showIntermediateLocation(event: DOMEvent) {
+export function showIntermediateLocation(event: DOMEvent) {
 	let queueNode = event.target!.parentElement!.parentElement!;
 	let index = Array.from(queueNode.children)
 		.filter(n => !n.classList.contains("action-count"))
@@ -88,7 +93,7 @@ function showIntermediateLocation(event: DOMEvent) {
 	showLocationAfterSteps(index, queueNumber, false, HIGHLIGHT_TYPES.HOVER);
 }
 
-function showCursorLocations() {
+export function showCursorLocations() {
 	cursorLocations.forEach(f => f.classList.remove("cursor-location"));
 	zones[displayZone].queues.forEach(queue => {
 		if (queue.cursor === null) return;

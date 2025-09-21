@@ -1,4 +1,14 @@
-class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName> {
+import { Action, ActionInstance, getAction } from "./actions";
+import { Creature, creatures, getCreature } from "./creatures";
+import { getLocationTypeBySymbol } from "./functions";
+import { type anyLocationTypeName, type LocationType, getLocationType } from "./location_types";
+import { MAX_WATER, mapDirt, walkable, shrooms } from "./map";
+import { currentRealm, realms, verdantMapping } from "./realms";
+import type { Rune } from "./runes";
+import { getStat } from "./stats";
+import { currentZone, zones, type Zone } from "./zones";
+
+export class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName> {
 	x: number;
 	y: number;
 	zone: Zone;

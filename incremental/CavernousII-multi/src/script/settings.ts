@@ -1,4 +1,12 @@
-interface settings {
+import { clones } from "./clones";
+import { visibleX, visibleY } from "./map";
+import { hideMessages } from "./messages";
+import { addActionToQueue, addRuneAction, clearQueues, redrawQueues, selectClone } from "./queues";
+import { Route } from "./routes";
+import { getStat } from "./stats";
+import { currentZone, displayZone, zones } from "./zones";
+
+export interface settings {
 	usingBankedTime: boolean;
 	running: boolean;
 	autoRestart: number;
@@ -19,9 +27,9 @@ interface settings {
 	debug_verticalBlocksJustify?: string;
 }
 
-const MAX_TICK = 250;
+export const MAX_TICK = 250;
 
-const settings: settings = {
+export const settings: settings = {
 	usingBankedTime: true,
 	running: true,
 	autoRestart: 0,
@@ -40,7 +48,7 @@ const settings: settings = {
 	pauseOnPortal: false
 };
 
-function setSetting<T, Y extends any[]>(toggler: (...args: Y) => T, value: T, ...args: Y) {
+export function setSetting<T, Y extends any[]>(toggler: (...args: Y) => T, value: T, ...args: Y) {
 	for (let i = 0; i < 99; i++) {
 		const v = toggler(...args);
 		if (v === value) return v;
@@ -48,13 +56,13 @@ function setSetting<T, Y extends any[]>(toggler: (...args: Y) => T, value: T, ..
 	return null;
 }
 
-function toggleBankedTime() {
+export function toggleBankedTime() {
 	settings.usingBankedTime = !settings.usingBankedTime;
 	document.querySelector("#time-banked-toggle")!.innerHTML = settings.usingBankedTime ? "Using" : "Banking";
 	return settings.usingBankedTime;
 }
 
-function toggleRunning() {
+export function toggleRunning() {
 	settings.running = !settings.running;
 	document.querySelector("#running-toggle")!.innerHTML = settings.running ? "Running" : "Paused";
 	document.querySelector("#running-toggle")!.closest(".option")!.classList.toggle("option-highlighted", !settings.running);
@@ -62,14 +70,14 @@ function toggleRunning() {
 	return settings.running;
 }
 
-enum AutoRestart {
+export enum AutoRestart {
 	WaitAny = 0,
 	RestartDone = 1,
 	RestartAlways = 2,
 	WaitAll = 3
 }
 
-function toggleAutoRestart() {
+export function toggleAutoRestart() {
 	const autoRestartText = ["Wait when any complete", "Restart when complete", "Restart always", "Wait when all complete"];
 	settings.autoRestart = (settings.autoRestart + 1) % autoRestartText.length;
 	document.querySelector("#auto-restart-toggle")!.innerHTML = autoRestartText[settings.autoRestart];
@@ -80,7 +88,7 @@ function toggleAutoRestart() {
 	return settings.autoRestart;
 }
 
-function toggleUseWASD() {
+export function toggleUseWASD() {
 	settings.useWASD = !settings.useWASD;
 	document.querySelector("#use-wasd-toggle")!.innerHTML = settings.useWASD ? "Use arrow keys" : "Use WASD";
 	document.querySelector("#auto-restart-key")!.innerHTML = settings.useWASD ? "C" : "W";
@@ -88,7 +96,7 @@ function toggleUseWASD() {
 	return settings.useWASD;
 }
 
-function toggleGrindMana(event?: KeyboardEvent) {
+export function toggleGrindMana(event?: KeyboardEvent) {
 	if (event?.ctrlKey || event?.metaKey) {
 		Route.invalidateRouteCosts();
 		return;
@@ -103,7 +111,7 @@ function toggleGrindMana(event?: KeyboardEvent) {
 	return settings.grindMana;
 }
 
-function toggleGrindStats() {
+export function toggleGrindStats() {
 	settings.grindStats = !settings.grindStats;
 	document.querySelector("#grind-stat-toggle")!.innerHTML = settings.grindStats ? "Grinding stats" : "Not grinding stats";
 	document.querySelector("#grind-stat-toggle")!.closest(".option")!.classList.toggle("option-highlighted", settings.grindStats);
@@ -113,44 +121,44 @@ function toggleGrindStats() {
 	return settings.grindStats;
 }
 
-function toggleLoadPrereqs() {
+export function toggleLoadPrereqs() {
 	settings.loadPrereqs = !settings.loadPrereqs;
 	document.querySelector("#load-prereq-toggle")!.innerHTML = settings.loadPrereqs ? "Load prereqs" : "Load only zone route";
 	return settings.loadPrereqs;
 }
 
-function toggleWarnings() {
+export function toggleWarnings() {
 	settings.warnings = !settings.warnings;
 	document.querySelector("#warnings")!.innerHTML = settings.warnings ? "Showing warnings" : "Not showing warnings";
 	return settings.warnings;
 }
 
-function toggleFollowZone() {
+export function toggleFollowZone() {
 	settings.followZone = !settings.followZone;
 	document.querySelector("#follow-zone-toggle")!.innerHTML = settings.followZone ? "Follow on zone complete" : "Stay on selected zone";
 	return settings.followZone;
 }
 
-function toggleTimeline() {
+export function toggleTimeline() {
 	settings.timeline = !settings.timeline;
 	document.querySelector("#timeline-toggle")!.innerHTML = settings.timeline ? "Showing timeline" : "Hiding timeline";
 	document.querySelector<HTMLElement>("#timelines")!.hidden = !settings.timeline;
 	return settings.timeline;
 }
 
-function toggleStatGrindPerSec() {
+export function toggleStatGrindPerSec() {
 	settings.statGrindPerSec = !settings.statGrindPerSec;
 	document.querySelector("#stat-grind-per-sec")!.innerHTML = settings.statGrindPerSec ? "Stat grind strategy: Per sec" : "Stat grind strategy: Total";
 	return settings.statGrindPerSec;
 }
 
-function togglePauseOnPortal() {
+export function togglePauseOnPortal() {
 	settings.pauseOnPortal = !settings.pauseOnPortal;
 	document.querySelector("#pause-on-portal-toggle")!.innerHTML = settings.pauseOnPortal ? "Pause when entering a portal" : "Do not pause on portal";
 	return settings.pauseOnPortal;
 }
 
-function setMaxTickTime(element: HTMLInputElement) {
+export function setMaxTickTime(element: HTMLInputElement) {
 	let value = +element.value;
 	if (!isNaN(value)) {
 		settings.maxTotalTick = Math.max(250, value || 5000);
@@ -158,7 +166,7 @@ function setMaxTickTime(element: HTMLInputElement) {
 	element.value = settings.maxTotalTick.toString();
 }
 
-function setLongWaitTime(element: HTMLInputElement) {
+export function setLongWaitTime(element: HTMLInputElement) {
 	let value = +element.value;
 	if (!isNaN(value)) {
 		settings.longWait = Math.max(100, value);
@@ -166,7 +174,7 @@ function setLongWaitTime(element: HTMLInputElement) {
 	element.value = settings.longWait.toString();
 }
 
-function setMinimumStatGain(element: HTMLInputElement) {
+export function setMinimumStatGain(element: HTMLInputElement) {
 	let value = +element.value;
 	if (!isNaN(value)) {
 		settings.minStatGain = Math.max(0, value);
@@ -174,7 +182,7 @@ function setMinimumStatGain(element: HTMLInputElement) {
 	element.value = settings.minStatGain.toString();
 }
 
-function loadSettings(savedSettings: settings) {
+export function loadSettings(savedSettings: settings) {
 	setSetting(toggleBankedTime, savedSettings.usingBankedTime);
 	setSetting(toggleRunning, !!savedSettings.running);
 	setSetting(toggleAutoRestart, savedSettings.autoRestart);
@@ -184,11 +192,11 @@ function loadSettings(savedSettings: settings) {
 	setSetting(toggleFollowZone, !!savedSettings.followZone);
 	setSetting(toggleTimeline, !!savedSettings.timeline);
 	setSetting(toggleStatGrindPerSec, !!savedSettings.statGrindPerSec);
-	const maxTimeInput = <HTMLInputElement>document.querySelector("#max-time");
+	const maxTimeInput = document.querySelector<HTMLInputElement>("#max-time");
 	if (maxTimeInput) setMaxTickTime(maxTimeInput);
-	const longWaitInput = <HTMLInputElement>document.querySelector("#long-wait");
+	const longWaitInput = document.querySelector<HTMLInputElement>("#long-wait");
 	if (longWaitInput) setLongWaitTime(longWaitInput);
-	const minStatGainInput = <HTMLInputElement>document.querySelector("#min-stat-gain");
+	const minStatGainInput = document.querySelector<HTMLInputElement>("#min-stat-gain");
 	if (minStatGainInput) setMinimumStatGain(minStatGainInput);
 
 	Object.assign(settings, savedSettings, settings);
@@ -200,11 +208,11 @@ const configBox: HTMLElement =
 		throw new Error("No config box found");
 	})();
 
-function hideConfig() {
+export function hideConfig() {
 	configBox.hidden = true;
 }
 
-function viewConfig() {
+export function viewConfig() {
 	configBox.hidden = false;
 }
 

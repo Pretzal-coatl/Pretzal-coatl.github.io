@@ -1,6 +1,18 @@
+import { clones } from "./clones";
+import type { Creature } from "./creatures";
+import { getLocationTypeBySymbol, writeNumber } from "./functions";
+import { showFinalLocation } from "./highlights";
+import { getLocationType } from "./location_types";
+import type { MapLocation } from "./locations";
+import { getMessage } from "./messages";
+import { currentRealm, getRealmMult, realms, verdantMapping } from "./realms";
+import { getBestRoute } from "./routes";
+import { GOLD_VALUE } from "./stuff";
+import { currentZone, displayZone, zones } from "./zones";
+
 type descriptorMod = (d: string, x: number, y: number) => string;
-type classMappingType = { [key: string]: [string, string, boolean?, descriptorMod?] };
-const classMapping: classMappingType = {
+export type classMappingType = { [key: string]: [string, string, boolean?, descriptorMod?] };
+export const classMapping: classMappingType = {
 	"█": ["wall", "Solid Rock"],
 	"¤": [
 		"mana",
@@ -90,7 +102,7 @@ const classMapping: classMappingType = {
 	"3": ["barrier", "Timelike Barrier"],
 	"!": ["exit", "Exit"]
 };
-const MAX_WATER = 11;
+export const MAX_WATER = 11;
 
 setTimeout(() => {
 	Object.entries(classMapping).forEach(e => {
@@ -102,35 +114,35 @@ setTimeout(() => {
 });
 
 // The tiles that can be pathfinded through.
-const walkable = '*.♥╬▣=⎶&║"()[]{}^WHTtFDdP¢¥£©Θ|<>';
+export const walkable = '*.♥╬▣=⎶&║"()[]{}^WHTtFDdP¢¥£©Θ|<>';
 
 // Water can flow through shrooms, albeit slower.
-const shrooms = "♠♣α§δ";
+export const shrooms = "♠♣α§δ";
 
-const runesTiles = "WHTtDdF";
+export const runesTiles = "WHTtDdF";
 
-let mapDirt: [number, number][] = [];
-let mapStain: [number, number][] = [];
+export let mapDirt: [number, number][] = [];
+export let mapStain: [number, number][] = [];
 
-let visibleX: number | null = null,
+export let visibleX: number | null = null,
 	visibleY: number | null = null;
 
 // Not a view function; consider moving.
-function getMapLocation(x: number, y: number, noView = false, zone: number | null = null) {
+export function getMapLocation(x: number, y: number, noView = false, zone: number | null = null) {
 	if (zone !== null) {
 		return zones[zone].getMapLocation(x, y, noView);
 	}
 	return zones[currentZone].getMapLocation(x, y, noView);
 }
 
-const mapNode = (() => {
+export const mapNode = (() => {
 	let node = document.querySelector("#map-inner");
 	if (node === null) throw new Error("No map node");
 	return node as HTMLElement;
 })();
-let mapNodes: HTMLElement[][] = [];
+export let mapNodes: HTMLElement[][] = [];
 
-function drawNewMap() {
+export function drawNewMap() {
 	mapNodes = [];
 
 	while (mapNode.firstChild) {
@@ -175,9 +187,9 @@ function drawNewMap() {
 	mapStain = [];
 }
 
-let isDrawn = false;
+export let isDrawn = false;
 
-function drawCell(x: number, y: number) {
+export function drawCell(x: number, y: number) {
 	let cell = (mapNodes[y] || [])[x];
 	if (!cell) return;
 	let location = zones[displayZone].mapLocations[y][x];
@@ -190,7 +202,7 @@ function drawCell(x: number, y: number) {
 	cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
 }
 
-function drawMap() {
+export function drawMap() {
 	if (!isDrawn) drawNewMap();
 
 	if (currentZone == displayZone) {
@@ -204,7 +216,7 @@ function drawMap() {
 	showFinalLocation(true);
 }
 
-function displayClones() {
+export function displayClones() {
 	if (currentZone == displayZone) {
 		for (let i = 0; i < clones.length; i++) {
 			let clone = clones[i];
@@ -216,7 +228,7 @@ function displayClones() {
 	}
 }
 
-function clampMap() {
+export function clampMap() {
 	let xMin = 999;
 	let xMax = -999;
 	let yMin = 999;
@@ -248,7 +260,7 @@ function clampMap() {
 	mapNode.style.setProperty("--cell-size", scale + "px");
 }
 
-function setMined(x: number, y: number, icon?: string) {
+export function setMined(x: number, y: number, icon?: string) {
 	const minedMapping: { [key: string]: string } = {
 		"¤": "*",
 		"☼": "©",
@@ -288,7 +300,7 @@ function setMined(x: number, y: number, icon?: string) {
 	if (tile == "*") getMessage("Mana Extraction").display();
 }
 
-function viewCell(target: HTMLElement) {
+export function viewCell(target: HTMLElement) {
 	let x = parseInt(target.dataset.x ?? "-1"),
 		y = parseInt(target.dataset.y ?? "-1");
 	mapNode?.querySelector(".selected-map-cell")?.classList.remove("selected-map-cell");
@@ -361,23 +373,23 @@ function viewCell(target: HTMLElement) {
 	}
 }
 
-function getMapNode(x: number, y: number) {
+export function getMapNode(x: number, y: number) {
 	return mapNodes[y] && mapNodes[y][x];
 }
 
-function getOffsetMapNode(x: number, y: number) {
+export function getOffsetMapNode(x: number, y: number) {
 	return getMapNode(x + zones[displayZone].xOffset, y + zones[displayZone].yOffset);
 }
 
-function getMapTile(x: number, y: number): string {
+export function getMapTile(x: number, y: number): string {
 	return zones[displayZone].map[y] && zones[displayZone].map[y][x];
 }
 
-function getOffsetCurrentMapTile(x: number, y: number): string {
+export function getOffsetCurrentMapTile(x: number, y: number): string {
 	return zones[currentZone].map[y + zones[currentZone].yOffset] && zones[currentZone].map[y + zones[currentZone].yOffset][x + zones[currentZone].xOffset];
 }
 
-function displayCreatureHealth(creature: Creature) {
+export function displayCreatureHealth(creature: Creature) {
 	if (currentZone != displayZone) return;
 	let node = getOffsetMapNode(creature.x, creature.y);
 	if (!node) return;
@@ -388,7 +400,7 @@ function displayCreatureHealth(creature: Creature) {
 	}
 }
 
-function showRelevantStats(loc: MapLocation | null) {
+export function showRelevantStats(loc: MapLocation | null) {
 	if (!loc) return;
 	let action;
 	if (realms[currentRealm].name == "Verdant Realm") {

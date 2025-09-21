@@ -1,8 +1,17 @@
+import { writeNumber } from "./functions";
+import { currentLoopLog } from "./loop_log";
+import { getMessage } from "./messages";
+import { ActionQueue } from "./queues";
+import { getBestRoute } from "./routes";
+import { settings } from "./settings";
+import { getStat } from "./stats";
+import { currentZone, displayZone, zones } from "./zones";
+
 type timeLineEntry = { type: string; time: number; el: HTMLElement };
 type timeLine = timeLineEntry[];
 let breakActions = false;
 
-class Clone {
+export class Clone {
 	id: number;
 	x: number = 0;
 	y: number = 0;
@@ -195,4 +204,4 @@ class Clone {
 	}
 }
 
-let clones: Clone[] = [];
+export let clones: Clone[] = [];

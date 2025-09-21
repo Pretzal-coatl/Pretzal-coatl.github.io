@@ -1,4 +1,14 @@
-class ZoneRoute {
+import { clones } from "./clones";
+import { queueToString } from "./queues";
+import { currentRealm, realms } from "./realms";
+import { routes } from "./routes";
+import { settings } from "./settings";
+import { getStat } from "./stats";
+import { stuff, type simpleStuffList } from "./stuff";
+import type { PropertiesOf } from "./util";
+import { currentZone, Zone, zones } from "./zones";
+
+export class ZoneRoute {
 	realm!: number;
 	route!: string[];
 	mana!: number;
@@ -138,7 +148,7 @@ class ZoneRoute {
 	}
 }
 
-function findUsedZoneRoutes() {
+export function findUsedZoneRoutes() {
 	let usedZoneRoutes: ZoneRoute[] = [];
 	routes.forEach(route => {
 		if (route.zone == 0 || route.realm != currentRealm) return;
@@ -164,7 +174,7 @@ function findUsedZoneRoutes() {
 	return usedZoneRoutes;
 }
 
-function clearUnusedZoneRoutes(zone: number | null = null) {
+export function clearUnusedZoneRoutes(zone: number | null = null) {
 	let usedZoneRoutes = findUsedZoneRoutes();
 	zones.forEach(z => {
 		if (zone !== null && zone != z.index) return;
