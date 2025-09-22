@@ -180,7 +180,7 @@ export class LoopLog {
 		loopGoldCountNode.innerHTML = this.goldVaporizedCount.toString();
 		loopGoldValueNode.innerHTML = writeNumber(this.goldVaporizedMana, 3);
 		loadLoopNode.style.display = this.current ? "none" : "inline-block";
-		loadLoopNode.onclick = e => {
+		loadLoopNode.onclick = () => {
 			longImportQueues(this.queues);
 			resetLoop();
 		};

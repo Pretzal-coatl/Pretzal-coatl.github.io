@@ -1,7 +1,8 @@
+import { game } from "./game";
 import { getMapNode, getMapTile, viewCell } from "./map";
 import type { ActionQueue } from "./queues";
 import type { DOMEvent } from "./util";
-import { displayZone, zones } from "./zones";
+import { zones } from "./zones";
 
 let finalLocations: HTMLElement[] = [];
 let cursorLocations: HTMLElement[] = [];
@@ -10,14 +11,14 @@ let hoverLocation: HTMLElement | null = null;
 const HIGHLIGHT_TYPES = {
 	FINAL: 0,
 	HOVER: 1,
-	CURSOR: 2
+	CURSOR: 2,
 };
 
 export function showLocationAfterSteps(index: number, queueNumber: number, isDraw = false, highlightType = HIGHLIGHT_TYPES.FINAL) {
 	if (index == -1) return;
-	let x: number | undefined = zones[displayZone].xOffset,
-		y: number | undefined = zones[displayZone].yOffset;
-	[x, y] = getQueueOffset(x, y, zones[displayZone].queues[queueNumber], index);
+	let x: number | undefined = zones[game.displayZone].xOffset,
+		y: number | undefined = zones[game.displayZone].yOffset;
+	[x, y] = getQueueOffset(x, y, zones[game.displayZone].queues[queueNumber], index);
 	if (x === undefined || y === undefined) return;
 	let target = getMapNode(x, y);
 	if (!target) return;
@@ -42,7 +43,7 @@ function getQueueOffset(x: number | undefined, y: number | undefined, queue: Act
 		}
 		let action = queue[i].actionID;
 		[x, y] = getActionOffset(x, y, action);
-		if (!zones[displayZone].hasMapLocation(x, y)) {
+		if (!zones[game.displayZone].hasMapLocation(x, y)) {
 			return [undefined, undefined];
 		}
 	}
@@ -51,12 +52,11 @@ function getQueueOffset(x: number | undefined, y: number | undefined, queue: Act
 
 function getActionOffset(x: number, y: number, action: string) {
 	if (action[0] == "P") {
-		let _;
 		const match = action.match(/P(-?\d+):(-?\d+);/);
 		if (match === null) throw new Error(`Invalid action string "${action}"`);
 
-		[_, x, y] = match.map(z => +z);
-		return [x + zones[displayZone].xOffset, y + zones[displayZone].yOffset];
+		[,x, y] = match.map(z => +z);
+		return [x + zones[game.displayZone].xOffset, y + zones[game.displayZone].yOffset];
 	}
 	x += +(action == "R") - +(action == "L");
 	y += +(action == "D") - +(action == "U");
@@ -75,7 +75,7 @@ export function stopHovering() {
 export function showFinalLocation(isDraw = false) {
 	finalLocations.forEach(f => f.classList.remove("final-location"));
 	finalLocations = [];
-	zones[displayZone].queues.forEach(q => {
+	zones[game.displayZone].queues.forEach(q => {
 		if (!q.selected) return;
 		showLocationAfterSteps(q.cursor || q.length - 1, q.index, isDraw);
 	});
@@ -95,7 +95,7 @@ export function showIntermediateLocation(event: DOMEvent) {
 
 export function showCursorLocations() {
 	cursorLocations.forEach(f => f.classList.remove("cursor-location"));
-	zones[displayZone].queues.forEach(queue => {
+	zones[game.displayZone].queues.forEach(queue => {
 		if (queue.cursor === null) return;
 		showLocationAfterSteps(queue.cursor, queue.index, false, HIGHLIGHT_TYPES.CURSOR);
 	});

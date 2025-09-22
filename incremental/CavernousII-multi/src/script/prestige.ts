@@ -1,14 +1,13 @@
-import { Clone, clones } from "./clones";
-import { grindRoutes } from "./grind_routes";
+import { Clone } from "./clones";
+import { game } from "./game";
 import { resetLoop } from "./loop";
 import { messages } from "./messages";
 import { ActionQueue } from "./queues";
-import { currentRealm, realms } from "./realms";
-import { routes } from "./routes";
+import { realms } from "./realms";
 import { runes } from "./runes";
 import { exportGame, save } from "./save";
 import { getStat, stats } from "./stats";
-import { currentZone, zones } from "./zones";
+import { zones } from "./zones";
 
 export var GameComplete = 0;
 class PrestigePoints {
@@ -79,8 +78,8 @@ function prestigeGame() {
 }
 
 function resetprogress() {
-	/*sets clones to 0*/
-	clones = [];
+	/*sets game.clones to 0*/
+	game.clones = [];
 	/*Resets Zones, maybe change so map doesn't reset?*/
 	zones.forEach(z => {
 		z.queues = ActionQueue.fromJSON([]);
@@ -114,13 +113,13 @@ function resetprogress() {
 		r.upgradeCount = 0;
 	});
 	/*clear route*/
-	routes = [];
-	grindRoutes = [];
+	game.routes = [];
+	game.grindRoutes = [];
 	/*sets mana to base*/
 	getStat("Mana").base = 5;
 	/*resets camera*/
-	currentZone = 0;
-	currentRealm = 0;
+	game.currentZone = 0;
+	game.currentRealm = 0;
 	/*Initialize*/
 	Clone.addNewClone();
 	for (let i = 0; i < prestige[0].level; ++i) {

@@ -1,10 +1,10 @@
-import { clones } from "./clones";
+import { game } from "./game";
 import { visibleX, visibleY } from "./map";
 import { hideMessages } from "./messages";
 import { addActionToQueue, addRuneAction, clearQueues, redrawQueues, selectClone } from "./queues";
 import { Route } from "./routes";
 import { getStat } from "./stats";
-import { currentZone, displayZone, zones } from "./zones";
+import { zones } from "./zones";
 
 export interface settings {
 	usingBankedTime: boolean;
@@ -239,15 +239,15 @@ const fixedKeybindings: { [key: string]: (event: KeyboardEvent) => void } = {
 	"^>Digit8": e => selectClone(7, e as unknown as MouseEvent),
 	"^>Digit9": e => selectClone(8, e as unknown as MouseEvent),
 	Tab: (e: Event) => {
-		const previous = zones[currentZone].queues.findIndex(q => q.selected);
-		zones[currentZone].queues.forEach((q, i) => (q.selected = i == (previous + 1) % clones.length));
-		clones[zones[currentZone].queues.findIndex(q => q.selected)].writeStats();
+		const previous = zones[game.currentZone].queues.findIndex(q => q.selected);
+		zones[game.currentZone].queues.forEach((q, i) => (q.selected = i == (previous + 1) % game.clones.length));
+		game.clones[zones[game.currentZone].queues.findIndex(q => q.selected)].writeStats();
 		e.stopPropagation();
 	},
 	">Tab": (e: Event) => {
-		const previous = zones[currentZone].queues.findIndex(q => q.selected);
-		zones[currentZone].queues.forEach((q, i) => (q.selected = previous == (i + 1) % clones.length));
-		clones[zones[currentZone].queues.findIndex(q => q.selected)].writeStats();
+		const previous = zones[game.currentZone].queues.findIndex(q => q.selected);
+		zones[game.currentZone].queues.forEach((q, i) => (q.selected = previous == (i + 1) % game.clones.length));
+		game.clones[zones[game.currentZone].queues.findIndex(q => q.selected)].writeStats();
 		e.stopPropagation();
 	},
 
@@ -271,9 +271,9 @@ const fixedKeybindings: { [key: string]: (event: KeyboardEvent) => void } = {
 	Backspace: () => addActionToQueue("B"),
 	Delete: () => addActionToQueue("b"),
 	"^Backspace": () => clearQueues(),
-	"^KeyA": () => zones[currentZone].queues.forEach(q => ([q.selected, q.cursor] = [true, null])),
-	End: () => zones[displayZone].queues.forEach(q => (q.cursor = null)),
-	Home: () => zones[displayZone].queues.forEach(q => (q.cursor = -1))
+	"^KeyA": () => zones[game.currentZone].queues.forEach(q => ([q.selected, q.cursor] = [true, null])),
+	End: () => zones[game.displayZone].queues.forEach(q => (q.cursor = null)),
+	Home: () => zones[game.displayZone].queues.forEach(q => (q.cursor = -1))
 };
 
 const adjustableKeybindings: { [key: string]: (event: KeyboardEvent) => void } = {
@@ -331,7 +331,7 @@ const adjustableKeybindings: { [key: string]: (event: KeyboardEvent) => void } =
 		if (getStat("Mana").base == 5) {
 			hideMessages();
 		}
-		resetLoop();
+		game.resetLoop();
 	},
 	KeyC: () => {
 		if (settings.useWASD) {
@@ -344,16 +344,16 @@ const adjustableKeybindings: { [key: string]: (event: KeyboardEvent) => void } =
 		}
 	},
 	"^ArrowLeft": () => {
-		zones[displayZone].queues.forEach(q => q.cursor === null || q.cursor--);
+		zones[game.displayZone].queues.forEach(q => q.cursor === null || q.cursor--);
 	},
 	"^ArrowRight": () => {
-		zones[displayZone].queues.forEach(q => q.cursor === null || q.cursor++);
+		zones[game.displayZone].queues.forEach(q => q.cursor === null || q.cursor++);
 	},
 	"^KeyW": () => {
 		if (!settings.useWASD) return;
-		let queues = zones[displayZone].queues;
+		let queues = zones[game.displayZone].queues;
 		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
-		for (let i = 1; i < clones.length; i++) {
+		for (let i = 1; i < game.clones.length; i++) {
 			if (!queues.some(q => q.index == i - 1) && queues.some(q => (q.index == i ? q.index-- + Infinity : false))) {
 				[queues[i], queues[i - 1]] = [queues[i - 1], queues[i]];
 			}
@@ -362,9 +362,9 @@ const adjustableKeybindings: { [key: string]: (event: KeyboardEvent) => void } =
 		redrawQueues();
 	},
 	"^ArrowUp": () => {
-		let queues = zones[displayZone].queues;
+		let queues = zones[game.displayZone].queues;
 		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
-		for (let i = 1; i < clones.length; i++) {
+		for (let i = 1; i < game.clones.length; i++) {
 			if (!queues.some(q => q.index == i - 1) && queues.some(q => (q.index == i ? q.index-- + Infinity : false))) {
 				[queues[i], queues[i - 1]] = [queues[i - 1], queues[i]];
 			}
@@ -374,9 +374,9 @@ const adjustableKeybindings: { [key: string]: (event: KeyboardEvent) => void } =
 	},
 	"^KeyS": () => {
 		if (!settings.useWASD) return;
-		let queues = zones[displayZone].queues;
+		let queues = zones[game.displayZone].queues;
 		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
-		for (let i = 1; i < clones.length; i++) {
+		for (let i = 1; i < game.clones.length; i++) {
 			if (!queues.some(q => q.index == i - 1) && queues.some(q => (q.index == i ? q.index-- + Infinity : false))) {
 				[queues[i], queues[i - 1]] = [queues[i - 1], queues[i]];
 			}
@@ -385,9 +385,9 @@ const adjustableKeybindings: { [key: string]: (event: KeyboardEvent) => void } =
 		redrawQueues();
 	},
 	"^ArrowDown": () => {
-		let queues = zones[displayZone].queues;
+		let queues = zones[game.displayZone].queues;
 		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
-		for (let i = clones.length - 2; i >= 0; i--) {
+		for (let i = game.clones.length - 2; i >= 0; i--) {
 			if (!queues.some(q => q.index == i + 1) && queues.some(q => (q.index == i ? q.index++ + Infinity : false))) {
 				[queues[i], queues[i + 1]] = [queues[i + 1], queues[i]];
 			}

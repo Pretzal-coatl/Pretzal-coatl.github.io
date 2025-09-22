@@ -114,7 +114,7 @@ export const messages = [
 			The time repeats itself over and over, the cave stays the same.
 
 			Check the <u>Options</u> panel for the <u>Auto-Restart requirement (W)</u>
-			Setting it to "Wait when any complete" will ignore clones that end with a Sync (=) action.`
+			Setting it to "Wait when any complete" will ignore game.clones that end with a Sync (=) action.`
 	),
 	new Message(
 		"Mana Extraction",
@@ -149,23 +149,23 @@ export const messages = [
 	new Message(
 		"Looper's Log: Supplemental",
 		`
-			There is a log of your actions this loop, which will help you plan out your routes better. ("Loop Log", on the left)
+			There is a log of your actions this loop, which will help you plan out your game.routes better. ("Loop Log", on the left)
 			Mousing over an action there will give you a breakdown of which stats affect that action.`
 	),
 	new Message(
 		"First Clone",
 		`
 			You've created your first clone!  It can carry out actions in exactly the same way you can.
-			You can create more clones by bringing more gold to a Clone Machine.  Click on a Clone Machine to find out how much the next clone costs.
-			Your clones can act independently or help each other out by cooperating on the same task.  Keeping them idle doesn't save you any mana.
-			Two clones can work in the same space, taking half the time it takes one clone to complete the job (they don't help each other walk around).
+			You can create more game.clones by bringing more gold to a Clone Machine.  Click on a Clone Machine to find out how much the next clone costs.
+			Your game.clones can act independently or help each other out by cooperating on the same task.  Keeping them idle doesn't save you any mana.
+			Two game.clones can work in the same space, taking half the time it takes one clone to complete the job (they don't help each other walk around).
 
 			Use CTRL-click to select more than one clone or CTRL-A to select them all.  Tab rotates through them.`
 	),
 	new Message(
 		"Second Clone",
 		`
-			You've created another clone!  Remember, these clones can work together.
+			You've created another clone!  Remember, these game.clones can work together.
 			It's probably a good thing that you can get along with yourself - it would get messy quick if you couldn't.
 
 			Use CTRL-click to select more than one clone or CTRL-A to select them all.  Tab rotates through them.`
@@ -175,7 +175,7 @@ export const messages = [
 		`
 			You've created yet another clone.
 			Soon you'll have a personal army!  Perhaps one of them will know why you're in this place...
-			You might begin to notice now that some of your old routes don't work any more - this might be because you're getting so efficient the old ways get out of sync.`
+			You might begin to notice now that some of your old game.routes don't work any more - this might be because you're getting so efficient the old ways get out of sync.`
 	),
 	new Message(
 		"Fourth Clone",
@@ -190,9 +190,9 @@ export const messages = [
 	new Message(
 		"Death",
 		`
-			That goblin killed one of your clones!
+			That goblin killed one of your game.clones!
 			Fortunately for you, death is not the end.  Surely you'll be able to overcome this obstacle in short order.
-			If you <u>sync</u> your clones and have them attack together, you might have better luck.  Or maybe you need to craft more or better weapons.`
+			If you <u>sync</u> your game.clones and have them attack together, you might have better luck.  Or maybe you need to craft more or better weapons.`
 	),
 	new Message(
 		"Learning",
@@ -207,13 +207,13 @@ export const messages = [
 		"Lava Can't Melt Steel Bridges",
 		`
 			You worked so hard on that bridge, and to see it quickly turn to slag after crossing that lava is sad.
-			At least one of your clones made it across.`
+			At least one of your game.clones made it across.`
 	),
 	new Message(
 		"Mass Manufacturing",
 		`
 			You've sure got a lot of iron!  You can use the Repeat-Interact action to forge it all into bars.  Use ctrl-space to insert a Repeat-Interact action into your queue.
-			You might not need it now, but later in the game it can really help with making sure your clones line up when forging bars or vaporizing gold.
+			You might not need it now, but later in the game it can really help with making sure your game.clones line up when forging bars or vaporizing gold.
 			Unlike normal interact, if you don't have the resources to start an interact action, it'll just skip it entirely.`
 	),
 	new Message(
@@ -228,7 +228,7 @@ export const messages = [
 		`
 			You've found a portal to another zone!
 			Each zone has at least 3 mana rocks - they give more mana but their cost scales faster the deeper you get.  They give 0.1 mana to each zone up to the current one, which you'll receive on entering that zone.
-			You can view a zone by clicking on it, and hovering it shows a summary of the routes you've beaten it with.  You can click on these routes to load them.  There's an option which lets you load only that route or that route and its prerequisites.
+			You can view a zone by clicking on it, and hovering it shows a summary of the game.routes you've beaten it with.  You can click on these game.routes to load them.  There's an option which lets you load only that route or that route and its prerequisites.
 			Only one clone needs to pass through the portal, and the rest will be brought to the next zone with it.`
 	),
 	new Message(

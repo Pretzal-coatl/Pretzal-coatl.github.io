@@ -1,16 +1,13 @@
 import { simpleRequire } from "./actions";
-import { Clone, clones } from "./clones";
+import { Clone } from "./clones";
 import { writeNumber } from "./functions";
-import { grindRoutes } from "./grind_routes";
+import { game } from "./game";
 import { resetLoop } from "./loop";
 import { getMessage } from "./messages";
 import { prestige } from "./prestige";
-import { routes } from "./routes";
 import { getRune, runes } from "./runes";
-import { settings, toggleGrindStats, toggleGrindMana } from "./settings";
+import { settings, toggleGrindMana, toggleGrindStats } from "./settings";
 import { recalculateMana, zones, type Zone } from "./zones";
-
-export let currentRealm = 0;
 
 export class Realm {
 	name: string;
@@ -59,9 +56,9 @@ export class Realm {
 		this.completed = true;
 		this.node?.parentNode?.removeChild(this.node);
 		this.node = null;
-		routes = routes.filter(r => r.realm !== this.index);
+		game.routes = game.routes.filter(r => r.realm !== this.index);
 		zones.forEach(z => (z.routes = z.routes.filter(r => r.realm !== this.index)));
-		grindRoutes = grindRoutes.filter(r => r.realm !== this.index);
+		game.grindRoutes = game.grindRoutes.filter(r => r.realm !== this.index);
 	}
 
 	display() {
@@ -98,7 +95,7 @@ export function changeRealms(newRealm: number) {
 	// Reset the zones first to apply mana gained to the appropriate realm.
 	zones.forEach(z => z.resetZone());
 	resetLoop(true, false);
-	currentRealm = newRealm;
+	game.currentRealm = newRealm;
 	zones.forEach(z => (z.routesChanged = true));
 	recalculateMana();
 	runes.forEach(r => r.updateDescription());
@@ -107,7 +104,7 @@ export function changeRealms(newRealm: number) {
 	let currentActiveRealm = realmSelect.querySelector(".active-realm");
 	if (currentActiveRealm) currentActiveRealm.classList.remove("active-realm");
 	realms[newRealm].node?.classList.add("active-realm");
-	document.querySelector<HTMLElement>("#queue-actions")!.style.display = currentRealm == 3 ? "block" : "none";
+	document.querySelector<HTMLElement>("#queue-actions")!.style.display = game.currentRealm == 3 ? "block" : "none";
 	resetLoop();
 }
 
@@ -172,11 +169,11 @@ export function convertMapToVerdant(map: Zone["map"], zoneNumber: number): strin
 
 export const realms: Realm[] = [];
 realms.push(
-	// Default realm, no special effects. /* Prestige have clones.length remove prestige bonus clones from cost */
+	// Default realm, no special effects. /* Prestige have game.clones.length remove prestige bonus game.clones from cost */
 	new Realm(
 		"Core Realm",
 		"Where you started.  Hopefully, how you'll leave this cave complex.",
-		() => clones.length - prestige[0].level,
+		() => game.clones.length - prestige[0].level,
 		() => Clone.addNewClone()
 	)
 );
@@ -217,7 +214,7 @@ realms.push(
 );
 
 realms.push(
-	// Clones cannot help each other at all.
+	// game.clones cannot help each other at all.
 	new Realm(
 		"Compounding Realm",
 		"A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.1 points later per mana rock completion and you'll gain base 0.1% faster).",

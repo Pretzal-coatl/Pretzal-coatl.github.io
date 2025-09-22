@@ -1,9 +1,8 @@
 
 /** ****************************************** Functions ********************************************/
 
+import { game } from "./game";
 import { LocationType, locationTypes } from "./location_types";
-
-let skipActionComplete = false;
 
 export function getLocationTypeBySymbol(symbol: LocationType["symbol"]) {
 	return locationTypes.find(a => a.symbol == symbol)?.name;
@@ -31,7 +30,7 @@ let timeBankNode: HTMLElement;
 
 export function redrawTimeNode() {
 	timeBankNode = timeBankNode || document.querySelector("#time-banked");
-	timeBankNode.innerText = writeTime(timeBanked / 1000);
+	timeBankNode.innerText = writeTime(game.timeBanked / 1000);
 }
 
 window.ondrop = e => e.preventDefault();

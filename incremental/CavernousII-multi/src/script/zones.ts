@@ -1,22 +1,17 @@
-import { clones } from "./clones";
 import { getLocationTypeBySymbol, writeNumber } from "./functions";
+import { game } from "./game";
 import { showFinalLocation } from "./highlights";
 import { MapLocation } from "./locations";
 import { currentLoopLog } from "./loop_log";
-import { mapStain, mapDirt, isDrawn, drawMap, classMapping } from "./map";
+import { classMapping, drawMap, mapView } from "./map";
 import { getMessage } from "./messages";
 import { ActionQueue, clearCursors, redrawQueues, resetQueueHighlights } from "./queues";
-import { convertMapToVerdant, currentRealm, getRealm, getRealmMult, Realm, realms } from "./realms";
-import { routes } from "./routes";
+import { convertMapToVerdant, getRealm, getRealmMult, Realm, realms } from "./realms";
 import { getRune } from "./runes";
 import { settings, toggleRunning } from "./settings";
 import { getStat, stats } from "./stats";
 import { displayStuff, GOLD_VALUE, stuff, type simpleStuffList } from "./stuff";
 import { clearUnusedZoneRoutes, findUsedZoneRoutes, ZoneRoute } from "./zone_routes";
-
-export let currentZone = 0;
-export let displayZone = 0;
-export let totalDrain = 0;
 
 export class Zone {
 	name: string;
@@ -84,7 +79,7 @@ export class Zone {
 		if (!this.mapLocations[y][x]) {
 			let mapSymbol = this.map[y][x];
 			this.mapLocations[y][x] = new MapLocation(x - this.xOffset, y - this.yOffset, this, getLocationTypeBySymbol(mapSymbol)!);
-			classMapping[mapSymbol][2] ? mapStain.push([x, y]) : mapDirt.push([x, y]);
+			classMapping[mapSymbol][2] ? mapView.mapStain.push([x, y]) : mapView.mapDirt.push([x, y]);
 		}
 		return this.mapLocations[y][x];
 	}
@@ -111,7 +106,7 @@ export class Zone {
 
 	resetZone() {
 		this.map = this.originalMap.slice() as unknown as string[];
-		if (realms[currentRealm].name == "Verdant Realm") {
+		if (realms[game.currentRealm].name == "Verdant Realm") {
 			// Visual changes
 			this.map = convertMapToVerdant(this.map, this.index);
 		}
@@ -121,7 +116,7 @@ export class Zone {
 			if (i > unlockedBarriers) this.map = this.map.map(row => row.replace(i.toString(), "█"));
 		}
 		this.mapLocations.forEach((ml, y) => {
-			ml.forEach((l, x) => {
+			ml.forEach((l) => {
 				l.reset();
 			});
 		});
@@ -135,16 +130,16 @@ export class Zone {
 		let mana = getStat("Mana");
 		mana.base = +(mana.base + 0.1).toFixed(2);
 		mana.current += 0.1;
-		this.cacheManaGain[currentRealm] += 0.1;
+		this.cacheManaGain[game.currentRealm] += 0.1;
 		if (this.index) {
 			zones[this.index - 1].mineComplete();
 		}
 		realm = getRealm("Verdant Realm");
-		if (realms[currentRealm].name == "Verdant Realm" && this.index == 0 && realm.mult !== null) {
+		if (realms[game.currentRealm].name == "Verdant Realm" && this.index == 0 && realm.mult !== null) {
 			realm.mult += 0.0005;
 		}
 		realm = getRealm("Compounding Realm");
-		if (realms[currentRealm].name == "Compounding Realm" && this.index == 0 && realm.mult !== null) {
+		if (realms[game.currentRealm].name == "Compounding Realm" && this.index == 0 && realm.mult !== null) {
 			realm.mult += 0.05;
 			stats
 				.filter(s => s.learnable && s.base >= 99 + getRealmMult("Compounding Realm"))
@@ -159,7 +154,7 @@ export class Zone {
 	exitZone(complete = true) {
 		let needRecalc = false;
 		if (complete) {
-			// Replace only routes which are strictly worse than an existing one.
+			// Replace only game.routes which are strictly worse than an existing one.
 			this.lastRoute = new ZoneRoute(this);
 			let sameRoute = this.routes.find(r => r.isSame(this.lastRoute!));
 			if (sameRoute) {
@@ -168,10 +163,10 @@ export class Zone {
 				sameRoute.stuff = this.lastRoute.stuff;
 				sameRoute.require = this.lastRoute.require;
 				sameRoute.cloneHealth = this.lastRoute.cloneHealth;
-			} else if (!this.routes.some(r => r.realm == currentRealm && r.isBetter(this.lastRoute!, this.manaGain))) {
+			} else if (!this.routes.some(r => r.realm == game.currentRealm && r.isBetter(this.lastRoute!, this.manaGain))) {
 				this.routesChanged = true;
 				for (let i = 0; i < this.routes.length; i++) {
-					if (this.routes[i].realm != currentRealm || this.routes[i].isLocked) continue;
+					if (this.routes[i].realm != game.currentRealm || this.routes[i].isLocked) continue;
 					if (this.lastRoute.isBetter(this.routes[i], this.manaGain)) {
 						this.routes.splice(i, 1);
 						i--;
@@ -183,8 +178,8 @@ export class Zone {
 			}
 		}
 		if (needRecalc) {
-			routes.forEach(r => {
-				if (r.realm == currentRealm && r.zone > this.index) r.needsNewEstimate = true;
+			game.routes.forEach(r => {
+				if (r.realm == game.currentRealm && r.zone > this.index) r.needsNewEstimate = true;
 			});
 		}
 		this.display();
@@ -194,7 +189,7 @@ export class Zone {
 	sumRoute(require: simpleStuffList, startDamage: number[], actionCount: number) {
 		let routeOptions = this.routes
 			// .filter(r => !r.noValidPrior)
-			.filter(r => r.realm == currentRealm)
+			.filter(r => r.realm == game.currentRealm)
 			.filter(r => {
 				let reqs = (require || []).map(s => {
 					return {
@@ -203,7 +198,7 @@ export class Zone {
 					};
 				});
 				for (let req of reqs) {
-					let thing = r.stuff.find(s => s.name == req.name);
+					let thing = r.stuff.find((s: { name: string; }) => s.name == req.name);
 					if (!thing || req.count > thing.count) {
 						return false;
 					}
@@ -218,7 +213,7 @@ export class Zone {
 				});
 				let effectiveMana =
 					r.mana +
-					Math.floor(r.stuff.find(s => s.name == "Gold Nugget")?.count || 0) * (GOLD_VALUE * getRealmMult("Verdant Realm", true) - 1 / clones.length);
+					Math.floor(r.stuff.find((s: { name: string; }) => s.name == "Gold Nugget")?.count || 0) * (GOLD_VALUE * getRealmMult("Verdant Realm", true) - 1 / game.clones.length);
 				let result: [ZoneRoute, ZoneRoute["require"], number[], number] = [r, r.require, health, effectiveMana];
 				return result;
 			});
@@ -231,7 +226,7 @@ export class Zone {
 		if (zoneSelect === null) throw new Error("No zone select found");
 		let currentActiveZone = zoneSelect.querySelector(".active-zone");
 		if (currentActiveZone) currentActiveZone.classList.remove("active-zone");
-		zoneSelect.children[currentZone].classList.add("active-zone");
+		zoneSelect.children[game.currentZone].classList.add("active-zone");
 		if (this.name == "Zone 2" && getMessage("Enter New Zone").display()) {
 			if (settings.running) toggleRunning();
 		}
@@ -243,20 +238,17 @@ export class Zone {
 		mana.base += this.manaGain;
 		mana.min = mana.current;
 		this.startMana = mana.current;
-		this.zoneStartTime = queueTime;
+		this.zoneStartTime = game.queueTime;
 		resetQueueHighlights();
-		clones.forEach(c => c.enterZone());
+		game.clones.forEach(c => c.enterZone());
 		redrawQueues();
-		isDrawn = false;
+		mapView.isDrawn = false;
 		this.getMapLocation(0, 0);
 		this.mapLocations.forEach((ml, y) => {
-			ml.forEach((l, x) => {
-				mapDirt.push([x, y]);
+			ml.forEach((_, x) => {
+				mapView.mapDirt.push([x, y]);
 			});
 		});
-		if (this.name != "Zone 1") {
-			skipActionComplete = true;
-		}
 		this.startStuff = stuff
 			.filter(s => s.count > 0)
 			.map(s => {
@@ -269,7 +261,7 @@ export class Zone {
 	}
 
 	display() {
-		while (this.queues.length < clones.length) {
+		while (this.queues.length < game.clones.length) {
 			let q = new ActionQueue(this.queues.length);
 			this.queues.push(q);
 		}
@@ -282,7 +274,7 @@ export class Zone {
 			if (zoneSelect === null) throw new Error("No zone select found");
 			zoneSelect.appendChild(this.node);
 		}
-		if (currentZone == displayZone) {
+		if (game.currentZone == game.displayZone) {
 			document.querySelector("#zone-name")!.innerHTML = this.name;
 			setTimeout(() => showFinalLocation());
 		}
@@ -290,19 +282,19 @@ export class Zone {
 		this.node.querySelector(".mana")!.innerHTML = `+${this.manaGain}`;
 		this.node.onclick = () => {
 			document.querySelector("#zone-name")!.innerHTML = this.name;
-			displayZone = zones.findIndex(z => z.name == this.name);
+			game.displayZone = zones.findIndex(z => z.name == this.name);
 			clearCursors();
-			isDrawn = false;
-			mapDirt = [];
-			mapStain = [];
+			mapView.isDrawn = false;
+			mapView.mapDirt = [];
+			mapView.mapStain = [];
 			drawMap();
 			redrawQueues();
-			zoneTimeNode = zoneTimeNode || document.querySelector("#time-spent-zone");
+			game.zoneTimeNode = game.zoneTimeNode || document.querySelector("#time-spent-zone");
 			if (this.zoneStartTime == -1) {
-				zoneTimeNode.innerText = "0";
+				game.zoneTimeNode.innerText = "0";
 			} else {
-				zoneTimeNode.innerText = writeNumber(
-					Math.max(0, (zones[this.index + 1]?.zoneStartTime + 1 || queueTime) - 1 - (this.zoneStartTime || 0)) / 1000,
+				game.zoneTimeNode.innerText = writeNumber(
+					Math.max(0, (zones[this.index + 1]?.zoneStartTime + 1 || game.queueTime) - 1 - (this.zoneStartTime || 0)) / 1000,
 					1
 				);
 			}
@@ -315,15 +307,15 @@ export class Zone {
 				parent.removeChild(parent.lastChild);
 			}
 			let head = document.createElement("h4");
-			head.innerHTML = "Routes (click to load, ctrl-click here to clear unused routes):<br>Shift-click a route to prevent deletion.";
+			head.innerHTML = "Routes (click to load, ctrl-click here to clear unused game.routes):<br>Shift-click a route to prevent deletion.";
 			head.onclick = this.clearRoutes.bind(this);
 			parent.appendChild(head);
 			let routeTemplate = document.querySelector("#zone-route-template");
 			if (routeTemplate === null) throw new Error("No route template found");
-			parent.style.display = this.routes.some(r => r.realm == currentRealm) ? "block" : "none";
+			parent.style.display = this.routes.some(r => r.realm == game.currentRealm) ? "block" : "none";
 			let usedRoutes = findUsedZoneRoutes();
 			for (let i = 0; i < this.routes.length; i++) {
-				if (this.routes[i].realm != currentRealm) continue;
+				if (this.routes[i].realm != game.currentRealm) continue;
 				let routeNode = routeTemplate.cloneNode(true) as HTMLElement;
 				routeNode.removeAttribute("id");
 				if (this.routes[i].actionCount) routeNode.querySelector(".actions")!.innerHTML = this.routes[i].actionCount.toString() + "&nbsp;";
@@ -360,7 +352,7 @@ export class Zone {
 					this.index > 0 &&
 					!zones[this.index - 1].sumRoute(
 						this.routes[i].require,
-						this.routes[i].cloneHealth.map(c => c[0]),
+						this.routes[i].cloneHealth.map((c: any[]) => c[0]),
 						this.routes[i].actionCount
 					).length
 				) {
@@ -399,7 +391,7 @@ export class Zone {
 		parent.querySelectorAll("div.active").forEach(node => node.classList.remove("active"));
 		let currentRoute = (this.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
 		this.routes
-			.filter(r => r.realm == currentRealm)
+			.filter(r => r.realm == game.currentRealm)
 			.forEach((r, i) => {
 				if ((r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute && parent!.children[i + 1])
 					parent!.children[i + 1].classList.add("active");
@@ -408,7 +400,7 @@ export class Zone {
 
 	clearRoutes(event: MouseEvent) {
 		if (!event.ctrlKey && !event.metaKey) return;
-		if (settings.warnings && !confirm(`Really delete unused routes?`)) return;
+		if (settings.warnings && !confirm(`Really delete unused game.routes?`)) return;
 		clearUnusedZoneRoutes(this.index);
 	}
 
@@ -431,8 +423,8 @@ export class Zone {
 		if (this.manaDrain) {
 			let drainValue = time * this.manaDrain * getStat("Chronomancy").value;
 			getStat("Mana").spendMana(drainValue / 1000);
-			currentLoopLog.addActionTime("Barrier Drain", this.index, drainValue * clones.length);
-			totalDrain += drainValue / 1000;
+			currentLoopLog.addActionTime("Barrier Drain", this.index, drainValue * game.clones.length);
+			game.totalDrain += drainValue / 1000;
 		}
 	}
 }
@@ -449,12 +441,12 @@ export function moveToZone(zone: string | number, complete = true) {
 		settings.running = false;
 		return;
 	}
-	zones[currentZone].exitZone(complete);
-	if (currentZone == displayZone && settings.followZone) {
-		displayZone = zone;
+	zones[game.currentZone].exitZone(complete);
+	if (game.currentZone == game.displayZone && settings.followZone) {
+		game.displayZone = zone;
 		clearCursors();
 	}
-	currentZone = zone;
+	game.currentZone = zone;
 	(document.querySelector<HTMLElement>("#barrier-mult")!).style.display = "none";
 	zones[zone].enterZone();
 }
@@ -474,7 +466,7 @@ export function recalculateMana() {
 	zones.forEach(z => {
 		z.manaGain = +z.manaGain.toFixed(2);
 		if (z.queues && z.mapLocations.some(r => r.some(x => x))) z.display();
-		z.cacheManaGain[currentRealm] = z.manaGain;
+		z.cacheManaGain[game.currentRealm] = z.manaGain;
 	});
 }
 

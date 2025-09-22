@@ -1,12 +1,13 @@
 import { Action, ActionInstance, getAction } from "./actions";
 import { Creature, creatures, getCreature } from "./creatures";
 import { getLocationTypeBySymbol } from "./functions";
+import { game } from "./game";
 import { type anyLocationTypeName, type LocationType, getLocationType } from "./location_types";
-import { MAX_WATER, mapDirt, walkable, shrooms } from "./map";
-import { currentRealm, realms, verdantMapping } from "./realms";
+import { MAX_WATER, walkable, shrooms, mapView } from "./map";
+import { realms, verdantMapping } from "./realms";
 import type { Rune } from "./runes";
 import { getStat } from "./stats";
-import { currentZone, zones, type Zone } from "./zones";
+import { zones, type Zone } from "./zones";
 
 export class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName> {
 	x: number;
@@ -44,11 +45,11 @@ export class MapLocation<basetypeName extends anyLocationTypeName = anyLocationT
 	}
 
 	get priorCompletions() {
-		return this.priorCompletionData[currentRealm];
+		return this.priorCompletionData[game.currentRealm];
 	}
 
 	get type(): LocationType<anyLocationTypeName> {
-		if (currentRealm === 2) {
+		if (game.currentRealm === 2) {
 			const symbol = verdantMapping[this.baseType.symbol];
 			if (symbol) {
 				return getLocationType(getLocationTypeBySymbol(symbol) || "") || this.baseType;
@@ -98,7 +99,7 @@ export class MapLocation<basetypeName extends anyLocationTypeName = anyLocationT
 	}
 
 	reset() {
-		this.priorCompletionData[currentRealm] = this.type.reset(this.completions, this.priorCompletions);
+		this.priorCompletionData[game.currentRealm] = this.type.reset(this.completions, this.priorCompletions);
 		this.completions = 0;
 		this.entered = 0;
 		this.temporaryPresent = null;
@@ -113,12 +114,12 @@ export class MapLocation<basetypeName extends anyLocationTypeName = anyLocationT
 			const pumpAmount = ((Math.log2(getStat("Runic Lore").current) / 25) * time) / 1000;
 			this.water = Math.max(0, this.water - pumpAmount);
 			// [tile, loc] is actually [mapChar, MapLocation] but ts doesn't provide a way to typehint that.  Or it's just bad at complex types.
-			zones[currentZone].getAdjLocations(this.x, this.y).forEach(([tile, loc]: any) => {
+			zones[game.currentZone].getAdjLocations(this.x, this.y).forEach(([, loc]: any) => {
 				if (!loc || !loc.water) return;
 				const prevLevel = Math.min(Math.floor(loc.water * 10), MAX_WATER);
 				loc.water = Math.max(0, loc.water - pumpAmount / 4);
 				if (prevLevel !== Math.min(Math.floor(loc.water * 10), MAX_WATER)) {
-					mapDirt.push([loc.x + zones[currentZone].xOffset, loc.y + zones[currentZone].yOffset]);
+					mapView.mapDirt.push([loc.x + zones[game.currentZone].xOffset, loc.y + zones[game.currentZone].yOffset]);
 				}
 			});
 		}
@@ -128,14 +129,14 @@ export class MapLocation<basetypeName extends anyLocationTypeName = anyLocationT
 			this.water = this.water + ((time / 1000) * 0.2) / (1 + this.water) ** 2;
 		}
 		// [tile, loc] is actually [mapChar, MapLocation] but ts doesn't provide a way to typehint that.  Or it's just bad at complex types.
-		zones[currentZone].getAdjLocations(this.x, this.y).forEach(([tile, loc]: any) => {
+		zones[game.currentZone].getAdjLocations(this.x, this.y).forEach(([tile, loc]: any) => {
 			if (!loc) return;
 			if (!walkable.includes(tile) && !shrooms.includes(tile)) return;
 			const prev_level = Math.floor(loc.water * 10);
 			// 1 water should add 0.04 water per second to each adjacent location.
 			loc.water = Math.min(Math.max(this.water, loc.water), loc.water + (this.water / 158 / (shrooms.includes(tile) ? 2 : 1)) ** 2 * time);
 			if (prev_level != Math.floor(loc.water * 10)) {
-				mapDirt.push([loc.x + zones[currentZone].xOffset, loc.y + zones[currentZone].yOffset]);
+				mapView.mapDirt.push([loc.x + zones[game.currentZone].xOffset, loc.y + zones[game.currentZone].yOffset]);
 			}
 		});
 	}

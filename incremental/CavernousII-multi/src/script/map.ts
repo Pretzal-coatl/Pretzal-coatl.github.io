@@ -1,14 +1,14 @@
-import { clones } from "./clones";
 import type { Creature } from "./creatures";
 import { getLocationTypeBySymbol, writeNumber } from "./functions";
+import { game } from "./game";
 import { showFinalLocation } from "./highlights";
 import { getLocationType } from "./location_types";
 import type { MapLocation } from "./locations";
 import { getMessage } from "./messages";
-import { currentRealm, getRealmMult, realms, verdantMapping } from "./realms";
+import { getRealmMult, realms, verdantMapping } from "./realms";
 import { getBestRoute } from "./routes";
 import { GOLD_VALUE } from "./stuff";
-import { currentZone, displayZone, zones } from "./zones";
+import { zones } from "./zones";
 
 type descriptorMod = (d: string, x: number, y: number) => string;
 export type classMappingType = { [key: string]: [string, string, boolean?, descriptorMod?] };
@@ -19,12 +19,12 @@ export const classMapping: classMappingType = {
 		"Mana-infused Rock",
 		true,
 		(d, x, y) =>
-			`${d} ${zones[displayZone].mapLocations[y][x].type.nextCost!(
-				zones[displayZone].mapLocations[y][x].completions,
-				zones[displayZone].mapLocations[y][x].priorCompletions,
-				zones[displayZone],
-				x - zones[displayZone].xOffset,
-				y - zones[displayZone].yOffset
+			`${d} ${zones[game.displayZone].mapLocations[y][x].type.nextCost!(
+				zones[game.displayZone].mapLocations[y][x].completions,
+				zones[game.displayZone].mapLocations[y][x].priorCompletions,
+				zones[game.displayZone],
+				x - zones[game.displayZone].xOffset,
+				y - zones[game.displayZone].yOffset
 			)}`
 	],
 	"*": [
@@ -32,12 +32,12 @@ export const classMapping: classMappingType = {
 		"Mana Spring",
 		true,
 		(d, x, y) =>
-			`${d} ${zones[displayZone].mapLocations[y][x].type.nextCost!(
-				zones[displayZone].mapLocations[y][x].completions,
-				zones[displayZone].mapLocations[y][x].priorCompletions,
-				zones[displayZone],
-				x - zones[displayZone].xOffset,
-				y - zones[displayZone].yOffset
+			`${d} ${zones[game.displayZone].mapLocations[y][x].type.nextCost!(
+				zones[game.displayZone].mapLocations[y][x].completions,
+				zones[game.displayZone].mapLocations[y][x].priorCompletions,
+				zones[game.displayZone],
+				x - zones[game.displayZone].xOffset,
+				y - zones[game.displayZone].yOffset
 			)}`
 	],
 	".": ["tunnel", "Dug Tunnel"],
@@ -121,8 +121,17 @@ export const shrooms = "♠♣α§δ";
 
 export const runesTiles = "WHTtDdF";
 
-export let mapDirt: [number, number][] = [];
-export let mapStain: [number, number][] = [];
+type MapView = {
+	mapDirt: [number, number][];
+	mapStain: [number, number][];
+	isDrawn: boolean;
+}
+
+export const mapView: MapView = {
+	mapDirt: [],
+	mapStain: [],
+	isDrawn: false,
+};
 
 export let visibleX: number | null = null,
 	visibleY: number | null = null;
@@ -132,7 +141,7 @@ export function getMapLocation(x: number, y: number, noView = false, zone: numbe
 	if (zone !== null) {
 		return zones[zone].getMapLocation(x, y, noView);
 	}
-	return zones[currentZone].getMapLocation(x, y, noView);
+	return zones[game.currentZone].getMapLocation(x, y, noView);
 }
 
 export const mapNode = (() => {
@@ -152,27 +161,27 @@ export function drawNewMap() {
 	if (rowTemplate === null) throw new Error("No row template");
 	let cellTemplate = document.querySelector("#cell-template");
 	if (cellTemplate === null) throw new Error("No cell template");
-	for (let y = 0; y < zones[displayZone].map.length; y++) {
+	for (let y = 0; y < zones[game.displayZone].map.length; y++) {
 		mapNodes[y] = [];
 		let rowNode = rowTemplate.cloneNode(true) as HTMLElement;
 		rowNode.removeAttribute("id");
 		mapNode.append(rowNode);
-		if (zones[displayZone].mapLocations[y]) {
-			for (let x = 0; x < zones[displayZone].map[y].length; x++) {
+		if (zones[game.displayZone].mapLocations[y]) {
+			for (let x = 0; x < zones[game.displayZone].map[y].length; x++) {
 				let cellNode = cellTemplate.cloneNode(true) as HTMLElement;
 				cellNode.removeAttribute("id");
 				cellNode.setAttribute("data-x", x.toString());
 				cellNode.setAttribute("data-y", y.toString());
-				cellNode.onmouseenter = () => showRelevantStats(zones[displayZone].mapLocations[y][x]);
-				if (zones[displayZone].mapLocations[y][x]) {
-					let [className, descriptor, isStained, descriptorMod] = classMapping[zones[displayZone].map[y][x]];
+				cellNode.onmouseenter = () => showRelevantStats(zones[game.displayZone].mapLocations[y][x]);
+				if (zones[game.displayZone].mapLocations[y][x]) {
+					let [className, descriptor,, descriptorMod] = classMapping[zones[game.displayZone].map[y][x]];
 					let classNames = className.split(" ");
 					for (let i = 0; i < classNames.length; i++) {
 						cellNode.classList.add(classNames[i]);
 					}
 					cellNode.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
-					if (zones[displayZone].mapLocations[y][x].water > 0.1) {
-						cellNode.classList.add(`watery-${Math.min(Math.floor(zones[displayZone].mapLocations[y][x].water * 10), MAX_WATER)}`);
+					if (zones[game.displayZone].mapLocations[y][x].water > 0.1) {
+						cellNode.classList.add(`watery-${Math.min(Math.floor(zones[game.displayZone].mapLocations[y][x].water * 10), MAX_WATER)}`);
 					}
 				} else {
 					cellNode.classList.add("blank");
@@ -182,33 +191,31 @@ export function drawNewMap() {
 			}
 		}
 	}
-	isDrawn = true;
+	mapView.isDrawn = true;
 	displayClones();
-	mapStain = [];
+	mapView.mapStain = [];
 }
-
-export let isDrawn = false;
 
 export function drawCell(x: number, y: number) {
 	let cell = (mapNodes[y] || [])[x];
 	if (!cell) return;
-	let location = zones[displayZone].mapLocations[y][x];
+	let location = zones[game.displayZone].mapLocations[y][x];
 	if (!location) return;
-	let [className, descriptor, isStained, descriptorMod] = classMapping[zones[displayZone].map[y][x]];
+	let [className, descriptor,, descriptorMod] = classMapping[zones[game.displayZone].map[y][x]];
 	cell.className = className;
 	if (location.water > 0.1) {
-		cell.classList.add(`watery-${Math.min(Math.floor(zones[displayZone].mapLocations[y][x].water * 10), MAX_WATER)}`);
+		cell.classList.add(`watery-${Math.min(Math.floor(zones[game.displayZone].mapLocations[y][x].water * 10), MAX_WATER)}`);
 	}
 	cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
 }
 
 export function drawMap() {
-	if (!isDrawn) drawNewMap();
+	if (!mapView.isDrawn) drawNewMap();
 
-	if (currentZone == displayZone) {
-		mapDirt.forEach(([x, y]) => drawCell(x, y));
-		mapDirt = [];
-		mapStain.forEach(([x, y]) => drawCell(x, y));
+	if (game.currentZone == game.displayZone) {
+		mapView.mapDirt.forEach(([x, y]) => drawCell(x, y));
+		mapView.mapDirt = [];
+		mapView.mapStain.forEach(([x, y]) => drawCell(x, y));
 	}
 
 	clampMap();
@@ -217,11 +224,11 @@ export function drawMap() {
 }
 
 export function displayClones() {
-	if (currentZone == displayZone) {
-		for (let i = 0; i < clones.length; i++) {
-			let clone = clones[i];
+	if (game.currentZone == game.displayZone) {
+		for (let i = 0; i < game.clones.length; i++) {
+			let clone = game.clones[i];
 			clone.occupiedNode && clone.occupiedNode.classList.remove("occupied");
-			let node = mapNodes[clone.y + zones[displayZone].yOffset][clone.x + zones[displayZone].xOffset];
+			let node = mapNodes[clone.y + zones[game.displayZone].yOffset][clone.x + zones[game.displayZone].xOffset];
 			node.classList.add("occupied");
 			clone.occupiedNode = node;
 		}
@@ -233,9 +240,9 @@ export function clampMap() {
 	let xMax = -999;
 	let yMin = 999;
 	let yMax = -999;
-	for (let y = 0; y < zones[displayZone].mapLocations.length; y++) {
-		for (let x = 0; x < zones[displayZone].mapLocations[y].length; x++) {
-			if (zones[displayZone].mapLocations[y][x]) {
+	for (let y = 0; y < zones[game.displayZone].mapLocations.length; y++) {
+		for (let x = 0; x < zones[game.displayZone].mapLocations[y].length; x++) {
+			if (zones[game.displayZone].mapLocations[y][x]) {
 				xMin = Math.min(xMin, x);
 				xMax = Math.max(xMax, x);
 				yMin = Math.min(yMin, y);
@@ -289,13 +296,13 @@ export function setMined(x: number, y: number, icon?: string) {
 		"2": ".",
 		"3": "."
 	};
-	x += zones[currentZone].xOffset;
-	y += zones[currentZone].yOffset;
-	let old = zones[currentZone].map[y][x];
+	x += zones[game.currentZone].xOffset;
+	y += zones[game.currentZone].yOffset;
+	let old = zones[game.currentZone].map[y][x];
 	let tile = icon || minedMapping[old] || old;
-	zones[currentZone].map[y] = zones[currentZone].map[y].slice(0, x) + tile + zones[currentZone].map[y].slice(x + 1);
+	zones[game.currentZone].map[y] = zones[game.currentZone].map[y].slice(0, x) + tile + zones[game.currentZone].map[y].slice(x + 1);
 	if (tile !== old) {
-		mapDirt.push([x, y]);
+		mapView.mapDirt.push([x, y]);
 	}
 	if (tile == "*") getMessage("Mana Extraction").display();
 }
@@ -306,8 +313,8 @@ export function viewCell(target: HTMLElement) {
 	mapNode?.querySelector(".selected-map-cell")?.classList.remove("selected-map-cell");
 	target.classList.add("selected-map-cell");
 	let type = [...target.classList].find(x => x !== "occupied" && x !== "final-location");
-	if (zones[displayZone].mapLocations[y] && zones[displayZone].mapLocations[y][x]) {
-		let location = zones[displayZone].mapLocations[y][x];
+	if (zones[game.displayZone].mapLocations[y] && zones[game.displayZone].mapLocations[y][x]) {
+		let location = zones[game.displayZone].mapLocations[y][x];
 		for (let classMappingEntry of Object.entries(classMapping)) {
 			if (classMappingEntry[1][0] == type) {
 				let type = getLocationType(getLocationTypeBySymbol(classMappingEntry[0]) || "");
@@ -330,7 +337,7 @@ export function viewCell(target: HTMLElement) {
 				let match = description.match(/\{.*\}/);
 				if (match) {
 					let realmDesc = JSON.parse(match[0].replace(/'/g, '"').replace(/""/g, "'"));
-					description = description.replace(/\{.*\}/, realmDesc[currentRealm] || realmDesc[0] || "");
+					description = description.replace(/\{.*\}/, realmDesc[game.currentRealm] || realmDesc[0] || "");
 				}
 				document.querySelector("#location-description")!.innerHTML = description.replace(/\n/g, "<br>");
 				if (type.nextCost) {
@@ -338,8 +345,8 @@ export function viewCell(target: HTMLElement) {
 						location.completions,
 						location.priorCompletions,
 						location.zone,
-						x - zones[displayZone].xOffset,
-						y - zones[displayZone].yOffset
+						x - zones[game.displayZone].xOffset,
+						y - zones[game.displayZone].yOffset
 					)}`;
 				} else if (primaryAction) {
 					let baseTimeDisplay = primaryAction.getProjectedDuration(location, location.wither);
@@ -352,11 +359,11 @@ export function viewCell(target: HTMLElement) {
 				} else {
 					document.querySelector("#location-water")!.innerHTML = "";
 				}
-				visibleX = x - zones[displayZone].xOffset;
-				visibleY = y - zones[displayZone].yOffset;
+				visibleX = x - zones[game.displayZone].xOffset;
+				visibleY = y - zones[game.displayZone].yOffset;
 				if (type.name == "Mana-infused Rock" || type.name == "Mana Spring") {
 					(document.querySelector("#location-route") as HTMLElement).hidden = true;
-					let route = getBestRoute(visibleX, visibleY, displayZone);
+					let route = getBestRoute(visibleX, visibleY, game.displayZone);
 					if (route) {
 						route.showOnLocationUI();
 					} else {
@@ -378,19 +385,19 @@ export function getMapNode(x: number, y: number) {
 }
 
 export function getOffsetMapNode(x: number, y: number) {
-	return getMapNode(x + zones[displayZone].xOffset, y + zones[displayZone].yOffset);
+	return getMapNode(x + zones[game.displayZone].xOffset, y + zones[game.displayZone].yOffset);
 }
 
 export function getMapTile(x: number, y: number): string {
-	return zones[displayZone].map[y] && zones[displayZone].map[y][x];
+	return zones[game.displayZone].map[y] && zones[game.displayZone].map[y][x];
 }
 
 export function getOffsetCurrentMapTile(x: number, y: number): string {
-	return zones[currentZone].map[y + zones[currentZone].yOffset] && zones[currentZone].map[y + zones[currentZone].yOffset][x + zones[currentZone].xOffset];
+	return zones[game.currentZone].map[y + zones[game.currentZone].yOffset] && zones[game.currentZone].map[y + zones[game.currentZone].yOffset][x + zones[game.currentZone].xOffset];
 }
 
 export function displayCreatureHealth(creature: Creature) {
-	if (currentZone != displayZone) return;
+	if (game.currentZone != game.displayZone) return;
 	let node = getOffsetMapNode(creature.x, creature.y);
 	if (!node) return;
 	if (creature.health > 0 && creature.health < creature.creature.health) {
@@ -403,7 +410,7 @@ export function displayCreatureHealth(creature: Creature) {
 export function showRelevantStats(loc: MapLocation | null) {
 	if (!loc) return;
 	let action;
-	if (realms[currentRealm].name == "Verdant Realm") {
+	if (realms[game.currentRealm].name == "Verdant Realm") {
 		if (verdantMapping[loc.baseType.symbol]) {
 			let locType = getLocationTypeBySymbol(verdantMapping[loc.baseType.symbol]);
 			if (locType) {

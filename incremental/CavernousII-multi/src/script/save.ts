@@ -1,17 +1,22 @@
-import { version } from "os";
-import { clones, Clone } from "./clones";
-import { GrindRoute, grindRoutes } from "./grind_routes";
+import { Clone } from "./clones";
+import { GrindRoute } from "./grind_routes";
 import { messages, getMessage } from "./messages";
 import { GameComplete, prestige, prestigecount, prestigepoints } from "./prestige";
 import { ActionQueue, redrawQueues } from "./queues";
-import { realms, currentRealm, getRealmComplete, changeRealms } from "./realms";
-import { Route, routes } from "./routes";
+import { realms, getRealmComplete, changeRealms } from "./realms";
+import { Route } from "./routes";
 import { runes, type anyRuneName } from "./runes";
 import { settings, loadSettings } from "./settings";
 import { getStat, type anyStatName, stats } from "./stats";
 import { ZoneRoute } from "./zone_routes";
 import { zones, recalculateMana } from "./zones";
 import { drawMap } from "./map";
+import { game, setup } from "./game";
+
+const version = (document.querySelector("#version") as HTMLElement).innerText
+    .split(".")
+    .map((e, i) => parseInt(e, 36) / 100 ** i)
+    .reduce((v, e) => v + e);
 
 const URLParams = new URL(document.location.href).searchParams;
 export let saveName = URLParams.get("save") || "";
@@ -85,15 +90,15 @@ export let save = async function save() {
 		};
 	});
 	const cloneData = {
-		count: clones.length
+		count: game.clones.length
 	};
 	const time = {
 		saveTime: Date.now(),
-		timeBanked
+		timeBanked: game.timeBanked,
 	};
 	const messageData = messages.map(m => [m.name, m.displayed] as [typeof m["name"], boolean]);
 	const savedRoutes = JSON.parse(
-		JSON.stringify(routes, (key, value) => {
+		JSON.stringify(game.routes, (key, value) => {
 			if (key == "log") {
 				return undefined;
 			}
@@ -139,13 +144,13 @@ export let save = async function save() {
 		version: version,
 		playerStats: playerStats,
 		zoneData: zoneData,
-		currentRealm: currentRealm,
+		currentRealm: game.currentRealm,
 		cloneData: cloneData,
 		time: time,
 		messageData: messageData,
 		settings: settings,
 		routes: savedRoutes,
-		grindRoutes: grindRoutes,
+		grindRoutes: game.grindRoutes,
 		runeData: runeData,
 		machines: machines,
 		realmData: realmData,
@@ -171,7 +176,7 @@ export function load() {
 		saveGame = JSON.parse(atob(localStorage[saveName]));
 	}
 	if (!saveGame.routes) saveGame.routes = JSON.parse(saveGame.savedRoutes as string);
-	previousVersion = saveGame.version || 2;
+	//let previousVersion = saveGame.version || 2;
 	// if (version < previousVersion) {
 	// 	alert(`Error: Version number reduced!\n${previousVersion} -> ${version}`);
 	// }
@@ -187,8 +192,8 @@ export function load() {
 			message.displayed = saveGame.messageData[i][1];
 		}
 	}
-	clones = [];
-	while (clones.length < saveGame.cloneData.count) {
+	game.clones = [];
+	while (game.clones.length < saveGame.cloneData.count) {
 		Clone.addNewClone(true);
 	}
 	for (let i = 0; i < saveGame.zoneData.length; i++) {
@@ -210,7 +215,7 @@ export function load() {
 		if (saveGame.zoneData[i].goal || (saveGame.zoneData[i].challenge as boolean)) zone.completeGoal();
 	}
 	for (let i = 0; i < realms.length; i++) {
-		currentRealm = i;
+		game.currentRealm = i;
 		realms[i].machineCompletions = (saveGame.machines || [])[i] || 0;
 		recalculateMana();
 	}
@@ -218,13 +223,13 @@ export function load() {
 		if (r.maxMult) realms[i].maxMult = r.maxMult;
 		if (r.completed) realms[i].complete();
 	});
-	lastAction = saveGame.time.saveTime;
-	timeBanked = +saveGame.time.timeBanked + Date.now() - lastAction;
+	game.lastAction = saveGame.time.saveTime;
+	game.timeBanked = +saveGame.time.timeBanked + Date.now() - game.lastAction;
 	if (saveGame.routes) {
-		routes = Route.fromJSON(saveGame.routes);
+		game.routes = Route.fromJSON(saveGame.routes);
 	}
 	if (saveGame.grindRoutes) {
-		grindRoutes = GrindRoute.fromJSON(saveGame.grindRoutes);
+		game.grindRoutes = GrindRoute.fromJSON(saveGame.grindRoutes);
 	}
 	for (let i = 0; i < (saveGame.runeData || []).length; i++) {
 		runes[i].upgradeCount = saveGame.runeData[i].upgradeCount || 0;
@@ -236,13 +241,13 @@ export function load() {
 
 	/* load prestige stuff - needs to be beautified*/
 	if (saveGame.prestigeData === null) {
-		prestigepoints = 0;
-		prestigecount = 0;
-		GameComplete = 0;
+		game.prestigepoints = 0;
+		game.prestigecount = 0;
+		game.GameComplete = 0;
 	} else {
-		prestigepoints = saveGame.prestigeData.value1;
-		prestigecount = saveGame.prestigeData.value2;
-		GameComplete = saveGame.prestigeData.value3;
+		game.prestigepoints = saveGame.prestigeData.value1;
+		game.prestigecount = saveGame.prestigeData.value2;
+		game.GameComplete = saveGame.prestigeData.value3;
 	}
 	if (saveGame.prestigeArray === null) {
 		prestige[0].level = 0;
@@ -265,7 +270,7 @@ export function load() {
 	loadSettings(saveGame.settings);
 
 	zones[0].queues[0].selected = true;
-	queuesNode = queuesNode || document.querySelector("#queues");
+	game.queuesNode = game.queuesNode || document.querySelector("#queues");
 	redrawQueues();
 
 	// Fix attack and defense
@@ -315,4 +320,10 @@ export function displaySaveClick(event: MouseEvent) {
 	if (!el) return;
 	el.classList.add("ripple");
 	setTimeout(() => el!.classList.remove("ripple"), 1000);
+}
+
+function applyCustomStyling() {
+    if (settings.debug_verticalBlocksJustify) {
+        (document.querySelector(".vertical-blocks") as HTMLElement).style.justifyContent = settings.debug_verticalBlocksJustify;
+    }
 }

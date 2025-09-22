@@ -1,17 +1,18 @@
-import { clones, type Clone } from "./clones";
+import type { Clone } from "./clones";
+import { game } from "./game";
 import type { MapLocation } from "./locations";
 import { currentLoopLog } from "./loop_log";
 import { setMined, shrooms } from "./map";
 import { getMessage } from "./messages";
-import { GameComplete, prestige } from "./prestige";
-import { currentRealm, getRealm, getRealmComplete, getRealmMult, realms } from "./realms";
-import { Route, routes } from "./routes";
+import { prestige } from "./prestige";
+import { getRealm, getRealmComplete, getRealmMult, realms } from "./realms";
+import { Route } from "./routes";
 import { getRune } from "./runes";
 import { AutoRestart, settings, toggleRunning } from "./settings";
 import { getStat, type anyStatName, type Stat } from "./stats";
 import { getStuff, GOLD_VALUE, stuff, type anyStuffName, type Stuff } from "./stuff";
 import { CanStartReturnCode } from "./util";
-import { currentZone, moveToZone, zones } from "./zones";
+import { moveToZone, zones } from "./zones";
 
 const BARRIER_DRAIN = 5;
 const VERDANT_GROW_MULT = 5;
@@ -64,7 +65,7 @@ export class ActionInstance {
 			if (this.action.complete(this.location, clone, this)) {
 				this.start(clone);
 			} else if (this.isMove) {
-				loopCompletions++;
+				game.loopCompletions++;
 				this.location.entered++;
 			} else {
 				this.location.completions++;
@@ -112,20 +113,20 @@ export class Action<actionName extends anyActionName = anyActionName> {
 
 	getDuration(location: MapLocation, clone: Clone) {
 		let duration = (typeof this.baseDuration == "function" ? this.baseDuration() : this.baseDuration) * this.specialDuration(location, clone);
-		if (realms[currentRealm].name == "Long Realm") {
+		if (realms[game.currentRealm].name == "Long Realm") {
 			duration *= 3;
-		} else if (realms[currentRealm].name == "Compounding Realm") {
-			duration *= 1 + loopCompletions / 40;
+		} else if (realms[game.currentRealm].name == "Compounding Realm") {
+			duration *= 1 + game.loopCompletions / 40;
 		}
 		return duration;
 	}
 
-	getBaseDuration(realm: number = currentRealm) {
+	getBaseDuration(realm: number = game.currentRealm) {
 		let duration = (typeof this.baseDuration == "function" ? this.baseDuration() : this.baseDuration) / 1000;
 		if (realms[realm].name == "Long Realm") {
 			duration *= 3;
 		} else if (realms[realm].name == "Compounding Realm") {
-			duration *= 1 + loopCompletions / 40;
+			duration *= 1 + game.loopCompletions / 40;
 		}
 		return duration;
 	}
@@ -140,10 +141,10 @@ export class Action<actionName extends anyActionName = anyActionName> {
 		}
 		duration *= this.getSkillDiv();
 		if (!useDuration) {
-			if (realms[currentRealm].name == "Long Realm") {
+			if (realms[game.currentRealm].name == "Long Realm") {
 				duration *= 3;
-			} else if (realms[currentRealm].name == "Compounding Realm") {
-				duration *= 1 + loopCompletions / 40;
+			} else if (realms[game.currentRealm].name == "Compounding Realm") {
+				duration *= 1 + game.loopCompletions / 40;
 			}
 		}
 		return duration;
@@ -169,7 +170,7 @@ export class Action<actionName extends anyActionName = anyActionName> {
 }
 
 export function baseWalkLength() {
-	return 100 * (realms[currentRealm].name == "Long Realm" ? 3 : 1);
+	return 100 * (realms[game.currentRealm].name == "Long Realm" ? 3 : 1);
 }
 
 export function completeMove(loc: MapLocation, clone: Clone, action: ActionInstance) {
@@ -188,7 +189,7 @@ export function getDuplicationAmount(loc: MapLocation) {
 	let x = loc.x,
 		y = loc.y;
 	let amount = Math.round((1 + 0.1 * prestige[3].level) * 1000) / 1000; /* Prestige, add multiplier for point spend */
-	const zone = zones[currentZone];
+	const zone = zones[game.currentZone];
 	x += zone.xOffset;
 	y += zone.yOffset;
 	const rune_locs = [
@@ -232,26 +233,25 @@ function completeSaltMine(loc: MapLocation) {
 
 function completeCollectMana(loc: MapLocation) {
 	Route.updateBestRoute(loc, true);
-	zones[currentZone].mineComplete();
-	if (realms[currentRealm].name === "Long Realm") {
-		routes.forEach(r => {
+	zones[game.currentZone].mineComplete();
+	if (realms[game.currentRealm].name === "Long Realm") {
+		game.routes.forEach(r => {
 			if (r.zone !== loc.zone.index || r.x !== loc.x || r.y !== loc.y) return;
 			r.needsNewEstimate = true;
 		});
 	}
 	// Check if estimate can do one more run.
-	const mana = getStat("Mana");
 	if (settings.autoRestart == AutoRestart.RestartDone && settings.grindMana) {
-		const cur = currentRoutes.find(r => r.x == loc.x && r.y == loc.y && r.zone == currentZone);
+		const cur = game.currentRoutes.find(r => r.x == loc.x && r.y == loc.y && r.zone == game.currentZone);
 		if (!cur || cur.estimateRefineManaLeft() < 0) {
-			shouldReset = true;
+			game.shouldReset = true;
 		}
 	}
 	// if (settings.autoRestart == AutoRestart.RestartDone && settings.grindMana) shouldReset = true;
-	getRealmComplete(realms[currentRealm]);
+	getRealmComplete(realms[game.currentRealm]);
 }
 
-function tickCollectMana(usedTime: number, loc: MapLocation) {
+function tickCollectMana(_usedTime: number, loc: MapLocation) {
 	Route.updateBestRoute(loc);
 }
 
@@ -262,23 +262,23 @@ function longZoneCompletionMult(x: number, y: number, z: number) {
 	return 0.99 ** (location.priorCompletionData[1] ** 0.75);
 }
 
-function canMineMana(location: MapLocation) {
+function canMineMana(_location: MapLocation) {
 	// if (location.completions) return CanStartReturnCode.Never;
 	return CanStartReturnCode.Now;
 }
 
-function mineManaRockCost(location: MapLocation, clone: Clone | null = null, realm: number | null = null, completionOveride?: number) {
+function mineManaRockCost(location: MapLocation, _clone: Clone | null = null, realm: number | null = null, completionOveride?: number) {
 	/* Prestige, add mana rock reducer for point spend */
 	// return Math.pow(
 	// 			1 +
-	// 				(0.1 + 0.05 * (location.zone.index + (realm == null ? currentRealm : realm))) *
+	// 				(0.1 + 0.05 * (location.zone.index + (realm == null ? game.currentRealm : realm))) *
 	// 					longZoneCompletionMult(location.x, location.y, location.zone.index) *
 	// 					0.95 ** (prestige[2].level ** 0.75),
 	// 			completionOveride ?? location.priorCompletions
 	// 	  );
 	const formula =
 		1 +
-		(0.1 + 0.05 * (location.zone.index + (realm == null ? currentRealm : realm))) *
+		(0.1 + 0.05 * (location.zone.index + (realm == null ? game.currentRealm : realm))) *
 			longZoneCompletionMult(location.x, location.y, location.zone.index) *
 			0.95 ** (prestige[2].level ** 0.75);
 	// If completed previously in this route, subtract previous time.
@@ -298,16 +298,16 @@ function completeCollectGem(loc: MapLocation) {
 
 function startActivateMachine(): CanStartReturnCode {
 	const gold = getStuff("Gold Nugget");
-	const needed = realms[currentRealm].getNextActivateAmount();
+	const needed = realms[game.currentRealm].getNextActivateAmount();
 	return gold.count >= needed ? CanStartReturnCode.Now : CanStartReturnCode.NotNow;
 }
 
 function completeActivateMachine() {
 	const gold = getStuff("Gold Nugget");
-	const needed = realms[currentRealm].getNextActivateAmount();
+	const needed = realms[game.currentRealm].getNextActivateAmount();
 	gold.update(-needed);
-	realms[currentRealm].activateMachine();
-	getRealmComplete(realms[currentRealm]);
+	realms[game.currentRealm].activateMachine();
+	getRealmComplete(realms[game.currentRealm]);
 }
 
 export function simpleCreate(target: [anyStuffName, number][]) {
@@ -322,7 +322,7 @@ export function simpleCreate(target: [anyStuffName, number][]) {
 
 export function simpleRequire(requirement: [anyStuffName, number][], doubleExcempt = false) {
 	function haveEnough(): CanStartReturnCode {
-		const mult = realms[currentRealm].name == "Long Realm" && !doubleExcempt ? 2 : 1;
+		const mult = realms[game.currentRealm].name == "Long Realm" && !doubleExcempt ? 2 : 1;
 		for (let i = 0; i < requirement.length; i++) {
 			const stuff = getStuff(requirement[i][0]);
 			if (stuff.count < requirement[i][1] * (requirement[i][0].match(/Armour|Sword|Shield|Bridge/) ? 1 : mult)) return CanStartReturnCode.NotNow;
@@ -339,7 +339,7 @@ export function simpleRequire(requirement: [anyStuffName, number][], doubleExcem
 function canMakeEquip(requirement: [anyStuffName, number][], equipType: string) {
 	function canDo(): CanStartReturnCode {
 		const itemCount = stuff.reduce((a, c) => a + (c.name.includes(equipType) ? c.count : 0), 0);
-		if (itemCount >= clones.length) return CanStartReturnCode.Never;
+		if (itemCount >= game.clones.length) return CanStartReturnCode.Never;
 		const haveStuff = simpleRequire(requirement)();
 		if (haveStuff == CanStartReturnCode.NotNow) return CanStartReturnCode.NotNow;
 		return CanStartReturnCode.Now;
@@ -386,7 +386,7 @@ function completeCrossLava(loc: MapLocation, clone: Clone, action: ActionInstanc
 	return false;
 }
 
-function tickFight(usedTime: number, loc: MapLocation, baseTime: number, clone: Clone) {
+function tickFight(_usedTime: number, loc: MapLocation, baseTime: number, clone: Clone) {
 	if (!loc.creature) throw new Error("No creature to fight");
 	let damage = (Math.max(loc.creature.attack - getStat("Defense").current, 0) * baseTime) / 1000;
 	/* Prestige - fixes edge case of taking fractional damage when unable to hurt enemy */
@@ -398,7 +398,7 @@ function tickFight(usedTime: number, loc: MapLocation, baseTime: number, clone: 
 }
 
 function spreadDamage(damage: number, clone: Clone) {
-	const targetClones = clones.filter(c => c.x == clone.x && c.y == clone.y && c.damage < Infinity);
+	const targetClones = game.clones.filter(c => c.x == clone.x && c.y == clone.y && c.damage < Infinity);
 	targetClones.forEach(c => {
 		c.takeDamage(damage / targetClones.length);
 	});
@@ -427,7 +427,7 @@ export function completeFight(loc: MapLocation) {
 		creature.drawHealth();
 	}
 	if (!creature.health) {
-		clones.forEach(c => {
+		game.clones.forEach(c => {
 			c.inCombat = false;
 		});
 		setMined(loc.x, loc.y);
@@ -437,27 +437,27 @@ export function completeFight(loc: MapLocation) {
 }
 
 // Prevent backing out of combat
-export function startHeal(loc: MapLocation, clone: Clone) {
+export function startHeal(_loc: MapLocation, clone: Clone) {
 	return clone.inCombat ? CanStartReturnCode.Never : CanStartReturnCode.Now;
 }
 
-export function tickHeal(usedTime: number, loc: MapLocation, baseTime: number, clone: Clone) {
+export function tickHeal(usedTime: number, _loc: MapLocation, _baseTime: number, clone: Clone) {
 	clone.takeDamage(-usedTime / 1000);
 }
 
-export function completeHeal(loc: MapLocation, clone: Clone) {
+export function completeHeal(_loc: MapLocation, clone: Clone) {
 	return clone.damage > 0;
 }
 
-export function predictHeal(loc: MapLocation, clone: Clone | null = null) {
+export function predictHeal(_loc: MapLocation, clone: Clone | null = null) {
 	if (!clone) return 1;
 	return Math.max(clone.damage * getStat("Runic Lore").value, 0.01);
 }
 
 export function startChargeTeleport() {
-	for (let y = 0; y < zones[currentZone].map.length; y++) {
-		for (let x = 0; x < zones[currentZone].map[y].length; x++) {
-			if (zones[currentZone].map[y][x] == "t") {
+	for (let y = 0; y < zones[game.currentZone].map.length; y++) {
+		for (let x = 0; x < zones[game.currentZone].map[y].length; x++) {
+			if (zones[game.currentZone].map[y][x] == "t") {
 				return CanStartReturnCode.Never;
 			}
 		}
@@ -466,9 +466,9 @@ export function startChargeTeleport() {
 }
 
 export function startTeleport(): CanStartReturnCode {
-	for (let y = 0; y < zones[currentZone].map.length; y++) {
-		for (let x = 0; x < zones[currentZone].map[y].length; x++) {
-			if (zones[currentZone].map[y][x] == "t") {
+	for (let y = 0; y < zones[game.currentZone].map.length; y++) {
+		for (let x = 0; x < zones[game.currentZone].map[y].length; x++) {
+			if (zones[game.currentZone].map[y][x] == "t") {
 				return CanStartReturnCode.Now;
 			}
 		}
@@ -476,12 +476,12 @@ export function startTeleport(): CanStartReturnCode {
 	return CanStartReturnCode.NotNow;
 }
 
-export function completeTeleport(loc: MapLocation, clone: Clone) {
-	for (let y = 0; y < zones[currentZone].map.length; y++) {
-		for (let x = 0; x < zones[currentZone].map[y].length; x++) {
-			if (zones[currentZone].map[y][x] == "t") {
-				clone.x = x - zones[currentZone].xOffset;
-				clone.y = y - zones[currentZone].yOffset;
+export function completeTeleport(_loc: MapLocation, clone: Clone) {
+	for (let y = 0; y < zones[game.currentZone].map.length; y++) {
+		for (let x = 0; x < zones[game.currentZone].map[y].length; x++) {
+			if (zones[game.currentZone].map[y][x] == "t") {
+				clone.x = x - zones[game.currentZone].xOffset;
+				clone.y = y - zones[game.currentZone].yOffset;
 				return;
 			}
 		}
@@ -489,9 +489,9 @@ export function completeTeleport(loc: MapLocation, clone: Clone) {
 }
 
 export function predictTeleport() {
-	for (let y = 0; y < zones[currentZone].map.length; y++) {
-		for (let x = 0; x < zones[currentZone].map[y].length; x++) {
-			if (zones[currentZone].map[y][x] == "t") {
+	for (let y = 0; y < zones[game.currentZone].map.length; y++) {
+		for (let x = 0; x < zones[game.currentZone].map[y].length; x++) {
+			if (zones[game.currentZone].map[y][x] == "t") {
 				return 1;
 			}
 		}
@@ -508,33 +508,33 @@ export function startChargableRune(location: MapLocation) {
 
 export function duplicateDuration() {
 	let runes = 0;
-	for (let y = 0; y < zones[currentZone].map.length; y++) {
-		runes += zones[currentZone].map[y].split(/[dD]/).length - 1;
+	for (let y = 0; y < zones[game.currentZone].map.length; y++) {
+		runes += zones[game.currentZone].map[y].split(/[dD]/).length - 1;
 	}
 	return 2 ** (runes - 1);
 }
 
 export function completeChargeRune(loc: MapLocation) {
-	setMined(loc.x, loc.y, zones[currentZone].map[loc.y + zones[currentZone].yOffset][loc.x + zones[currentZone].xOffset].toLowerCase());
+	setMined(loc.x, loc.y, zones[game.currentZone].map[loc.y + zones[game.currentZone].yOffset][loc.x + zones[game.currentZone].xOffset].toLowerCase());
 }
 
 export function tickWither(usedTime: number, loc: MapLocation) {
-	let x = loc.x + zones[currentZone].xOffset;
-	let y = loc.y + zones[currentZone].yOffset;
+	let x = loc.x + zones[game.currentZone].xOffset;
+	let y = loc.y + zones[game.currentZone].yOffset;
 	const wither = getRune("Wither");
 	const adjacentPlants = [
-		shrooms.includes(zones[currentZone].map[y - 1][x]) ? zones[currentZone].mapLocations[y - 1][x] : null,
-		shrooms.includes(zones[currentZone].map[y][x - 1]) ? zones[currentZone].mapLocations[y][x - 1] : null,
-		shrooms.includes(zones[currentZone].map[y + 1][x]) ? zones[currentZone].mapLocations[y + 1][x] : null,
-		shrooms.includes(zones[currentZone].map[y][x + 1]) ? zones[currentZone].mapLocations[y][x + 1] : null
+		shrooms.includes(zones[game.currentZone].map[y - 1][x]) ? zones[game.currentZone].mapLocations[y - 1][x] : null,
+		shrooms.includes(zones[game.currentZone].map[y][x - 1]) ? zones[game.currentZone].mapLocations[y][x - 1] : null,
+		shrooms.includes(zones[game.currentZone].map[y + 1][x]) ? zones[game.currentZone].mapLocations[y + 1][x] : null,
+		shrooms.includes(zones[game.currentZone].map[y][x + 1]) ? zones[game.currentZone].mapLocations[y][x + 1] : null
 	].filter((p): p is NonNullable<typeof p> => p !== null);
 	if (wither.upgradeCount > 0) {
 		adjacentPlants.push(
 			...[
-				shrooms.includes(zones[currentZone].map[y - 1][x - 1]) ? zones[currentZone].mapLocations[y - 1][x - 1] : null,
-				shrooms.includes(zones[currentZone].map[y + 1][x - 1]) ? zones[currentZone].mapLocations[y + 1][x - 1] : null,
-				shrooms.includes(zones[currentZone].map[y + 1][x + 1]) ? zones[currentZone].mapLocations[y + 1][x + 1] : null,
-				shrooms.includes(zones[currentZone].map[y - 1][x + 1]) ? zones[currentZone].mapLocations[y - 1][x + 1] : null
+				shrooms.includes(zones[game.currentZone].map[y - 1][x - 1]) ? zones[game.currentZone].mapLocations[y - 1][x - 1] : null,
+				shrooms.includes(zones[game.currentZone].map[y + 1][x - 1]) ? zones[game.currentZone].mapLocations[y + 1][x - 1] : null,
+				shrooms.includes(zones[game.currentZone].map[y + 1][x + 1]) ? zones[game.currentZone].mapLocations[y + 1][x + 1] : null,
+				shrooms.includes(zones[game.currentZone].map[y - 1][x + 1]) ? zones[game.currentZone].mapLocations[y - 1][x + 1] : null
 			].filter((p): p is NonNullable<typeof p> => p !== null)
 		);
 	}
@@ -549,21 +549,21 @@ export function tickWither(usedTime: number, loc: MapLocation) {
 }
 
 function completeWither(loc: MapLocation) {
-	let x = loc.x + zones[currentZone].xOffset;
-	let y = loc.y + zones[currentZone].yOffset;
+	let x = loc.x + zones[game.currentZone].xOffset;
+	let y = loc.y + zones[game.currentZone].yOffset;
 	const adjacentPlants = [
-		shrooms.includes(zones[currentZone].map[y - 1][x]) ? zones[currentZone].mapLocations[y - 1][x] : null,
-		shrooms.includes(zones[currentZone].map[y][x - 1]) ? zones[currentZone].mapLocations[y][x - 1] : null,
-		shrooms.includes(zones[currentZone].map[y + 1][x]) ? zones[currentZone].mapLocations[y + 1][x] : null,
-		shrooms.includes(zones[currentZone].map[y][x + 1]) ? zones[currentZone].mapLocations[y][x + 1] : null
+		shrooms.includes(zones[game.currentZone].map[y - 1][x]) ? zones[game.currentZone].mapLocations[y - 1][x] : null,
+		shrooms.includes(zones[game.currentZone].map[y][x - 1]) ? zones[game.currentZone].mapLocations[y][x - 1] : null,
+		shrooms.includes(zones[game.currentZone].map[y + 1][x]) ? zones[game.currentZone].mapLocations[y + 1][x] : null,
+		shrooms.includes(zones[game.currentZone].map[y][x + 1]) ? zones[game.currentZone].mapLocations[y][x + 1] : null
 	].filter(p => p);
 	if (getRune("Wither").upgradeCount > 0) {
 		adjacentPlants.push(
 			...[
-				shrooms.includes(zones[currentZone].map[y - 1][x - 1]) ? zones[currentZone].mapLocations[y - 1][x - 1] : null,
-				shrooms.includes(zones[currentZone].map[y + 1][x - 1]) ? zones[currentZone].mapLocations[y + 1][x - 1] : null,
-				shrooms.includes(zones[currentZone].map[y + 1][x + 1]) ? zones[currentZone].mapLocations[y + 1][x + 1] : null,
-				shrooms.includes(zones[currentZone].map[y - 1][x + 1]) ? zones[currentZone].mapLocations[y - 1][x + 1] : null
+				shrooms.includes(zones[game.currentZone].map[y - 1][x - 1]) ? zones[game.currentZone].mapLocations[y - 1][x - 1] : null,
+				shrooms.includes(zones[game.currentZone].map[y + 1][x - 1]) ? zones[game.currentZone].mapLocations[y + 1][x - 1] : null,
+				shrooms.includes(zones[game.currentZone].map[y + 1][x + 1]) ? zones[game.currentZone].mapLocations[y + 1][x + 1] : null,
+				shrooms.includes(zones[game.currentZone].map[y - 1][x + 1]) ? zones[game.currentZone].mapLocations[y - 1][x + 1] : null
 			].filter(p => p)
 		);
 	}
@@ -575,22 +575,22 @@ function predictWither(location: MapLocation) {
 	let x = location.x;
 	let y = location.y;
 	if (x === null || y === null) return 1;
-	x += zones[currentZone].xOffset;
-	y += zones[currentZone].yOffset;
+	x += zones[game.currentZone].xOffset;
+	y += zones[game.currentZone].yOffset;
 	const wither = getRune("Wither");
 	const adjacentPlants = [
-		shrooms.includes(zones[currentZone].map[y - 1][x]) ? zones[currentZone].mapLocations[y - 1][x] : null,
-		shrooms.includes(zones[currentZone].map[y][x - 1]) ? zones[currentZone].mapLocations[y][x - 1] : null,
-		shrooms.includes(zones[currentZone].map[y + 1][x]) ? zones[currentZone].mapLocations[y + 1][x] : null,
-		shrooms.includes(zones[currentZone].map[y][x + 1]) ? zones[currentZone].mapLocations[y][x + 1] : null
+		shrooms.includes(zones[game.currentZone].map[y - 1][x]) ? zones[game.currentZone].mapLocations[y - 1][x] : null,
+		shrooms.includes(zones[game.currentZone].map[y][x - 1]) ? zones[game.currentZone].mapLocations[y][x - 1] : null,
+		shrooms.includes(zones[game.currentZone].map[y + 1][x]) ? zones[game.currentZone].mapLocations[y + 1][x] : null,
+		shrooms.includes(zones[game.currentZone].map[y][x + 1]) ? zones[game.currentZone].mapLocations[y][x + 1] : null
 	].filter((p): p is NonNullable<typeof p> => p !== null);
 	if (wither.upgradeCount > 0) {
 		adjacentPlants.push(
 			...[
-				shrooms.includes(zones[currentZone].map[y - 1][x - 1]) ? zones[currentZone].mapLocations[y - 1][x - 1] : null,
-				shrooms.includes(zones[currentZone].map[y + 1][x - 1]) ? zones[currentZone].mapLocations[y + 1][x - 1] : null,
-				shrooms.includes(zones[currentZone].map[y + 1][x + 1]) ? zones[currentZone].mapLocations[y + 1][x + 1] : null,
-				shrooms.includes(zones[currentZone].map[y - 1][x + 1]) ? zones[currentZone].mapLocations[y - 1][x + 1] : null
+				shrooms.includes(zones[game.currentZone].map[y - 1][x - 1]) ? zones[game.currentZone].mapLocations[y - 1][x - 1] : null,
+				shrooms.includes(zones[game.currentZone].map[y + 1][x - 1]) ? zones[game.currentZone].mapLocations[y + 1][x - 1] : null,
+				shrooms.includes(zones[game.currentZone].map[y + 1][x + 1]) ? zones[game.currentZone].mapLocations[y + 1][x + 1] : null,
+				shrooms.includes(zones[game.currentZone].map[y - 1][x + 1]) ? zones[game.currentZone].mapLocations[y - 1][x + 1] : null
 			].filter((p): p is NonNullable<typeof p> => p !== null)
 		);
 	}
@@ -600,40 +600,40 @@ function predictWither(location: MapLocation) {
 
 function activatePortal() {
 	/* Prestige copy this for pockets? */
-	breakActions = true;
-	moveToZone(currentZone + 1);
+	game.breakActions = true;
+	moveToZone(game.currentZone + 1);
 	if (settings.pauseOnPortal && settings.running) toggleRunning();
 }
 
 function completeGoal(loc: MapLocation) {
-	zones[currentZone].completeGoal();
+	zones[game.currentZone].completeGoal();
 	setMined(loc.x, loc.y);
 }
 
 function getChopTime(base: number, increaseRate: number) {
-	return () => base + increaseRate * queueTime * (realms[currentRealm].name == "Verdant Realm" ? VERDANT_GROW_MULT : 1);
+	return () => base + increaseRate * game.queueTime * (realms[game.currentRealm].name == "Verdant Realm" ? VERDANT_GROW_MULT : 1);
 }
 
-function tickSpore(usedTime: number, loc: MapLocation, baseTime: number, clone: Clone) {
+function tickSpore(_usedTime: number, _loc: MapLocation, baseTime: number, clone: Clone) {
 	spreadDamage(baseTime / 1000, clone);
 }
 
 function completeBarrier(loc: MapLocation) {
-	zones[currentZone].manaDrain += BARRIER_DRAIN;
+	zones[game.currentZone].manaDrain += BARRIER_DRAIN;
 	(document.querySelector<HTMLElement>("#barrier-mult")!).style.display = "block";
-	document.querySelector("#current-barrier-mult")!.innerHTML = `x${zones[currentZone].manaDrain + 1}`;
+	document.querySelector("#current-barrier-mult")!.innerHTML = `x${zones[game.currentZone].manaDrain + 1}`;
 	setMined(loc.x, loc.y);
 }
 
 function startBarrier(location: MapLocation) {
-	let barrierNumber = +zones[currentZone].map[location.y + zones[currentZone].yOffset][location.x + zones[currentZone].xOffset];
+	let barrierNumber = +zones[game.currentZone].map[location.y + zones[game.currentZone].yOffset][location.x + zones[game.currentZone].xOffset];
 	if (!isNaN(barrierNumber) && getRealm("Compounding Realm").machineCompletions >= barrierNumber) return CanStartReturnCode.Now;
 	return CanStartReturnCode.Never;
 }
 
 function barrierDuration() {
-	if (realms[currentRealm].name == "Compounding Realm") {
-		return 1 / (1 + loopCompletions / 40);
+	if (realms[game.currentRealm].name == "Compounding Realm") {
+		return 1 / (1 + game.loopCompletions / 40);
 	}
 	return 1;
 }
@@ -646,7 +646,7 @@ function completeGame() {
 	vr.maxMult = 1e308;
 	vr.completed = false;
 	vr.display();
-	GameComplete = 1;
+	game.GameComplete = 1;
 }
 
 enum ACTION {

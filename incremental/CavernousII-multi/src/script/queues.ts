@@ -1,5 +1,6 @@
 import { ActionInstance, getAction } from "./actions";
-import { Clone, clones } from "./clones";
+import { Clone } from "./clones";
+import { game } from "./game";
 import { showCursorLocations, showFinalLocation } from "./highlights";
 import { leftArrowSVG, rightArrowSVG, upArrowSVG, downArrowSVG, interactSVG, repeatInteractSVG, repeatListSVG, syncSVG, noSyncSVG, pauseSVG, pathfindSVG } from "./icons";
 import { MapLocation } from "./locations";
@@ -8,11 +9,11 @@ import { getMapLocation, getOffsetCurrentMapTile, walkable } from "./map";
 import { runes } from "./runes";
 import { settings } from "./settings";
 import { ActionStatus, CanStartReturnCode } from "./util";
-import { currentZone, displayZone, Zone, zones } from "./zones";
+import { Zone, zones } from "./zones";
 
 let actionBarWidth: number = 0;
 
-class QueueAction {
+export class QueueAction {
 	actionID: string;
 	currentClone: Clone | null = null;
 	currentAction: ActionInstance | null = null;
@@ -91,7 +92,7 @@ class QueueAction {
 
 	start() {
 		if (!this.currentClone) {
-			this.currentClone = clones[this.queue.index];
+			this.currentClone = game.clones[this.queue.index];
 		}
 		if (this.done == ActionStatus.Started || this.done == ActionStatus.Complete) return;
 		this.drawProgress();
@@ -196,11 +197,11 @@ class QueueAction {
 				".*©".includes(getOffsetCurrentMapTile(targetX, targetY)) &&
 				!["Walk", "Kudzu Chop"].includes(this.currentAction.action.name)
 			) {
-				loopCompletions--;
+				game.loopCompletions--;
 				const location = getMapLocation(targetX, targetY);
 				const actions: ActionInstance[] = [];
-				clones.forEach((c, i) => {
-					const action = zones[currentZone].queues[i].getNextAction();
+				game.clones.forEach((c, i) => {
+					const action = zones[game.currentZone].queues[i].getNextAction();
 					if (!action || action.done == ActionStatus.NotStarted) return;
 					const cloneX = c.x + +(action.action == "R") - +(action.action == "L");
 					const cloneY = c.y + +(action.action == "D") - +(action.action == "U");
@@ -219,8 +220,8 @@ class QueueAction {
 					this.complete();
 				}
 			} else if (this.action == "I" && this.currentAction!.location.type.canWorkTogether) {
-				clones.forEach((c, i) => {
-					const action = zones[currentZone].queues[i].getNextAction();
+				game.clones.forEach((c, i) => {
+					const action = zones[game.currentZone].queues[i].getNextAction();
 					if (!action || action.done == ActionStatus.NotStarted) return;
 					if (c.x == targetX && c.y == targetY && action.action == "I") {
 						action.complete();
@@ -275,19 +276,19 @@ export class QueuePathfindAction extends QueueAction {
 	}
 
 	get targetX() {
-		return this.targetXOffset + zones[currentZone].xOffset;
+		return this.targetXOffset + zones[game.currentZone].xOffset;
 	}
 
 	get targetY() {
-		return this.targetYOffset + zones[currentZone].yOffset;
+		return this.targetYOffset + zones[game.currentZone].yOffset;
 	}
 
 	get action() {
 		if (this.currentClone === null) throw new Error("Pathfind action not initialized");
 		if (this.cacheAction) return this.cacheAction;
 		if (this.done == ActionStatus.Complete) return null;
-		let originX = this.currentClone.x + zones[currentZone].xOffset,
-			originY = this.currentClone.y + zones[currentZone].yOffset;
+		let originX = this.currentClone.x + zones[game.currentZone].xOffset,
+			originY = this.currentClone.y + zones[game.currentZone].yOffset;
 		// Do a simple search from the clone's current position to the target position.
 		// Return the direction the clone needs to go next.
 		let getDistance = (x1: number, x2: number, y1: number, y2: number) => Math.abs(x1 - x2) + Math.abs(y1 - y2);
@@ -301,13 +302,13 @@ export class QueuePathfindAction extends QueueAction {
 
 		let openList: [number, number, number, number, string][] = [];
 		let closedList = [[originY, originX]];
-		if (walkable.includes(zones[currentZone].map[originY - 1][originX]))
+		if (walkable.includes(zones[game.currentZone].map[originY - 1][originX]))
 			openList.push([originY - 1, originX, 1, getDistance(originX, this.targetX, originY - 1, this.targetY), "U"]);
-		if (walkable.includes(zones[currentZone].map[originY + 1][originX]))
+		if (walkable.includes(zones[game.currentZone].map[originY + 1][originX]))
 			openList.push([originY + 1, originX, 1, getDistance(originX, this.targetX, originY + 1, this.targetY), "D"]);
-		if (walkable.includes(zones[currentZone].map[originY][originX - 1]))
+		if (walkable.includes(zones[game.currentZone].map[originY][originX - 1]))
 			openList.push([originY, originX - 1, 1, getDistance(originX - 1, this.targetX, originY, this.targetY), "L"]);
-		if (walkable.includes(zones[currentZone].map[originY][originX + 1]))
+		if (walkable.includes(zones[game.currentZone].map[originY][originX + 1]))
 			openList.push([originY, originX + 1, 1, getDistance(originX + 1, this.targetX, originY, this.targetY), "R"]);
 		while (openList.length > 0) {
 			let best_next = openList.reduce((a, c) => (a < c[3] ? a : c[3]), Infinity);
@@ -320,7 +321,7 @@ export class QueuePathfindAction extends QueueAction {
 				return active[4];
 			}
 			// Add adjacent tiles
-			if (walkable.includes(zones[currentZone].map[active[0] - 1][active[1]]) && !closedList.find(x => x[0] == active[0] - 1 && x[1] == active[1]))
+			if (walkable.includes(zones[game.currentZone].map[active[0] - 1][active[1]]) && !closedList.find(x => x[0] == active[0] - 1 && x[1] == active[1]))
 				openList.push([
 					active[0] - 1,
 					active[1],
@@ -328,7 +329,7 @@ export class QueuePathfindAction extends QueueAction {
 					active[2] + getDistance(active[1], this.targetX, active[0] - 1, this.targetY),
 					active[4]
 				]);
-			if (walkable.includes(zones[currentZone].map[active[0] + 1][active[1]]) && !closedList.find(x => x[0] == active[0] + 1 && x[1] == active[1]))
+			if (walkable.includes(zones[game.currentZone].map[active[0] + 1][active[1]]) && !closedList.find(x => x[0] == active[0] + 1 && x[1] == active[1]))
 				openList.push([
 					active[0] + 1,
 					active[1],
@@ -336,7 +337,7 @@ export class QueuePathfindAction extends QueueAction {
 					active[2] + getDistance(active[1], this.targetX, active[0] + 1, this.targetY),
 					active[4]
 				]);
-			if (walkable.includes(zones[currentZone].map[active[0]][active[1] - 1]) && !closedList.find(x => x[0] == active[0] && x[1] == active[1] - 1))
+			if (walkable.includes(zones[game.currentZone].map[active[0]][active[1] - 1]) && !closedList.find(x => x[0] == active[0] && x[1] == active[1] - 1))
 				openList.push([
 					active[0],
 					active[1] - 1,
@@ -344,7 +345,7 @@ export class QueuePathfindAction extends QueueAction {
 					active[2] + getDistance(active[1] - 1, this.targetX, active[0], this.targetY),
 					active[4]
 				]);
-			if (walkable.includes(zones[currentZone].map[active[0]][active[1] + 1]) && !closedList.find(x => x[0] == active[0] && x[1] == active[1] + 1))
+			if (walkable.includes(zones[game.currentZone].map[active[0]][active[1] + 1]) && !closedList.find(x => x[0] == active[0] && x[1] == active[1] + 1))
 				openList.push([
 					active[0],
 					active[1] + 1,
@@ -412,12 +413,12 @@ export class ActionQueue extends Array<QueueAction> {
 	}
 
 	get selected() {
-		return clones[this.index].isSelected;
+		return game.clones[this.index].isSelected;
 	}
 	set selected(newVal) {
 		if (this.selected == newVal) return;
 		this.cursor = null;
-		clones[this.index].isSelected = newVal;
+		game.clones[this.index].isSelected = newVal;
 		showCursorLocations();
 		if (this.selected) {
 			this.node.parentElement!.classList.add("selected-clone");
@@ -496,7 +497,7 @@ export class ActionQueue extends Array<QueueAction> {
 	}
 
 	getNextAction(): QueueAction | null {
-		if (clones[this.index].damage === Infinity) return null;
+		if (game.clones[this.index].damage === Infinity) return null;
 		const nextAction = this.find(a => a.done != ActionStatus.Complete) || null;
 		if (nextAction === null) {
 			const index = this.findIndex(a => a.actionID == "<");
@@ -506,7 +507,7 @@ export class ActionQueue extends Array<QueueAction> {
 					this[i].reset();
 					this[i].drawProgress();
 				}
-				clones[this.index].repeated = true;
+				game.clones[this.index].repeated = true;
 				return this.getNextAction();
 			}
 		}
@@ -589,14 +590,14 @@ export function selectClone(target: HTMLElement | number, event: MouseEvent) {
 		index = +target.id.replace("queue", "");
 	} else {
 		index = target;
-		if (zones[displayZone].queues.length <= index) return;
+		if (zones[game.displayZone].queues.length <= index) return;
 	}
 	if (event.ctrlKey || event.metaKey) {
-		zones[displayZone].queues[index].selected = !zones[displayZone].queues[index].selected;
+		zones[game.displayZone].queues[index].selected = !zones[game.displayZone].queues[index].selected;
 	} else {
-		zones[displayZone].queues.forEach((q, i) => (q.selected = i == index));
+		zones[game.displayZone].queues.forEach((q, i) => (q.selected = i == index));
 	}
-	clones[zones[currentZone].queues.findIndex(q => q.selected)].writeStats();
+	game.clones[zones[game.currentZone].queues.findIndex(q => q.selected)].writeStats();
 }
 
 export function getActionValue(action: string) {
@@ -608,7 +609,7 @@ export function setActionBarWidth(node: HTMLElement) {
 }
 
 export function addActionToQueue(action: string) {
-	zones[displayZone].queues.filter(q => q.selected).forEach(q => q.addAction(action));
+	zones[game.displayZone].queues.filter(q => q.selected).forEach(q => q.addAction(action));
 	showFinalLocation();
 	countMultipleActions();
 }
@@ -619,7 +620,7 @@ export function addRuneAction(index: number) {
 
 export function clearQueues() {
 	if (settings.warnings && !confirm("Really clear selected queues?")) return;
-	zones[displayZone].queues.forEach(q => (q.selected ? q.clear() : null));
+	zones[game.displayZone].queues.forEach(q => (q.selected ? q.clear() : null));
 }
 
 export function createActionNode(action: string) {
@@ -651,18 +652,18 @@ export function createActionNode(action: string) {
 }
 
 export function resetQueueHighlights() {
-	zones[currentZone].queues.forEach(queue => {
+	zones[game.currentZone].queues.forEach(queue => {
 		queue.forEach(action => action.drawProgress());
 		queue.scrollQueue();
 	});
 }
 
 export function countMultipleActions() {
-	if (!queuesNode) return;
-	queuesNode.querySelectorAll(".action-count").forEach(node => {
+	if (!game.queuesNode) return;
+	game.queuesNode.querySelectorAll(".action-count").forEach(node => {
 		node.parentNode?.removeChild(node);
 	});
-	zones[displayZone].queues.forEach(queue => {
+	zones[game.displayZone].queues.forEach(queue => {
 		const queueNode = queue.node;
 		let nodes = queueNode.children;
 		let actionCount = 0;
@@ -692,11 +693,11 @@ export function countMultipleActions() {
 }
 
 export function clearWorkProgressBars() {
-	[...(queuesNode?.querySelectorAll<HTMLElement>(".work-progress") || [])].forEach(bar => (bar.style.width = "0%"));
+	[...(game.queuesNode?.querySelectorAll<HTMLElement>(".work-progress") || [])].forEach(bar => (bar.style.width = "0%"));
 }
 
 export function redrawQueues() {
-	zones[displayZone].queues.forEach(q => {
+	zones[game.displayZone].queues.forEach(q => {
 		while (q.node.lastChild) {
 			q.node.removeChild(q.node.lastChild);
 		}
@@ -713,8 +714,8 @@ export function redrawQueues() {
 		timelineEl.removeChild(timelineEl.lastChild);
 	}
 
-	for (const c of clones) {
-		timelineEl.append(c.timeLineElements[displayZone]);
+	for (const c of game.clones) {
+		timelineEl.append(c.timeLineElements[game.displayZone]);
 	}
 	clearWorkProgressBars();
 }
@@ -723,14 +724,14 @@ export function setCursor(event: MouseEvent, el: HTMLElement) {
 	const offsetX = event.offsetX;
 	setTimeout(() => {
 		let nodes = Array.from(el.parentNode?.children || []);
-		let queue = zones[displayZone].queues[parseInt(el.parentNode!.parentElement!.id.replace("queue", ""))];
+		let queue = zones[game.displayZone].queues[parseInt(el.parentNode!.parentElement!.id.replace("queue", ""))];
 		queue.cursor = nodes.filter(n => !n.classList.contains("action-count")).findIndex(e => e == el) - +(offsetX < 8);
 	});
 }
 
 export function clearCursors(event?: Event, el?: Element) {
 	if (!event || event.target == el) {
-		zones[currentZone].queues.forEach(q => (q.cursor = null));
+		zones[game.currentZone].queues.forEach(q => (q.cursor = null));
 	}
 }
 
@@ -739,12 +740,12 @@ export function queueToString(queue: ActionQueue) {
 }
 
 export function exportQueues() {
-	let exportString = zones[displayZone].queues.map(queue => queueToString(queue));
+	let exportString = zones[game.displayZone].queues.map(queue => queueToString(queue));
 	navigator.clipboard.writeText(JSON.stringify(exportString));
 }
 
 export function getLongExport(all = true) {
-	return JSON.stringify(zones.map(z => (z.node && (all || currentZone >= z.index) ? z.queues.map(queue => queueToString(queue)) : "")).filter(q => q));
+	return JSON.stringify(zones.map(z => (z.node && (all || game.currentZone >= z.index) ? z.queues.map(queue => queueToString(queue)) : "")).filter(q => q));
 }
 
 export function longExportQueues() {
@@ -754,21 +755,21 @@ export function longExportQueues() {
 export function importQueues() {
 	let queueString = prompt("Input your queues");
 	if (!queueString) return;
-	let tempQueues = zones[displayZone].queues.slice();
+	let tempQueues = zones[game.displayZone].queues.slice();
 	try {
 		let newQueues = JSON.parse(queueString);
-		if (newQueues.length > zones[displayZone].queues.length) {
+		if (newQueues.length > zones[game.displayZone].queues.length) {
 			alert("Could not import queues - too many queues.");
 			return;
 		}
-		zones[displayZone].queues.map(e => e.clear());
+		zones[game.displayZone].queues.map(e => e.clear());
 		for (let i = 0; i < newQueues.length; i++) {
-			zones[displayZone].queues[i].fromString(newQueues[i]);
+			zones[game.displayZone].queues[i].fromString(newQueues[i]);
 		}
 		redrawQueues();
 	} catch {
 		alert("Could not import queues.");
-		zones[displayZone].queues = tempQueues;
+		zones[game.displayZone].queues = tempQueues;
 		redrawQueues();
 	}
 }
@@ -789,7 +790,7 @@ export function longImportQueues(queueString: string | string[][] | null) {
 				newQueues.push(queueString.map(q => q[i]));
 			}
 		}
-		if (newQueues.length > zones.length || newQueues.some((q: any) => q.length > clones.length)) {
+		if (newQueues.length > zones.length || newQueues.some((q: any) => q.length > game.clones.length)) {
 			alert("Could not import queues - too many queues.");
 			return;
 		}

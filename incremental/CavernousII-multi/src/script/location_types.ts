@@ -1,8 +1,9 @@
 import { getAction, type anyAction, type anyActionName } from "./actions";
 import { writeNumber } from "./functions";
+import { game } from "./game";
 import { getMapLocation } from "./map";
-import { currentRealm, realms } from "./realms";
-import { currentZone, zones, type Zone } from "./zones";
+import { realms } from "./realms";
+import { zones, type Zone } from "./zones";
 
 export class LocationType<locationTypeName extends string = string> {
 	canWorkTogether: boolean;
@@ -46,7 +47,7 @@ export class LocationType<locationTypeName extends string = string> {
 		if (entered >= this.enterCount) {
 			return Object.create(getAction("Walk"));
 		}
-		if (this.name == "Complete Goal" && zones[currentZone].goalComplete) {
+		if (this.name == "Complete Goal" && zones[game.currentZone].goalComplete) {
 			return Object.create(getAction("Mine"));
 		}
 		return this.enterAction!;
@@ -63,10 +64,10 @@ export function storeCompletions(completions: number, priorCompletions: number) 
 }
 
 export function getNextActivateCost() {
-	return `${realms[currentRealm].getNextActivateAmount()} gold nuggets, 1s`;
+	return `${realms[game.currentRealm].getNextActivateAmount()} gold nuggets, 1s`;
 }
 
-export function startCollectManaCost(this: LocationType, completions: number, priorCompletions: number, zone: Zone, x: number, y: number): string {
+export function startCollectManaCost(this: LocationType, _completions: number, _priorCompletions: number, zone: Zone, x: number, y: number): string {
 	return `${writeNumber(this.presentAction ? this.presentAction.getProjectedDuration(getMapLocation(x, y, true, zone.index)!) / 1000 : -1, 2)}s`;
 }
 export function getLocationType<T extends anyLocationTypeName>(name: T): LocationType<T>;
@@ -264,7 +265,7 @@ export const locationTypes = [
 	new LocationType(
 		"Sporeshroom",
 		"α",
-		"A giant mushroom which grows quickly.  While you cut it, it lets out poisonous spores, injuring your clones cutting it for 1 damage per second. (Growth: 1+{'0':0.1,'2':0.5}t)",
+		"A giant mushroom which grows quickly.  While you cut it, it lets out poisonous spores, injuring your game.clones cutting it for 1 damage per second. (Growth: 1+{'0':0.1,'2':0.5}t)",
 		"Spore Chop",
 		null,
 		null

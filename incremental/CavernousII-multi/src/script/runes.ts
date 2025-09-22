@@ -1,11 +1,11 @@
 import { simpleRequire, type anyActionName } from "./actions";
-import { clones } from "./clones";
+import { game } from "./game";
 import type { MapLocation } from "./locations";
 import { getMapLocation, setMined } from "./map";
 import { addRuneAction } from "./queues";
-import { currentRealm, getRealm } from "./realms";
+import { getRealm } from "./realms";
 import { CanStartReturnCode } from "./util";
-import { currentZone, zones } from "./zones";
+import { zones } from "./zones";
 
 export class Rune<runeName extends anyRuneName = anyRuneName> {
 	name: runeName;
@@ -80,7 +80,7 @@ export class Rune<runeName extends anyRuneName = anyRuneName> {
 	}
 
 	create(x: number, y: number) {
-		if (zones[currentZone].map[y + zones[currentZone].yOffset][x + zones[currentZone].xOffset] != ".") return true;
+		if (zones[game.currentZone].map[y + zones[game.currentZone].yOffset][x + zones[game.currentZone].xOffset] != ".") return true;
 		let location = getMapLocation(x, y, true);
 		if (location === null) throw new Error("Can't create rune at location");
 		if (location.baseType.name == "Mana Spring" || location.baseType.name == "Mana-infused Rock") return true;
@@ -105,7 +105,7 @@ export class Rune<runeName extends anyRuneName = anyRuneName> {
 		let match = desc.match(/\{.*\}/);
 		if (match) {
 			let realmDesc = JSON.parse(match[0].replace(/'/g, '"'));
-			desc = desc.replace(/\{.*\}/, realmDesc[currentRealm] || realmDesc[0]);
+			desc = desc.replace(/\{.*\}/, realmDesc[game.currentRealm] || realmDesc[0]);
 		}
 		this.node.querySelector(".description")!.innerHTML = desc;
 	}
@@ -123,7 +123,7 @@ export function updateRunes() {
 
 function createChargableRune(location: MapLocation) {
 	let action = location.getPresentAction();
-	action?.start(clones[0]);
+	action?.start(game.clones[0]);
 }
 
 export function weakenCreatures(location: MapLocation) {
@@ -139,9 +139,9 @@ export function weakenCreatures(location: MapLocation) {
 }
 
 export function canPlaceTeleport() {
-	for (let y = 0; y < zones[currentZone].map.length; y++) {
-		for (let x = 0; x < zones[currentZone].map[y].length; x++) {
-			if (zones[currentZone].map[y][x] == "T" || zones[currentZone].map[y][x] == "t") {
+	for (let y = 0; y < zones[game.currentZone].map.length; y++) {
+		for (let x = 0; x < zones[game.currentZone].map[y].length; x++) {
+			if (zones[game.currentZone].map[y][x] == "T" || zones[game.currentZone].map[y][x] == "t") {
 				return CanStartReturnCode.Never;
 			}
 		}

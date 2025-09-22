@@ -1,15 +1,15 @@
 import { writeNumber } from "./functions";
+import { game } from "./game";
 import { currentLoopLog } from "./loop_log";
 import { getMessage } from "./messages";
 import { ActionQueue } from "./queues";
 import { getBestRoute } from "./routes";
 import { settings } from "./settings";
 import { getStat } from "./stats";
-import { currentZone, displayZone, zones } from "./zones";
+import { zones } from "./zones";
 
 type timeLineEntry = { type: string; time: number; el: HTMLElement };
 type timeLine = timeLineEntry[];
-let breakActions = false;
 
 export class Clone {
 	id: number;
@@ -73,8 +73,8 @@ export class Clone {
 		if (this.damage >= getStat("Health").current) {
 			this.damage = Infinity;
 			getMessage("Death").display();
-			if (clones.every(c => c.damage == Infinity && c.x == this.x && c.y == this.y)) {
-				const route = getBestRoute(this.x, this.y, currentZone);
+			if (game.clones.every(c => c.damage == Infinity && c.x == this.x && c.y == this.y)) {
+				const route = getBestRoute(this.x, this.y, game.currentZone);
 				if (route) {
 					route.allDead = true;
 				}
@@ -102,7 +102,7 @@ export class Clone {
 			Math.max(getStat("Health").current - this.damage, 0),
 			this.damage ? 2 : 0
 		);
-		const lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1] || this.currentTimelineEntry;
+		const lastEntry = this.timeLines[game.currentZone][this.timeLines[game.currentZone].length - 1] || this.currentTimelineEntry;
 		if (lastEntry) {
 			document.querySelector(".clone-info .action-name")!.innerHTML = lastEntry.type;
 			document.querySelector(".clone-info .action-progress")!.innerHTML = writeNumber(this.remainingTime / 1000, 2);
@@ -125,7 +125,7 @@ export class Clone {
 	}
 
 	drown(time: number) {
-		const location = zones[currentZone].getMapLocation(this.x, this.y, true);
+		const location = zones[game.currentZone].getMapLocation(this.x, this.y, true);
 		if (location?.water) this.takeDamage((location.water ** 2 * time) / 1000);
 	}
 
@@ -138,9 +138,9 @@ export class Clone {
 		for (let i = 0; i < zones.length; i++) {
 			this.timeLines[i] = [];
 			this.timeLineElements[i] = timelineTemplate.cloneNode(true) as HTMLElement;
-			this.timeLineElements[i].id = `zone${i + 1}-timeline${clones.length}`;
+			this.timeLineElements[i].id = `zone${i + 1}-timeline${game.clones.length}`;
 		}
-		document.querySelector("#timelines")!.append(this.timeLineElements[displayZone]);
+		document.querySelector("#timelines")!.append(this.timeLineElements[game.displayZone]);
 	}
 
 	resetTimeLine() {
@@ -156,10 +156,10 @@ export class Clone {
 	addToTimeline(action: { name: string }, time = 0) {
 		if (action === null || time < 1 || isNaN(time)) return;
 		// Loop log
-		currentLoopLog.addActionTime(action.name, currentZone, time);
+		currentLoopLog.addActionTime(action.name, game.currentZone, time);
 
 		// Timeline
-		const lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1] || this.currentTimelineEntry;
+		const lastEntry = this.timeLines[game.currentZone][this.timeLines[game.currentZone].length - 1] || this.currentTimelineEntry;
 		if (lastEntry?.type == action.name) {
 			lastEntry.time += time;
 			lastEntry.el.dataset.time = Math.round(lastEntry.time).toString();
@@ -171,14 +171,14 @@ export class Clone {
 				entryElement.dataset.time = Math.round(time).toString();
 				entryElement.style.flexGrow = time.toString();
 				entryElement.classList.add(action.name.replace(/ /g, "-"));
-				if (currentZone > 0 && this.timeLines[currentZone].length == 0 && action.name == "No action") {
-					this.timeLineElements[currentZone - 1].append(entryElement);
-					this.timeLines[currentZone - 1].push({ type: action.name, time, el: entryElement });
+				if (game.currentZone > 0 && this.timeLines[game.currentZone].length == 0 && action.name == "No action") {
+					this.timeLineElements[game.currentZone - 1].append(entryElement);
+					this.timeLines[game.currentZone - 1].push({ type: action.name, time, el: entryElement });
 				} else {
-					this.timeLineElements[currentZone].append(entryElement);
-					this.timeLines[currentZone].push({ type: action.name, time, el: entryElement });
+					this.timeLineElements[game.currentZone].append(entryElement);
+					this.timeLines[game.currentZone].push({ type: action.name, time, el: entryElement });
 				}
-				this.currentTimelineEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1];
+				this.currentTimelineEntry = this.timeLines[game.currentZone][this.timeLines[game.currentZone].length - 1];
 			} else {
 				this.currentTimelineEntry = { type: action.name, time, el: document.createElement("div") };
 			}
@@ -186,22 +186,20 @@ export class Clone {
 	}
 
 	static addNewClone(loading = false) {
-		const c = new Clone(clones.length);
-		clones.push(c);
+		const c = new Clone(game.clones.length);
+		game.clones.push(c);
 		if (!loading) {
 			/* Prestige add bypass */
-			if (clones.length == 2) getMessage("First Clone").display();
-			if (clones.length == 3) getMessage("Second Clone").display();
-			if (clones.length == 4) getMessage("Third Clone").display();
-			if (clones.length == 5) getMessage("Fourth Clone").display();
+			if (game.clones.length == 2) getMessage("First Clone").display();
+			if (game.clones.length == 3) getMessage("Second Clone").display();
+			if (game.clones.length == 4) getMessage("Third Clone").display();
+			if (game.clones.length == 5) getMessage("Fourth Clone").display();
 		}
 		zones.forEach(z => {
-			while (z.queues.length < clones.length) {
+			while (z.queues.length < game.clones.length) {
 				let q = new ActionQueue(z.queues.length);
 				z.queues.push(q);
 			}
 		});
 	}
 }
-
-export let clones: Clone[] = [];

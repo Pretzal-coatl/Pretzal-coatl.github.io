@@ -1,12 +1,11 @@
-import { clones } from "./clones";
+import { game } from "./game";
 import { queueToString } from "./queues";
-import { currentRealm, realms } from "./realms";
-import { routes } from "./routes";
+import { realms } from "./realms";
 import { settings } from "./settings";
 import { getStat } from "./stats";
 import { stuff, type simpleStuffList } from "./stuff";
 import type { PropertiesOf } from "./util";
-import { currentZone, Zone, zones } from "./zones";
+import { Zone, zones } from "./zones";
 
 export class ZoneRoute {
 	realm!: number;
@@ -23,15 +22,15 @@ export class ZoneRoute {
 
 	constructor(z: Zone | PropertiesOf<ZoneRoute>) {
 		if (z instanceof Zone) {
-			let route = zones[currentZone].queues.map(r => queueToString(r));
+			let route = zones[game.currentZone].queues.map(r => queueToString(r));
 			route = route.filter(e => e.length);
 
-			this.realm = currentRealm;
+			this.realm = game.currentRealm;
 
-			if (route.every((e, i, a) => e == a[0])) {
+			if (route.every((e, _i, a) => e == a[0])) {
 				route = [route[0]];
 			} else {
-				let unique = route.find((e, i, a) => a.filter(el => el == e).length == 1);
+				let unique = route.find((e, _i, a) => a.filter(el => el == e).length == 1);
 				let ununique = route.find(e => e != unique);
 				if (route.every(e => e == unique || e == ununique) && unique && ununique) {
 					route = [unique, ununique];
@@ -50,7 +49,7 @@ export class ZoneRoute {
 				})
 				.filter(s => s.count > 0);
 			// cloneHealth is [min (from start), delta]
-			this.cloneHealth = clones.map(c => [c.minHealth, c.startDamage - c.damage]);
+			this.cloneHealth = game.clones.map(c => [c.minHealth, c.startDamage - c.damage]);
 			this.manaRequired = z.startMana - mana.min;
 			this.require = z.startStuff
 				.map(s => {
@@ -60,7 +59,7 @@ export class ZoneRoute {
 					};
 				})
 				.filter(s => s.count > 0);
-			this.actionCount = realms[this.realm].name == "Compounding Realm" ? loopCompletions : 0;
+			this.actionCount = realms[this.realm].name == "Compounding Realm" ? game.loopCompletions : 0;
 			this.id = zoneRouteCount++;
 			return;
 		}
@@ -97,12 +96,12 @@ export class ZoneRoute {
 		);
 	}
 
-	pickRoute(zone: number, actualRequirements: simpleStuffList, health = clones.map(c => 0), actionCount = this.actionCount): ZoneRoute[] | null {
+	pickRoute(zone: number, actualRequirements: simpleStuffList, health = game.clones.map(_c => 0), actionCount = this.actionCount): ZoneRoute[] | null {
 		let routeOptions = zones[zone].sumRoute(actualRequirements, health, actionCount);
 		if (zone == 0) {
 			if (routeOptions.length == 0) return null;
 			let health = getStat("Health");
-			let route = routeOptions.find(r => r[1].every(s => s.count == 0) && r[2].every(h => h < health.base)) || [];
+			let route = routeOptions.find(r => r[1].every((s: { count: number; }) => s.count == 0) && r[2].every(h => h < health.base)) || [];
 			return route[0] ? [route[0]] : null;
 		}
 		for (let i = 0; i < routeOptions.length; i++) {
@@ -115,8 +114,8 @@ export class ZoneRoute {
 	}
 
 	loadRoute(zone: Zone, cascade = true) {
-		let actualCurrentZone = currentZone;
-		currentZone = zone.index;
+		let actualCurrentZone = game.currentZone;
+		game.currentZone = zone.index;
 		for (let i = 0; i < zone.queues.length; i++) {
 			if (i == 0 || this.route.length == 1) {
 				zone.queues[i].fromString(this.route[0]);
@@ -126,7 +125,7 @@ export class ZoneRoute {
 				zone.queues[i].fromString(this.route[i] || this.route[this.route.length - 1] || "");
 			}
 		}
-		currentZone = actualCurrentZone;
+		game.currentZone = actualCurrentZone;
 		zone.displaySelectedRoute();
 		if (settings.loadPrereqs && zone.index > 0 && cascade) {
 			let routes = this.pickRoute(
@@ -150,8 +149,8 @@ export class ZoneRoute {
 
 export function findUsedZoneRoutes() {
 	let usedZoneRoutes: ZoneRoute[] = [];
-	routes.forEach(route => {
-		if (route.zone == 0 || route.realm != currentRealm) return;
+	game.routes.forEach(route => {
+		if (route.zone == 0 || route.realm != game.currentRealm) return;
 		let used;
 		if (route.usedRoutes && route.usedRoutes.every((r: ZoneRoute, i: number) => zones[i].routes.some(route => r == route))) {
 			used = route.usedRoutes;
@@ -180,7 +179,7 @@ export function clearUnusedZoneRoutes(zone: number | null = null) {
 		if (zone !== null && zone != z.index) return;
 		let currentRoute = (z.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
 		z.routes = z.routes.filter(
-			r => usedZoneRoutes.includes(r) || (r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute || r.realm != currentRealm || r.isLocked
+			r => usedZoneRoutes.includes(r) || (r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute || r.realm != game.currentRealm || r.isLocked
 		);
 		z.routesChanged = true;
 		z.display();

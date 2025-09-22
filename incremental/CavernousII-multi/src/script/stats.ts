@@ -1,11 +1,12 @@
 import { writeNumber } from "./functions";
+import { game } from "./game";
 import { GrindRoute } from "./grind_routes";
 import { hammerSVG } from "./icons";
 import { getMessage } from "./messages";
 import { prestige } from "./prestige";
-import { currentRealm, getRealmMult, realms } from "./realms";
+import { getRealmMult, realms } from "./realms";
 import { settings } from "./settings";
-import { currentZone, zones } from "./zones";
+import { zones } from "./zones";
 
 const MANA_START = 5;
 
@@ -257,16 +258,16 @@ export const stats: Stat<anyStatName>[] = [
 	new Stat("Combat", "", "Your ability to kill things.", 0),
 	new Stat("Gemcraft", "", "You pick pretty stuff from the walls - in one piece.", 0),
 	new Stat("Chronomancy", "", "Your command of magic has expanded, even affecting the flow of time! (It helps you resist the leeching of time barriers)", 0),
-	new Stat("Attack", "", "How much damage your wild flailing does. (Weapons increase all clones' stats)", 0, false),
-	new Stat("Defense", "", "How well you avoid taking damage. (Shields increase all clones' stats)", 0, false),
-	new Stat("Health", "♥", "How many hits you can take until you're nothing more than meat. (Armour increases all clones' stats)", 10, false)
+	new Stat("Attack", "", "How much damage your wild flailing does. (Weapons increase all game.clones' stats)", 0, false),
+	new Stat("Defense", "", "How well you avoid taking damage. (Shields increase all game.clones' stats)", 0, false),
+	new Stat("Health", "♥", "How many hits you can take until you're nothing more than meat. (Armour increases all game.clones' stats)", 10, false)
 ];
 
 export function getStat<nameType extends anyStatName>(name: nameType): Stat<nameType> {
 	return stats.find(a => a.name === name) as Stat<nameType>;
 }
 
-export function getBaseMana(zone: number = currentZone, realm: number = currentRealm): number {
+export function getBaseMana(zone: number = game.currentZone, realm: number = game.currentRealm): number {
 	return (
 		MANA_START +
 		zones.reduce((a, z, i) => {
