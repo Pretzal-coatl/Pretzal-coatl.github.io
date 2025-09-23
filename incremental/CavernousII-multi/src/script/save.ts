@@ -1,7 +1,7 @@
 import { Clone } from "./clones";
 import { GrindRoute } from "./grind_routes";
 import { messages, getMessage } from "./messages";
-import { GameComplete, prestige, prestigecount, prestigepoints } from "./prestige";
+import { prestige } from "./prestige";
 import { ActionQueue, redrawQueues } from "./queues";
 import { realms, getRealmComplete, changeRealms } from "./realms";
 import { Route } from "./routes";
@@ -60,7 +60,6 @@ interface saveGame {
 		completed: boolean;
 	}[];
 	prestigeData: any;
-	prestigeArray: any;
 }
 
 export let save = async function save() {
@@ -123,21 +122,10 @@ export let save = async function save() {
 	});
 	/* prestige data */
 	const prestigeData = {
-		name1: "prestigepoints",
-		value1: prestigepoints,
-		name2: "prestigecount",
-		value2: prestigecount,
-		name3: "GameComplete",
-		value3: GameComplete
-	};
-	const prestigeArray = {
-		value0: prestige[0].level,
-		value1: prestige[1].level,
-		value2: prestige[2].level,
-		value3: prestige[3].level,
-		value4: prestige[4].level,
-		value5: prestige[5].level,
-		value6: prestige[6].level
+		level: prestige.level,
+		prestigepoints: prestige.prestigepoints,
+		prestigecount: prestige.prestigecount,
+		GameComplete: prestige.GameComplete
 	};
 
 	let saveGame: saveGame = {
@@ -155,7 +143,6 @@ export let save = async function save() {
 		machines: machines,
 		realmData: realmData,
 		prestigeData: prestigeData,
-		prestigeArray: prestigeArray
 	};
 	let saveString = JSON.stringify(saveGame);
 	// Typescript can't find LZString, and I don't care.
@@ -241,30 +228,15 @@ export function load() {
 
 	/* load prestige stuff - needs to be beautified*/
 	if (saveGame.prestigeData === null) {
-		game.prestigepoints = 0;
-		game.prestigecount = 0;
-		game.GameComplete = 0;
+		prestige.level = 0;
+		prestige.prestigepoints = 0;
+		prestige.prestigecount = 0;
+		prestige.GameComplete = 0;
 	} else {
-		game.prestigepoints = saveGame.prestigeData.value1;
-		game.prestigecount = saveGame.prestigeData.value2;
-		game.GameComplete = saveGame.prestigeData.value3;
-	}
-	if (saveGame.prestigeArray === null) {
-		prestige[0].level = 0;
-		prestige[1].level = 0;
-		prestige[2].level = 0;
-		prestige[3].level = 0;
-		prestige[4].level = 0;
-		prestige[5].level = 0;
-		prestige[6].level = 0;
-	} else {
-		prestige[0].level = saveGame.prestigeArray.value0;
-		prestige[1].level = saveGame.prestigeArray.value1;
-		prestige[2].level = saveGame.prestigeArray.value2;
-		prestige[3].level = saveGame.prestigeArray.value3;
-		prestige[4].level = saveGame.prestigeArray.value4;
-		prestige[5].level = saveGame.prestigeArray.value5;
-		prestige[6].level = saveGame.prestigeArray.value6;
+		prestige.level = saveGame.prestigeData.level;
+		prestige.prestigepoints = saveGame.prestigeData.prestigepoints;
+		prestige.prestigecount = saveGame.prestigeData.prestigecount;
+		prestige.GameComplete = saveGame.prestigeData.GameComplete;
 	}
 
 	loadSettings(saveGame.settings);

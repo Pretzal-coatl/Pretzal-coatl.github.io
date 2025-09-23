@@ -1,4 +1,4 @@
-import { getAction } from "./actions";
+import { getAction, mineManaRockCost } from "./actions";
 import { writeNumber } from "./functions";
 import { game } from "./game";
 import { showFinalLocation } from "./highlights";

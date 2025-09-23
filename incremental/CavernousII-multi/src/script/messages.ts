@@ -1,6 +1,6 @@
 let suppressMessages = new URL(document.location.href).searchParams.get("messages") == "disabled";
 
-const messageBox: HTMLElement =
+export const messageBox: HTMLElement =
 	document.querySelector("#message-box") ??
 	(() => {
 		throw new Error("No config box found");

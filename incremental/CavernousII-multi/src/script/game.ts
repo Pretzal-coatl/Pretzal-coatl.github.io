@@ -5,7 +5,7 @@ import type { GrindRoute } from "./grind_routes";
 import { resetLoop } from "./loop";
 import { currentLoopLog, displayedLog } from "./loop_log";
 import { drawMap, getMapLocation } from "./map";
-import { getMessage } from "./messages";
+import { getMessage, messageBox } from "./messages";
 import type { QueueAction } from "./queues";
 import { realms } from "./realms";
 import { Route, getBestRoute } from "./routes";
@@ -43,7 +43,6 @@ class Game {
 
     runActions(time: number): number {
         const mana = getStat("Mana");
-        let loops = 0;
         while (time > 0.001) {
             let actions = <QueueAction[]>zones[this.currentZone].queues.map(q => q.getNextAction());
             const nullActions = actions.map((a, i) => (a === null ? i : -1)).filter(a => a > -1);
@@ -119,7 +118,7 @@ class Game {
 
     mainLoop() {
         if (zones[0].index === -1 || realms[0].index === -1) return;
-        if (shouldReset) {
+        if (game.shouldReset) {
             resetLoop();
         }
         const mana = getStat("Mana");
@@ -162,7 +161,7 @@ class Game {
             mana.current == 0 ||
             (settings.autoRestart == AutoRestart.WaitAny &&
                 zones[this.currentZone].queues.some(q => !q.getNextAction() && (!q.length || q[q.length - 1].actionID != "="))) ||
-            (settings.autoRestart == AutoRestart.WaitAll && zones[this.currentZone].queues.every(q => !q.getNextAction()) && clones.some(c => c.damage < Infinity)) ||
+            (settings.autoRestart == AutoRestart.WaitAll && zones[this.currentZone].queues.every(q => !q.getNextAction()) && this.clones.some(c => c.damage < Infinity)) ||
             !messageBox.hidden
         ) {
             this.timeBanked += time;
@@ -212,6 +211,7 @@ export const game = new Game();
 setInterval(game.mainLoop, Math.floor(1000 / fps));
 
 export function setup() {
+    const URLParams = new URL(document.location.href).searchParams;
     Clone.addNewClone();
     zones[0].enterZone();
     zones[0].queues[0].selected = true;

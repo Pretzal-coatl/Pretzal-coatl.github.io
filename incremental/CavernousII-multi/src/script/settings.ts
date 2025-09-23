@@ -1,4 +1,5 @@
 import { game } from "./game";
+import { resetLoop } from "./loop";
 import { visibleX, visibleY } from "./map";
 import { hideMessages } from "./messages";
 import { addActionToQueue, addRuneAction, clearQueues, redrawQueues, selectClone } from "./queues";
@@ -331,7 +332,7 @@ const adjustableKeybindings: { [key: string]: (event: KeyboardEvent) => void } =
 		if (getStat("Mana").base == 5) {
 			hideMessages();
 		}
-		game.resetLoop();
+		resetLoop();
 	},
 	KeyC: () => {
 		if (settings.useWASD) {

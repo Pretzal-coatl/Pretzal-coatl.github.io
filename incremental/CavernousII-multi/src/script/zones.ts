@@ -115,7 +115,7 @@ export class Zone {
 		for (let i = 1; i <= 9; i++) {
 			if (i > unlockedBarriers) this.map = this.map.map(row => row.replace(i.toString(), "█"));
 		}
-		this.mapLocations.forEach((ml, y) => {
+		this.mapLocations.forEach((ml) => {
 			ml.forEach((l) => {
 				l.reset();
 			});

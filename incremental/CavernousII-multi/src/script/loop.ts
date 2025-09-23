@@ -5,7 +5,7 @@ import { showFinalLocation } from "./highlights";
 import { currentLoopLog } from "./loop_log";
 import { drawMap } from "./map";
 import { getMessage } from "./messages";
-import { prestigecount } from "./prestige";
+import { prestige } from "./prestige";
 import { realms } from "./realms";
 import { Route } from "./routes";
 import { updateRunes } from "./runes";
@@ -22,7 +22,7 @@ export function resetLoop(noLoad = false, saveGame = true) {
 	game.shouldReset = false;
 	resetting = true;
 	const mana = getStat("Mana"); /* Cleaned up my additions as is handled during initilization */
-	if (getMessage("Time Travel").display(zones[0].manaGain == 0 && realms[game.currentRealm].name == "Core Realm" && prestigecount == 0))
+	if (getMessage("Time Travel").display(zones[0].manaGain == 0 && realms[game.currentRealm].name == "Core Realm" && prestige.prestigecount == 0))
 		setSetting(toggleAutoRestart, 3);
 	else getMessage("Persisted Programming").display();
 	if (mana.base == 5.5) getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);

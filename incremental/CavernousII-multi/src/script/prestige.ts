@@ -9,29 +9,25 @@ import { exportGame, save } from "./save";
 import { getStat, stats } from "./stats";
 import { zones } from "./zones";
 
-export var GameComplete = 0;
-class PrestigePoints {
-	value: number;
-	constructor(value: number) {
-		this.value = value;
-	}
-}
+// class PrestigePoints {
+// 	value: number;
+// 	constructor(value: number) {
+// 		this.value = value;
+// 	}
+// }
 
-export var prestigepoints = 0;
-export var prestigecount = 0;
-
-class Prestige {
-	name: string;
-	level: number;
-	nextcost: number;
-	total: number;
-	constructor(name: string, level: number, nextcost: number = 0, total: number = 0) {
-		this.name = name;
-		this.level = level;
-		this.nextcost = nextcost;
-		this.total = total;
-	}
-}
+// class Prestige {
+// 	name: string;
+// 	level: number;
+// 	nextcost: number;
+// 	total: number;
+// 	constructor(name: string, level: number, nextcost: number = 0, total: number = 0) {
+// 		this.name = name;
+// 		this.level = level;
+// 		this.nextcost = nextcost;
+// 		this.total = total;
+// 	}
+// }
 
 /*
 class Prestige {
@@ -49,30 +45,31 @@ class Prestige {
 }
 */
 
-export var prestige = [
-	new Prestige("BonusClones", 0),
-	new Prestige("FasterStats", 0),
-	new Prestige("ManaScaling", 0),
-	new Prestige("BonusResc", 0),
-	new Prestige("BetterEquip", 0),
-	new Prestige("SoftCap", 0),
-	new Prestige("BonusZones", 0)
-];
+// export var prestige = [
+// 	new Prestige("BonusClones", 0),
+// 	new Prestige("FasterStats", 0),
+// 	new Prestige("ManaScaling", 0),
+// 	new Prestige("BonusResc", 0),
+// 	new Prestige("BetterEquip", 0),
+// 	new Prestige("SoftCap", 0),
+// 	new Prestige("BonusZones", 0)
+// ];
 
-function prestigeGame() {
+export var prestige = {
+	level: 0,
+	prestigepoints: 0,
+	prestigecount: 0,
+	GameComplete: 0,
+};
+
+export function prestigeGame() {
 	/* Dangerous, should fix */
-	if (GameComplete == 1 || prestigecount == 0) {
+	if (prestige.GameComplete == 1 || prestige.prestigecount == 0) {
 		exportGame();
-		GameComplete = 0;
-		prestigepoints += 90;
-		prestigecount += 1;
-		prestige[0].level += 1;
-		prestige[1].level += 1;
-		prestige[2].level += 1;
-		prestige[3].level += 1;
-		prestige[4].level += 1;
-		prestige[5].level += 1;
-		prestige[6].level += 1;
+		prestige.GameComplete = 0;
+		prestige.prestigepoints += 90;
+		prestige.prestigecount += 1;
+		prestige.level += 1;
 		resetprogress();
 	}
 }
@@ -122,7 +119,7 @@ function resetprogress() {
 	game.currentRealm = 0;
 	/*Initialize*/
 	Clone.addNewClone();
-	for (let i = 0; i < prestige[0].level; ++i) {
+	for (let i = 0; i < prestige.level; ++i) {
 		Clone.addNewClone();
 	}
 	/*Remove Message*/
@@ -137,12 +134,12 @@ function resetprogress() {
 // Fix Prestige Values for Hover - need help
 /*
     let prestigenumber= document.querySelector("prestigenumber") = writeNumber(prestigecount);
-    document.querySelector("prestigeval0") = writeNumber(prestige[0].level);
-    document.querySelector("prestigeval1") = writeNumber(0.1*prestige[1].level);
-    document.querySelector("prestigeval2") = writeNumber(0.95 ** (prestige[2].level ** 0.75));
-    document.querySelector("prestigeval3") = writeNumber(0.1*prestige[3].level);
-    document.querySelector("prestigeval4") = writeNumber(0.1*prestige[4].level);
-    document.querySelector("prestigeval5a") = writeNumber(1+prestige[5].level);
-    document.querySelector("prestigeval5b") = writeNumber(20*prestige[5].level);
-    document.querySelector("prestigeval6") = writeNumber(prestige[6].level);
+    document.querySelector("prestigeval0") = writeNumber(prestige.level);
+    document.querySelector("prestigeval1") = writeNumber(0.1*prestige.level);
+    document.querySelector("prestigeval2") = writeNumber(0.95 ** (prestige.level ** 0.75));
+    document.querySelector("prestigeval3") = writeNumber(0.1*prestige.level);
+    document.querySelector("prestigeval4") = writeNumber(0.1*prestige.level);
+    document.querySelector("prestigeval5a") = writeNumber(1+prestige.level);
+    document.querySelector("prestigeval5b") = writeNumber(20*prestige.level);
+    document.querySelector("prestigeval6") = writeNumber(prestige.level);
 */

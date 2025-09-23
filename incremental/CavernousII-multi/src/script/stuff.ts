@@ -75,7 +75,7 @@ export class Stuff<stuffName extends string> {
 					// @ts-ignore
 				}[<String>this.name]
 			);
-			const combatValue = Math.pow(stat.value, 0.01 * this.count * (1 + 0.1 * prestige[4].level));
+			const combatValue = Math.pow(stat.value, 0.01 * this.count * (1 + 0.1 * prestige.level));
 			if (this.node) this.node.querySelector(".description")!.innerHTML = this.description.replace("{}", writeNumber(combatValue * 100, 1));
 		}
 	}
@@ -114,14 +114,14 @@ export function calcCombatStats() {
 	attack.push(...Array(getStuff("Iron Sword").count).fill(1));
 	attack = attack.slice(0, game.clones.length).reduce((a, c) => a + c, 0);
 	let defense = [];
-	defense.push(...Array(getStuff("+1 Shield").count).fill(4 * (1 + 0.1 * prestige[4].level)));
-	defense.push(...Array(getStuff("Steel Shield").count).fill(2 * (1 + 0.1 * prestige[4].level)));
-	defense.push(...Array(getStuff("Iron Shield").count).fill(1 * (1 + 0.1 * prestige[4].level)));
+	defense.push(...Array(getStuff("+1 Shield").count).fill(4 * (1 + 0.1 * prestige.level)));
+	defense.push(...Array(getStuff("Steel Shield").count).fill(2 * (1 + 0.1 * prestige.level)));
+	defense.push(...Array(getStuff("Iron Shield").count).fill(1 * (1 + 0.1 * prestige.level)));
 	defense = defense.slice(0, game.clones.length).reduce((a, c) => a + c, 0);
 	let health = [];
-	health.push(...Array(getStuff("+1 Armour").count).fill(25 * (1 + 0.1 * prestige[4].level)));
-	health.push(...Array(getStuff("Steel Armour").count).fill(15 * (1 + 0.1 * prestige[4].level)));
-	health.push(...Array(getStuff("Iron Armour").count).fill(5 * (1 + 0.1 * prestige[4].level)));
+	health.push(...Array(getStuff("+1 Armour").count).fill(25 * (1 + 0.1 * prestige.level)));
+	health.push(...Array(getStuff("Steel Armour").count).fill(15 * (1 + 0.1 * prestige.level)));
+	health.push(...Array(getStuff("Iron Armour").count).fill(5 * (1 + 0.1 * prestige.level)));
 	health = health.slice(0, game.clones.length).reduce((a, c) => a + c, 0);
 	getStat("Attack").setStat(attack);
 	getStat("Defense").setStat(defense);
@@ -133,7 +133,7 @@ export function getStatBonus(name: anyStatName, mult: number) {
 	/* Prestige, place to add stat increases */
 	let stat = getStat(name);
 	return (oldAmount: number, amount: number) =>
-		stat.getBonus((Math.floor(amount + 0.01) - Math.floor(oldAmount + 0.01)) * mult * (1 + 0.1 * prestige[4].level));
+		stat.getBonus((Math.floor(amount + 0.01) - Math.floor(oldAmount + 0.01)) * mult * (1 + 0.1 * prestige.level));
 }
 export type anyStuffName = typeof stuff[number]["name"];
 export const stuff = [
@@ -246,9 +246,9 @@ export function displayStuff(node: HTMLElement, route: Route | ZoneRoute) {
 export function getEquipHealth(stuff: simpleStuffList) {
 	/* Prestige, place to add stat increases */
 	const equipmentHealth: { [key in simpleStuffList[number]["name"]]?: number } = {
-		"Iron Armour": 5 * (1 + 0.1 * prestige[4].level),
-		"Steel Armour": 15 * (1 + 0.1 * prestige[4].level),
-		"+1 Armour": 25 * (1 + 0.1 * prestige[4].level)
+		"Iron Armour": 5 * (1 + 0.1 * prestige.level),
+		"Steel Armour": 15 * (1 + 0.1 * prestige.level),
+		"+1 Armour": 25 * (1 + 0.1 * prestige.level)
 	};
 	return stuff.reduce((a, s) => a + (equipmentHealth[s.name] || 0) * s.count, 0);
 }

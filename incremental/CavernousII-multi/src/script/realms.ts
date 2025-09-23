@@ -173,7 +173,7 @@ realms.push(
 	new Realm(
 		"Core Realm",
 		"Where you started.  Hopefully, how you'll leave this cave complex.",
-		() => game.clones.length - prestige[0].level,
+		() => game.clones.length - prestige.level,
 		() => Clone.addNewClone()
 	)
 );

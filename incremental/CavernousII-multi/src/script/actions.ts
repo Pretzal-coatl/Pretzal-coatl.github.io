@@ -104,7 +104,7 @@ export class Action<actionName extends anyActionName = anyActionName> {
 
 	tick(usedTime: number, loc: MapLocation, baseTime: number = 0, clone: Clone) {
 		for (let i = 0; i < this.stats.length; i++) {
-			this.stats[i][0].gainSkill((baseTime / 1000) * this.stats[i][1] * (1 + 0.1 * prestige[1].level));
+			this.stats[i][0].gainSkill((baseTime / 1000) * this.stats[i][1] * (1 + 0.1 * prestige.level));
 		}
 		if (this.tickExtra) {
 			this.tickExtra(usedTime, loc, baseTime, clone);
@@ -188,7 +188,7 @@ export function completeMine(loc: MapLocation) {
 export function getDuplicationAmount(loc: MapLocation) {
 	let x = loc.x,
 		y = loc.y;
-	let amount = Math.round((1 + 0.1 * prestige[3].level) * 1000) / 1000; /* Prestige, add multiplier for point spend */
+	let amount = Math.round((1 + 0.1 * prestige.level) * 1000) / 1000; /* Prestige, add multiplier for point spend */
 	const zone = zones[game.currentZone];
 	x += zone.xOffset;
 	y += zone.yOffset;
@@ -203,7 +203,7 @@ export function getDuplicationAmount(loc: MapLocation) {
 		[x - 1, y - 1]
 	];
 	rune_locs.forEach(([X, Y]) => {
-		amount += (+(zone.map[Y][X] == "d") * Math.round((1 + getRune("Duplication").upgradeCount * 0.25) * (1 + 0.1 * prestige[3].level) * 1000)) / 1000;
+		amount += (+(zone.map[Y][X] == "d") * Math.round((1 + getRune("Duplication").upgradeCount * 0.25) * (1 + 0.1 * prestige.level) * 1000)) / 1000;
 	});
 	return amount;
 }
@@ -267,20 +267,20 @@ function canMineMana(_location: MapLocation) {
 	return CanStartReturnCode.Now;
 }
 
-function mineManaRockCost(location: MapLocation, _clone: Clone | null = null, realm: number | null = null, completionOveride?: number) {
+export function mineManaRockCost(location: MapLocation, _clone: Clone | null = null, realm: number | null = null, completionOveride?: number) {
 	/* Prestige, add mana rock reducer for point spend */
 	// return Math.pow(
 	// 			1 +
 	// 				(0.1 + 0.05 * (location.zone.index + (realm == null ? game.currentRealm : realm))) *
 	// 					longZoneCompletionMult(location.x, location.y, location.zone.index) *
-	// 					0.95 ** (prestige[2].level ** 0.75),
+	// 					0.95 ** (prestige.level ** 0.75),
 	// 			completionOveride ?? location.priorCompletions
 	// 	  );
 	const formula =
 		1 +
 		(0.1 + 0.05 * (location.zone.index + (realm == null ? game.currentRealm : realm))) *
 			longZoneCompletionMult(location.x, location.y, location.zone.index) *
-			0.95 ** (prestige[2].level ** 0.75);
+			0.95 ** (prestige.level ** 0.75);
 	// If completed previously in this route, subtract previous time.
 	if (location.completions && !completionOveride) {
 		return Math.pow(formula, location.priorCompletions + location.completions) - Math.pow(formula, location.priorCompletions + location.completions - 1);
@@ -405,9 +405,9 @@ function spreadDamage(damage: number, clone: Clone) {
 }
 
 let combatTools: [Stuff<anyStuffName>, number, Stat<anyStatName>][] = [
-	/* Prestige place to increase tool stats */ [getStuff("Iron Axe"), 0.01 * 1 /*+0.1*prestige[4].level*/, getStat("Woodcutting")],
-	[getStuff("Iron Pick"), 0.01 * 1 /*+0.1*prestige[4].level*/, getStat("Mining")],
-	[getStuff("Iron Hammer"), 0.01 * 1 /*+0.1*prestige[4].level*/, getStat("Smithing")]
+	/* Prestige place to increase tool stats */ [getStuff("Iron Axe"), 0.01 * 1 /*+0.1*prestige.level*/, getStat("Woodcutting")],
+	[getStuff("Iron Pick"), 0.01 * 1 /*+0.1*prestige.level*/, getStat("Mining")],
+	[getStuff("Iron Hammer"), 0.01 * 1 /*+0.1*prestige.level*/, getStat("Smithing")]
 ];
 
 export function combatDuration() {
@@ -646,7 +646,7 @@ function completeGame() {
 	vr.maxMult = 1e308;
 	vr.completed = false;
 	vr.display();
-	game.GameComplete = 1;
+	prestige.GameComplete = 1;
 }
 
 enum ACTION {

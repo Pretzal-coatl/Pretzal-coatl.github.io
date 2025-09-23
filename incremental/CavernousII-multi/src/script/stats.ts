@@ -69,7 +69,7 @@ export class Stat<statName extends anyStatName> {
 			return;
 		}
 		const scalingStart =
-			99 + getRealmMult("Compounding Realm") * (1 + prestige[5].level) + prestige[5].level * 20; /* Prestige place to add Scaling Stat bonus */
+			99 + getRealmMult("Compounding Realm") * (1 + prestige.level) + prestige.level * 20; /* Prestige place to add Scaling Stat bonus */
 		const increaseAt = (this.base + 1) ** ((10 / 9) * (this.base > scalingStart ? scalingStart / this.base : 1) ** 0.05) - 1;
 		const val = (this.current + 1) ** (0.9 * (this.base > scalingStart ? scalingStart / this.base : 1) ** 0.05) - (this.base + 1);
 		if (val < 0) {
@@ -81,7 +81,7 @@ export class Stat<statName extends anyStatName> {
 		}
 		const increase =
 			((val - prevVal) / this.statIncreaseDivisor) *
-			(0.99 + (getRealmMult("Compounding Realm") * (1 + prestige[5].level)) / 100 + (prestige[5].level * 20) / 100) *
+			(0.99 + (getRealmMult("Compounding Realm") * (1 + prestige.level)) / 100 + (prestige.level * 20) / 100) *
 			Math.max(1, this.current / Math.max(1, increaseAt)) ** 0.5; // Increase stat increases when proportionately higher.
 		this.base += increase;
 	}
@@ -123,7 +123,7 @@ export class Stat<statName extends anyStatName> {
 			)} (${writeNumber(this.base, 2)})`;
 			let increaseRequired;
 			const scalingStart =
-				99 + getRealmMult("Compounding Realm") * (1 + prestige[5].level) + prestige[5].level * 20; /* Prestige place to add Scaling Stat bonus */
+				99 + getRealmMult("Compounding Realm") * (1 + prestige.level) + prestige.level * 20; /* Prestige place to add Scaling Stat bonus */
 			if (this.base < scalingStart) {
 				increaseRequired = (this.base + 1) ** (10 / 9) - 1;
 			} else if (!forceIncreaseAtUpdate && this.lastIncreaseRequired && this.base - 0.01 < this.lastIncreaseUpdate) {
