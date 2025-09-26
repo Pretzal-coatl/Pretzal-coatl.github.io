@@ -59,9 +59,11 @@ export function setSetting<T, Y extends any[]>(toggler: (...args: Y) => T, value
 
 export function toggleBankedTime() {
 	settings.usingBankedTime = !settings.usingBankedTime;
+	if (!document.querySelector("#time-banked-toggle")) return;
 	document.querySelector("#time-banked-toggle")!.innerHTML = settings.usingBankedTime ? "Using" : "Banking";
 	return settings.usingBankedTime;
 }
+(window as any).toggleBankedTime = toggleBankedTime;
 
 export function toggleRunning() {
 	settings.running = !settings.running;

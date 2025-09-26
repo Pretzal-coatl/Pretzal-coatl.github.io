@@ -149,10 +149,10 @@ class Game {
                     resetLoop();
                 }
             } else {
-                this.queuesNode.classList.remove("out-of-mana");
+                this.queuesNode?.classList.remove("out-of-mana");
             }
             if (settings.autoRestart == AutoRestart.RestartAlways && zones[this.currentZone].queues.every(q => !q.getNextAction())) {
-                this.queuesNode.classList.remove("out-of-mana");
+                this.queuesNode?.classList.remove("out-of-mana");
                 resetLoop();
             }
         }

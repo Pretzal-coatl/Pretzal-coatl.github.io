@@ -1,5 +1,7 @@
 import { showIntermediateLocation } from './highlights.ts'
+import { viewCell } from './map.ts'
 import { hideMessages } from './messages.ts'
+import { updateGrindStats } from './routes.ts'
 import type { DOMEvent } from './util.ts'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
@@ -105,7 +107,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 					<span class="name">Travel back in time (R)</span>
 					<div class="description">Return to your little room.</div>
 				</div>
-				<div id="grind-option" class="option block clickable" onclick="toggleGrindMana(event)" onmouseover="updateGrindStats()">
+				<div id="grind-option" class="option block clickable" onclick="toggleGrindMana(event)" onmouseover="${updateGrindStats()}">
 					<span id="grind-mana-toggle">Not grinding mana rocks</span> (G)
 					<div class="description">
 						Loops through your best paths to each mana rock.<br />
@@ -260,7 +262,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 				<div class="description">Prestige and get points.</div>
 			</div>
 		</div>
-		<div id="map" class="vertical-block wide" onclick="viewCell(event.target)">
+		<div id="map" class="vertical-block wide" onclick="${(event: DOMEvent) => viewCell(event.target)}">
 			<!-- <canvas id="mapCanvas" style="position:absolute;z-index:5;width:10px;height:10px;"></canvas> -->
 			<h3>Map (<span id="zone-name">Zone 1</span>)</h3>
 			<div id="realm-select"></div>

@@ -1,17 +1,18 @@
+import { compressToBase64, decompressFromBase64 } from "lz-string";
 import { Clone } from "./clones";
+import { game, setup } from "./game";
 import { GrindRoute } from "./grind_routes";
-import { messages, getMessage } from "./messages";
+import { drawMap } from "./map";
+import { getMessage, messages } from "./messages";
 import { prestige } from "./prestige";
 import { ActionQueue, redrawQueues } from "./queues";
-import { realms, getRealmComplete, changeRealms } from "./realms";
+import { changeRealms, getRealmComplete, realms } from "./realms";
 import { Route } from "./routes";
 import { runes, type anyRuneName } from "./runes";
-import { settings, loadSettings } from "./settings";
-import { getStat, type anyStatName, stats } from "./stats";
+import { loadSettings, settings } from "./settings";
+import { getStat, stats, type anyStatName } from "./stats";
 import { ZoneRoute } from "./zone_routes";
-import { zones, recalculateMana } from "./zones";
-import { drawMap } from "./map";
-import { game, setup } from "./game";
+import { recalculateMana, zones } from "./zones";
 
 function getVersion(): number {
 	return document.querySelector<HTMLElement>("#version")?.innerText
@@ -149,7 +150,7 @@ export let save = async function save() {
 	let saveString = JSON.stringify(saveGame);
 	// Typescript can't find LZString, and I don't care.
 	// @ts-ignore
-	localStorage[saveName] = LZString.compressToBase64(saveString);
+	localStorage[saveName] = compressToBase64(saveString);
 };
 
 export function load() {
@@ -159,7 +160,7 @@ export function load() {
 	try {
 		// Typescript can't find LZString, and I don't care.
 		// @ts-ignore
-		saveGame = JSON.parse(LZString.decompressFromBase64(localStorage[saveName])!);
+		saveGame = JSON.parse(decompressFromBase64(localStorage[saveName])!);
 	} catch {
 		// Prior to 2.2.6
 		saveGame = JSON.parse(atob(localStorage[saveName]));

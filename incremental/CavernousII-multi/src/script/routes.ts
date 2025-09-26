@@ -483,8 +483,9 @@ export function updateGrindStats() {
 	const footer = document.querySelector("#grind-stats-footer")!;
 	let rowTemplate = document.querySelector("#grind-row-template")!;
 	let cellTemplate = document.querySelector("#grind-cell-template")!;
+	if (!cellTemplate) return;
 	if (!rockCounts) return;
-	while (header.firstChild) {
+	while (header?.firstChild) {
 		header.removeChild(header.lastChild!);
 		footer.removeChild(footer.lastChild!);
 	}
