@@ -144,18 +144,20 @@ export function getMapLocation(x: number, y: number, noView = false, zone: numbe
 	return zones[game.currentZone].getMapLocation(x, y, noView);
 }
 
-export const mapNode = (() => {
-	let node = document.querySelector("#map-inner");
+function getMapInner()
+{
+	let node = document.querySelector<HTMLElement>("#map-inner");
 	if (node === null) throw new Error("No map node");
-	return node as HTMLElement;
-})();
+	return node;;
+}
+
 export let mapNodes: HTMLElement[][] = [];
 
 export function drawNewMap() {
 	mapNodes = [];
 
-	while (mapNode.firstChild) {
-		mapNode.removeChild(mapNode.lastChild!);
+	while (getMapInner().firstChild) {
+		getMapInner().removeChild(getMapInner().lastChild!);
 	}
 	let rowTemplate = document.querySelector("#row-template");
 	if (rowTemplate === null) throw new Error("No row template");
@@ -165,7 +167,7 @@ export function drawNewMap() {
 		mapNodes[y] = [];
 		let rowNode = rowTemplate.cloneNode(true) as HTMLElement;
 		rowNode.removeAttribute("id");
-		mapNode.append(rowNode);
+		getMapInner().append(rowNode);
 		if (zones[game.displayZone].mapLocations[y]) {
 			for (let x = 0; x < zones[game.displayZone].map[y].length; x++) {
 				let cellNode = cellTemplate.cloneNode(true) as HTMLElement;
@@ -263,8 +265,8 @@ export function clampMap() {
 
 	let size = Math.max(xMax - xMin + 1, yMax - yMin + 1);
 	let scale = Math.floor(440 / size);
-	mapNode.style.setProperty("--cell-count", size + "px");
-	mapNode.style.setProperty("--cell-size", scale + "px");
+	getMapInner().style.setProperty("--cell-count", size + "px");
+	getMapInner().style.setProperty("--cell-size", scale + "px");
 }
 
 export function setMined(x: number, y: number, icon?: string) {
@@ -310,7 +312,7 @@ export function setMined(x: number, y: number, icon?: string) {
 export function viewCell(target: HTMLElement) {
 	let x = parseInt(target.dataset.x ?? "-1"),
 		y = parseInt(target.dataset.y ?? "-1");
-	mapNode?.querySelector(".selected-map-cell")?.classList.remove("selected-map-cell");
+	getMapInner()?.querySelector(".selected-map-cell")?.classList.remove("selected-map-cell");
 	target.classList.add("selected-map-cell");
 	let type = [...target.classList].find(x => x !== "occupied" && x !== "final-location");
 	if (zones[game.displayZone].mapLocations[y] && zones[game.displayZone].mapLocations[y][x]) {

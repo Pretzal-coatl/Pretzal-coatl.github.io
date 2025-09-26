@@ -13,10 +13,12 @@ import { zones, recalculateMana } from "./zones";
 import { drawMap } from "./map";
 import { game, setup } from "./game";
 
-const version = (document.querySelector("#version") as HTMLElement).innerText
+function getVersion(): number {
+	return document.querySelector<HTMLElement>("#version")?.innerText
     .split(".")
     .map((e, i) => parseInt(e, 36) / 100 ** i)
-    .reduce((v, e) => v + e);
+    .reduce((v, e) => v + e) ?? 0;
+}
 
 const URLParams = new URL(document.location.href).searchParams;
 export let saveName = URLParams.get("save") || "";
@@ -129,7 +131,7 @@ export let save = async function save() {
 	};
 
 	let saveGame: saveGame = {
-		version: version,
+		version: getVersion(),
 		playerStats: playerStats,
 		zoneData: zoneData,
 		currentRealm: game.currentRealm,

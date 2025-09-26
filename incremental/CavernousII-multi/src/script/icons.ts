@@ -253,9 +253,9 @@ y="-86.329308"
 transform="scale(-1)" />` +
 	svgEnd;
 
-document.querySelector("#add-action-up")!.innerHTML = upArrowSVG.replace(/"14"/g, '"22"');
-document.querySelector("#add-action-down")!.innerHTML = downArrowSVG.replace(/"14"/g, '"22"');
-document.querySelector("#add-action-right")!.innerHTML = rightArrowSVG.replace(/"14"/g, '"22"');
-document.querySelector("#add-action-left")!.innerHTML = leftArrowSVG.replace(/"14"/g, '"22"');
-document.querySelector("#add-action-interact")!.innerHTML = interactSVG.replace(/"14"/g, '"22"');
-document.querySelector("#add-action-repeat-interact")!.innerHTML = repeatInteractSVG.replace(/"14"/g, '"22"');
+// document.querySelector("#add-action-up")!.innerHTML = upArrowSVG.replace(/"14"/g, '"22"');
+// document.querySelector("#add-action-down")!.innerHTML = downArrowSVG.replace(/"14"/g, '"22"');
+// document.querySelector("#add-action-right")!.innerHTML = rightArrowSVG.replace(/"14"/g, '"22"');
+// document.querySelector("#add-action-left")!.innerHTML = leftArrowSVG.replace(/"14"/g, '"22"');
+// document.querySelector("#add-action-interact")!.innerHTML = interactSVG.replace(/"14"/g, '"22"');
+// document.querySelector("#add-action-repeat-interact")!.innerHTML = repeatInteractSVG.replace(/"14"/g, '"22"');

@@ -203,18 +203,19 @@ export function loadSettings(savedSettings: settings) {
 	Object.assign(settings, savedSettings, settings);
 }
 
-const configBox: HTMLElement =
-	document.querySelector("#config-box") ??
+function getConfigBox(): HTMLElement {
+	return document.querySelector("#config-box") ??
 	(() => {
 		throw new Error("No config box found");
 	})();
+}
 
 export function hideConfig() {
-	configBox.hidden = true;
+	getConfigBox().hidden = true;
 }
 
 export function viewConfig() {
-	configBox.hidden = false;
+	getConfigBox().hidden = false;
 }
 
 /************************** Keybindings ******************************/

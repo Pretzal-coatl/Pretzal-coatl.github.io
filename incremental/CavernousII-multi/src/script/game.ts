@@ -5,7 +5,7 @@ import type { GrindRoute } from "./grind_routes";
 import { resetLoop } from "./loop";
 import { currentLoopLog, displayedLog } from "./loop_log";
 import { drawMap, getMapLocation } from "./map";
-import { getMessage, messageBox } from "./messages";
+import { getMessage, getMessageBox } from "./messages";
 import type { QueueAction } from "./queues";
 import { realms } from "./realms";
 import { Route, getBestRoute } from "./routes";
@@ -118,7 +118,7 @@ class Game {
 
     mainLoop() {
         if (zones[0].index === -1 || realms[0].index === -1) return;
-        if (game.shouldReset) {
+        if (this.shouldReset) {
             resetLoop();
         }
         const mana = getStat("Mana");
@@ -128,7 +128,7 @@ class Game {
         this.lastAction = Date.now();
         if (settings.running) {
             if (mana.current == 0 || this.clones.every(c => c.damage === Infinity)) {
-                this.queuesNode.classList.add("out-of-mana");
+                this.queuesNode?.classList.add("out-of-mana");
                 // Attempt to update any mana rock currently being mined
                 this.clones.forEach(c => {
                     let cloneLoc = zones[this.currentZone].getMapLocation(c.x, c.y);
@@ -162,7 +162,7 @@ class Game {
             (settings.autoRestart == AutoRestart.WaitAny &&
                 zones[this.currentZone].queues.some(q => !q.getNextAction() && (!q.length || q[q.length - 1].actionID != "="))) ||
             (settings.autoRestart == AutoRestart.WaitAll && zones[this.currentZone].queues.every(q => !q.getNextAction()) && this.clones.some(c => c.damage < Infinity)) ||
-            !messageBox.hidden
+            !getMessageBox()?.hidden
         ) {
             this.timeBanked += time;
             gameStatus.paused = true;
@@ -177,7 +177,7 @@ class Game {
         timeAvailable = Math.min(timeAvailable, settings.maxTotalTick, mana.current * 1000);
         if (timeAvailable < 0) timeAvailable = 0;
 
-        let timeLeft = game.runActions(timeAvailable);
+        let timeLeft = this.runActions(timeAvailable);
 
         this.timeBanked += time + timeLeft - timeAvailable;
         if (this.timeBanked < 0) this.timeBanked = 0;
@@ -208,7 +208,7 @@ class Game {
 
 export const game = new Game();
 
-setInterval(game.mainLoop, Math.floor(1000 / fps));
+setInterval(() => game.mainLoop(), Math.floor(1000 / fps));
 
 export function setup() {
     const URLParams = new URL(document.location.href).searchParams;

@@ -1,16 +1,9 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+import { showIntermediateLocation } from './highlights.ts'
+import { hideMessages } from './messages.ts'
+import type { DOMEvent } from './util.ts'
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Cavernous II</title>
-    <script type="module" crossorigin src="/assets/index-B_wgxsGm.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-ZYr5ytfC.css">
-  </head>
-  <body>
-    <div id="app">
-      <div id="templates">
+document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+	<div id="templates">
 		<div id="stat-template" class="stat block">
 			<span class="name"></span>
 			<span class="icon"></span>
@@ -33,7 +26,7 @@
 			</div>
 			<div class="description"></div>
 		</div>
-		<div id="action-template" class="action" onmouseover="showIntermediateLocation(event)"
+		<div id="action-template" class="action" onmouseover="${(event: DOMEvent) => showIntermediateLocation(event)}"
 			onmouseout="stopHovering()" onclick="setCursor(event, this)">
 			<div class="character"></div>
 		</div>
@@ -416,7 +409,7 @@
 	</div>
 	<div id="queues"></div>
 	<div id="timelines"></div>
-	<div id="message-box" onclick="hideMessages()" hidden>
+	<div id="message-box" onclick="${hideMessages()}" hidden>
 		<div id="message-wrapper">
 			<h3 id="message-title"></h3>
 			<div id="message-text"></div>
@@ -501,7 +494,4 @@
 			<div id="loop-actions" class="timeline"></div>
 		</div>
 	</div>
-    </div>
-
-  </body>
-</html>
+`

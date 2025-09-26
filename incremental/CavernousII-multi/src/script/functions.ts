@@ -30,6 +30,7 @@ let timeBankNode: HTMLElement;
 
 export function redrawTimeNode() {
 	timeBankNode = timeBankNode || document.querySelector("#time-banked");
+	if (!timeBankNode) return;
 	timeBankNode.innerText = writeTime(game.timeBanked / 1000);
 }
 

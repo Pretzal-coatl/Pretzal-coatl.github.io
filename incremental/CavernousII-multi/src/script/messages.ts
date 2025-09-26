@@ -1,10 +1,8 @@
 let suppressMessages = new URL(document.location.href).searchParams.get("messages") == "disabled";
 
-export const messageBox: HTMLElement =
-	document.querySelector("#message-box") ??
-	(() => {
-		throw new Error("No config box found");
-	})();
+export function getMessageBox(): HTMLElement | null {
+	return document.querySelector("#message-box") ?? null;
+}
 
 class Message<messageName extends string> {
 	name: messageName;
@@ -19,24 +17,29 @@ class Message<messageName extends string> {
 
 	display(show_again = false) {
 		if ((this.displayed && !show_again) || suppressMessages) return false;
+		if (!document.querySelector("#message-title")) return;
 		document.querySelector("#message-title")!.innerHTML = this.name;
 		document.querySelector("#message-text")!.innerHTML = this.message;
-		messageBox.hidden = false;
+		getMessageBox()!.hidden = false;
 		this.displayed = true;
 		return true;
 	}
 }
 
 export function hideMessages(): void {
-	messageBox.hidden = true;
+	if (!getMessageBox()) return;
+	getMessageBox()!.hidden = true;
 }
 
 export function viewMessages() {
+	if (!document.querySelector("#message-title")) {
+		return;
+	}
 	document.querySelector("#message-title")!.innerHTML = "Messages";
-	messageBox.hidden = false;
-	const text = messageBox.querySelector("#message-text")!;
-	while (text.firstChild !== null) {
-		text.removeChild(text.lastChild!);
+	getMessageBox()!.hidden = false;
+	const text = getMessageBox()!.querySelector("#message-text");
+	while (text?.firstChild !== null) {
+		text?.removeChild(text.lastChild!);
 	}
 	const template = document.querySelector("#message-link-template");
 	if (template === null) {

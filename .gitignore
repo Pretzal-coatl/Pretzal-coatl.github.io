@@ -1,0 +1,10 @@
+incremental/vite-project/.gitignore
+incremental/vite-project/index.html
+incremental/vite-project/package.json
+incremental/vite-project/tsconfig.json
+incremental/vite-project/public/vite.svg
+incremental/vite-project/src/counter.ts
+incremental/vite-project/src/main.ts
+incremental/vite-project/src/style.css
+incremental/vite-project/src/typescript.svg
+incremental/vite-project/src/vite-env.d.ts

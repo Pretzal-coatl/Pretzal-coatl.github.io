@@ -132,7 +132,7 @@ export class Clone {
 	createTimeline() {
 		this.timeLines = [];
 		const timelineTemplate = document.querySelector("#timeline-template");
-		if (timelineTemplate === null) throw new Error("No timeline template found");
+		if (timelineTemplate === null) return;
 
 		this.timeLineElements = [];
 		for (let i = 0; i < zones.length; i++) {

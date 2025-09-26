@@ -45,7 +45,7 @@ export class Zone {
 		this.xOffset = map[this.yOffset].indexOf(".");
 		this.mapLocations = [];
 		this.manaGain = 0;
-		this.queues = ActionQueue.fromJSON([]);
+		this.queues = [];
 		this.routes = [];
 		this.routesChanged = true;
 		this.node = null;
@@ -267,7 +267,7 @@ export class Zone {
 		}
 		if (!this.node) {
 			const zoneTemplate = document.querySelector("#zone-template");
-			if (zoneTemplate === null) throw new Error("No zone template found");
+			if (zoneTemplate === null) return;
 			this.node = zoneTemplate.cloneNode(true) as HTMLElement;
 			this.node.removeAttribute("id");
 			let zoneSelect = document.querySelector("#zone-select");
