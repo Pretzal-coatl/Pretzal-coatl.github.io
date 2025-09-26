@@ -1,8 +1,59 @@
-import { showIntermediateLocation } from "./highlights.ts";
+import { showIntermediateLocation, stopHovering } from "./highlights.ts";
+import { resetLoop } from "./loop.ts";
+import { currentLoopLog } from "./loop_log.ts";
 import { viewCell } from "./map.ts";
-import { hideMessages } from "./messages.ts";
-import { updateGrindStats } from "./routes.ts";
-import type { DOMEvent } from "./util.ts";
+import { hideMessages, viewMessage, viewMessages } from "./messages.ts";
+import { prestigeGame } from "./prestige.ts";
+import { addActionToQueue, clearCursors, exportQueues, importQueues, longExportQueues, longImportQueues, selectClone, setCursor } from "./queues.ts";
+import { loadRoute, Route, updateGrindStats } from "./routes.ts";
+import { displaySaveClick, exportGame, importGame, save } from "./save.ts";
+import { adjustableKeybindings, fixedKeybindings, hideConfig, toggleAutoRestart, toggleBankedTime, toggleFollowZone, toggleGrindMana, toggleGrindStats, toggleLoadPrereqs, togglePauseOnPortal, toggleRunning, toggleStatGrindPerSec, toggleTimeline, toggleUseWASD, toggleWarnings, viewConfig } from "./settings.ts";
+import { findUsedZoneRoutes } from "./zone_routes.ts";
+
+Object.assign(window, {
+	addActionToQueue,
+	adjustableKeybindings,
+	clearCursors,
+	currentLoopLog,
+	displaySaveClick,
+	exportGame,
+	exportQueues,
+	findUsedZoneRoutes,
+	fixedKeybindings,
+	hideConfig,
+	hideMessages,
+	importGame,
+	importQueues,
+	loadRoute,
+	longExportQueues,
+	longImportQueues,
+	setCursor,
+	resetLoop,
+	Route,
+	save,
+	selectClone,
+	showIntermediateLocation,
+	stopHovering,
+	toggleAutoRestart,
+	toggleBankedTime,
+	toggleFollowZone,
+	toggleGrindMana,
+	toggleGrindStats,
+	toggleLoadPrereqs,
+	togglePauseOnPortal,
+	toggleRunning,
+	toggleStatGrindPerSec,
+	toggleTimeline,
+	toggleUseWASD,
+	toggleWarnings,
+	updateGrindStats,
+	viewCell,
+	viewConfig,
+	viewMessage,
+	viewMessages,
+
+	prestigeGame,
+});
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 	<div id="templates">
@@ -28,7 +79,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 			</div>
 			<div class="description"></div>
 		</div>
-		<div id="action-template" class="action" onmouseover="${(event: DOMEvent) => showIntermediateLocation(event)}"
+		<div id="action-template" class="action" onmouseover="showIntermediateLocation(event)"
 			onmouseout="stopHovering()" onclick="setCursor(event, this)">
 			<div class="character"></div>
 		</div>
@@ -107,7 +158,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 					<span class="name">Travel back in time (R)</span>
 					<div class="description">Return to your little room.</div>
 				</div>
-				<div id="grind-option" class="option block clickable" onclick="toggleGrindMana(event)" onmouseover="${updateGrindStats()}">
+				<div id="grind-option" class="option block clickable" onclick="toggleGrindMana(event)" onmouseover="updateGrindStats()">
 					<span id="grind-mana-toggle">Not grinding mana rocks</span> (G)
 					<div class="description">
 						Loops through your best paths to each mana rock.<br />
@@ -262,7 +313,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 				<div class="description">Prestige and get points.</div>
 			</div>
 		</div>
-		<div id="map" class="vertical-block wide" onclick="${(event: DOMEvent) => viewCell(event.target)}">
+		<div id="map" class="vertical-block wide" onclick="viewCell(event.target)">
 			<!-- <canvas id="mapCanvas" style="position:absolute;z-index:5;width:10px;height:10px;"></canvas> -->
 			<h3>Map (<span id="zone-name">Zone 1</span>)</h3>
 			<div id="realm-select"></div>
@@ -411,7 +462,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 	</div>
 	<div id="queues"></div>
 	<div id="timelines"></div>
-	<div id="message-box" onclick="${hideMessages()}" hidden>
+	<div id="message-box" onclick="hideMessages()" hidden>
 		<div id="message-wrapper">
 			<h3 id="message-title"></h3>
 			<div id="message-text"></div>
@@ -478,7 +529,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 		</div>
 	</div>
 	</div>
-	<div id="loop-log-box" onclick="hideLoopLog()" hidden>
+	<div id="loop-log-box" onclick="currentLoopLog.hideLoopLog()" hidden>
 		<div id="loop-log-wrapper">
 			<h3>Current Run Stats</h3>
 			<div>

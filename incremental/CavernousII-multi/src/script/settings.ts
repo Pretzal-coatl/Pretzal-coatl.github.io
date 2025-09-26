@@ -224,7 +224,7 @@ export function viewConfig() {
 
 /************************** Keybindings ******************************/
 
-const fixedKeybindings: { [key: string]: (event: KeyboardEvent) => void } = {
+export const fixedKeybindings: { [key: string]: (event: KeyboardEvent) => void } = {
 	// Clone selection
 	">Digit1": e => selectClone(0, e as unknown as MouseEvent),
 	">Digit2": e => selectClone(1, e as unknown as MouseEvent),
@@ -282,7 +282,7 @@ const fixedKeybindings: { [key: string]: (event: KeyboardEvent) => void } = {
 	Home: () => zones[game.displayZone].queues.forEach(q => (q.cursor = -1)),
 };
 
-const adjustableKeybindings: { [key: string]: (event: KeyboardEvent) => void } = {
+export const adjustableKeybindings: { [key: string]: (event: KeyboardEvent) => void } = {
 	// Actions
 	ArrowLeft: () => addActionToQueue("L"),
 	ArrowUp: () => addActionToQueue("U"),
