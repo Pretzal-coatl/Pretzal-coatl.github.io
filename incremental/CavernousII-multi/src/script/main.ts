@@ -1,10 +1,10 @@
-import { showIntermediateLocation } from './highlights.ts'
-import { viewCell } from './map.ts'
-import { hideMessages } from './messages.ts'
-import { updateGrindStats } from './routes.ts'
-import type { DOMEvent } from './util.ts'
+import { showIntermediateLocation } from "./highlights.ts";
+import { viewCell } from "./map.ts";
+import { hideMessages } from "./messages.ts";
+import { updateGrindStats } from "./routes.ts";
+import type { DOMEvent } from "./util.ts";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 	<div id="templates">
 		<div id="stat-template" class="stat block">
 			<span class="name"></span>
@@ -496,4 +496,4 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 			<div id="loop-actions" class="timeline"></div>
 		</div>
 	</div>
-`
+`;

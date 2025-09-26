@@ -100,7 +100,7 @@ export class Clone {
 	writeStats() {
 		document.querySelector(".clone-info .health-amount")!.innerHTML = writeNumber(
 			Math.max(getStat("Health").current - this.damage, 0),
-			this.damage ? 2 : 0
+			this.damage ? 2 : 0,
 		);
 		const lastEntry = this.timeLines[game.currentZone][this.timeLines[game.currentZone].length - 1] || this.currentTimelineEntry;
 		if (lastEntry) {

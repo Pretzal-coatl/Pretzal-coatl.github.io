@@ -33,10 +33,10 @@ export class LoopLog {
 		this.stats = stats.map(s => {
 			return {
 				base: s.base,
-				current: s.base
+				current: s.base,
 			};
 		});
-		
+
 		this.loopLogBox = document.querySelector<HTMLElement>("#loop-log-box")!;
 		this.logEntryTemplate = document.querySelector<HTMLElement>("#log-entry-template")!;
 		this.logEntryTemplate?.removeAttribute("id");
@@ -48,7 +48,6 @@ export class LoopLog {
 		this.loopGoldValueNode = document.querySelector<HTMLElement>("#loop-gold-value")!;
 		this.loopZoneTemplate = document.querySelector<HTMLElement>("#loop-zone-template")!;
 		this.loadLoopNode = document.querySelector<HTMLElement>("#load-loop-log")!;
-
 	}
 
 	addQueueAction(clone: number, actionId: string) {
@@ -136,7 +135,7 @@ export class LoopLog {
 		totalActionNode.querySelector(".name")!.innerHTML = "Total clone-seconds";
 		totalActionNode.querySelector(".value")!.innerHTML = writeNumber(
 			actions.filter(a => !["Frost", "Barrier Drain"].includes(a[0])).reduce((a, c) => a + c[1].reduce((acc, cur) => acc + cur, 0), 0) / 1000,
-			1
+			1,
 		);
 		totalActionNode.style.fontWeight = "bold";
 		loopActionNode.append(totalActionNode);

@@ -2,7 +2,19 @@ import { ActionInstance, getAction } from "./actions";
 import { Clone } from "./clones";
 import { game } from "./game";
 import { showCursorLocations, showFinalLocation } from "./highlights";
-import { leftArrowSVG, rightArrowSVG, upArrowSVG, downArrowSVG, interactSVG, repeatInteractSVG, repeatListSVG, syncSVG, noSyncSVG, pauseSVG, pathfindSVG } from "./icons";
+import {
+	leftArrowSVG,
+	rightArrowSVG,
+	upArrowSVG,
+	downArrowSVG,
+	interactSVG,
+	repeatInteractSVG,
+	repeatListSVG,
+	syncSVG,
+	noSyncSVG,
+	pauseSVG,
+	pathfindSVG,
+} from "./icons";
 import { MapLocation } from "./locations";
 import { currentLoopLog } from "./loop_log";
 import { getMapLocation, getOffsetCurrentMapTile, walkable } from "./map";
@@ -115,8 +127,8 @@ export class QueueAction {
 					this.action == "."
 						? new ActionInstance(getAction("Wait"), fakeLocation, false)
 						: this.action == ","
-						? new ActionInstance(getAction("Long Wait"), fakeLocation, false)
-						: null;
+							? new ActionInstance(getAction("Long Wait"), fakeLocation, false)
+							: null;
 				if (!this.currentAction) {
 					// Perform action immediately
 					if (this.action[0] == "N") {
@@ -314,7 +326,7 @@ export class QueuePathfindAction extends QueueAction {
 			let best_next = openList.reduce((a, c) => (a < c[3] ? a : c[3]), Infinity);
 			let active = openList.splice(
 				openList.findIndex(x => x[3] == best_next),
-				1
+				1,
 			)[0];
 			if (getDistance(active[1], this.targetX, active[0], this.targetY) == 0) {
 				this.cacheAction = active[4];
@@ -327,7 +339,7 @@ export class QueuePathfindAction extends QueueAction {
 					active[1],
 					active[2] + 1,
 					active[2] + getDistance(active[1], this.targetX, active[0] - 1, this.targetY),
-					active[4]
+					active[4],
 				]);
 			if (walkable.includes(zones[game.currentZone].map[active[0] + 1][active[1]]) && !closedList.find(x => x[0] == active[0] + 1 && x[1] == active[1]))
 				openList.push([
@@ -335,7 +347,7 @@ export class QueuePathfindAction extends QueueAction {
 					active[1],
 					active[2] + 1,
 					active[2] + getDistance(active[1], this.targetX, active[0] + 1, this.targetY),
-					active[4]
+					active[4],
 				]);
 			if (walkable.includes(zones[game.currentZone].map[active[0]][active[1] - 1]) && !closedList.find(x => x[0] == active[0] && x[1] == active[1] - 1))
 				openList.push([
@@ -343,7 +355,7 @@ export class QueuePathfindAction extends QueueAction {
 					active[1] - 1,
 					active[2] + 1,
 					active[2] + getDistance(active[1] - 1, this.targetX, active[0], this.targetY),
-					active[4]
+					active[4],
 				]);
 			if (walkable.includes(zones[game.currentZone].map[active[0]][active[1] + 1]) && !closedList.find(x => x[0] == active[0] && x[1] == active[1] + 1))
 				openList.push([
@@ -351,7 +363,7 @@ export class QueuePathfindAction extends QueueAction {
 					active[1] + 1,
 					active[2] + 1,
 					active[2] + getDistance(active[1] + 1, this.targetX, active[0], this.targetY),
-					active[4]
+					active[4],
 				]);
 			// Remove the most recent from consideration
 			closedList.push([active[0], active[1]]);
@@ -464,8 +476,8 @@ export class ActionQueue extends Array<QueueAction> {
 			this.cursor == null
 				? false // last action, don't skip
 				: this.cursor >= 0
-				? this[this.cursor + 1].done // middle action, skip if next is started
-				: this[0].started; // first action, skip if next is started
+					? this[this.cursor + 1].done // middle action, skip if next is started
+					: this[0].started; // first action, skip if next is started
 
 		let newAction = actionID[0] == "P" ? new QueuePathfindAction(actionID, this, Boolean(done)) : new QueueAction(actionID, this, Boolean(done));
 
@@ -641,7 +653,7 @@ export function createActionNode(action: string) {
 		"+": noSyncSVG,
 		".": "...",
 		",": ",,,",
-		":": pauseSVG
+		":": pauseSVG,
 	}[action];
 	if (!character) {
 		let value = getActionValue(action)!;

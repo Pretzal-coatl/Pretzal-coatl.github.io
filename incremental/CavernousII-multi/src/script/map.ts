@@ -24,8 +24,8 @@ export const classMapping: classMappingType = {
 				zones[game.displayZone].mapLocations[y][x].priorCompletions,
 				zones[game.displayZone],
 				x - zones[game.displayZone].xOffset,
-				y - zones[game.displayZone].yOffset
-			)}`
+				y - zones[game.displayZone].yOffset,
+			)}`,
 	],
 	"*": [
 		"mined-mana",
@@ -37,8 +37,8 @@ export const classMapping: classMappingType = {
 				zones[game.displayZone].mapLocations[y][x].priorCompletions,
 				zones[game.displayZone],
 				x - zones[game.displayZone].xOffset,
-				y - zones[game.displayZone].yOffset
-			)}`
+				y - zones[game.displayZone].yOffset,
+			)}`,
 	],
 	".": ["tunnel", "Dug Tunnel"],
 	"#": ["limestone", "Limestone"], // Mohs 3
@@ -100,7 +100,7 @@ export const classMapping: classMappingType = {
 	"1": ["barrier", "Timelike Barrier"],
 	"2": ["barrier", "Timelike Barrier"],
 	"3": ["barrier", "Timelike Barrier"],
-	"!": ["exit", "Exit"]
+	"!": ["exit", "Exit"],
 };
 export const MAX_WATER = 11;
 
@@ -125,7 +125,7 @@ type MapView = {
 	mapDirt: [number, number][];
 	mapStain: [number, number][];
 	isDrawn: boolean;
-}
+};
 
 export const mapView: MapView = {
 	mapDirt: [],
@@ -144,11 +144,10 @@ export function getMapLocation(x: number, y: number, noView = false, zone: numbe
 	return zones[game.currentZone].getMapLocation(x, y, noView);
 }
 
-function getMapInner()
-{
+function getMapInner() {
 	let node = document.querySelector<HTMLElement>("#map-inner");
 	if (node === null) throw new Error("No map node");
-	return node;;
+	return node;
 }
 
 export let mapNodes: HTMLElement[][] = [];
@@ -176,7 +175,7 @@ export function drawNewMap() {
 				cellNode.setAttribute("data-y", y.toString());
 				cellNode.onmouseenter = () => showRelevantStats(zones[game.displayZone].mapLocations[y][x]);
 				if (zones[game.displayZone].mapLocations[y][x]) {
-					let [className, descriptor,, descriptorMod] = classMapping[zones[game.displayZone].map[y][x]];
+					let [className, descriptor, , descriptorMod] = classMapping[zones[game.displayZone].map[y][x]];
 					let classNames = className.split(" ");
 					for (let i = 0; i < classNames.length; i++) {
 						cellNode.classList.add(classNames[i]);
@@ -203,7 +202,7 @@ export function drawCell(x: number, y: number) {
 	if (!cell) return;
 	let location = zones[game.displayZone].mapLocations[y][x];
 	if (!location) return;
-	let [className, descriptor,, descriptorMod] = classMapping[zones[game.displayZone].map[y][x]];
+	let [className, descriptor, , descriptorMod] = classMapping[zones[game.displayZone].map[y][x]];
 	cell.className = className;
 	if (location.water > 0.1) {
 		cell.classList.add(`watery-${Math.min(Math.floor(zones[game.displayZone].mapLocations[y][x].water * 10), MAX_WATER)}`);
@@ -296,7 +295,7 @@ export function setMined(x: number, y: number, icon?: string) {
 		"■": ".",
 		"1": ".",
 		"2": ".",
-		"3": "."
+		"3": ".",
 	};
 	x += zones[game.currentZone].xOffset;
 	y += zones[game.currentZone].yOffset;
@@ -348,7 +347,7 @@ export function viewCell(target: HTMLElement) {
 						location.priorCompletions,
 						location.zone,
 						x - zones[game.displayZone].xOffset,
-						y - zones[game.displayZone].yOffset
+						y - zones[game.displayZone].yOffset,
 					)}`;
 				} else if (primaryAction) {
 					let baseTimeDisplay = primaryAction.getProjectedDuration(location, location.wither);
@@ -395,7 +394,10 @@ export function getMapTile(x: number, y: number): string {
 }
 
 export function getOffsetCurrentMapTile(x: number, y: number): string {
-	return zones[game.currentZone].map[y + zones[game.currentZone].yOffset] && zones[game.currentZone].map[y + zones[game.currentZone].yOffset][x + zones[game.currentZone].xOffset];
+	return (
+		zones[game.currentZone].map[y + zones[game.currentZone].yOffset] &&
+		zones[game.currentZone].map[y + zones[game.currentZone].yOffset][x + zones[game.currentZone].xOffset]
+	);
 }
 
 export function displayCreatureHealth(creature: Creature) {

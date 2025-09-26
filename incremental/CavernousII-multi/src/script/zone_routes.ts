@@ -44,7 +44,7 @@ export class ZoneRoute {
 				.map(s => {
 					return {
 						name: s.name,
-						count: s.count
+						count: s.count,
 					};
 				})
 				.filter(s => s.count > 0);
@@ -55,7 +55,7 @@ export class ZoneRoute {
 				.map(s => {
 					return {
 						name: s.name,
-						count: s.count
+						count: s.count,
 					};
 				})
 				.filter(s => s.count > 0);
@@ -91,7 +91,7 @@ export class ZoneRoute {
 			this.require.length === zoneRoute.require.length &&
 			// ts is really bad at arrays which hold multiple incompatible types.
 			Object.entries(this.require).every(
-				([key, value]: any[]) => zoneRoute.require[key].name == value.name && zoneRoute.require[key].count == value.count
+				([key, value]: any[]) => zoneRoute.require[key].name == value.name && zoneRoute.require[key].count == value.count,
 			)
 		);
 	}
@@ -101,7 +101,7 @@ export class ZoneRoute {
 		if (zone == 0) {
 			if (routeOptions.length == 0) return null;
 			let health = getStat("Health");
-			let route = routeOptions.find(r => r[1].every((s: { count: number; }) => s.count == 0) && r[2].every(h => h < health.base)) || [];
+			let route = routeOptions.find(r => r[1].every((s: { count: number }) => s.count == 0) && r[2].every(h => h < health.base)) || [];
 			return route[0] ? [route[0]] : null;
 		}
 		for (let i = 0; i < routeOptions.length; i++) {
@@ -131,7 +131,7 @@ export class ZoneRoute {
 			let routes = this.pickRoute(
 				zone.index - 1,
 				this.require,
-				this.cloneHealth.map(c => c[0])
+				this.cloneHealth.map(c => c[0]),
 			);
 			if (routes !== null) {
 				for (let i = 0; i < routes.length; i++) {
@@ -179,7 +179,7 @@ export function clearUnusedZoneRoutes(zone: number | null = null) {
 		if (zone !== null && zone != z.index) return;
 		let currentRoute = (z.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
 		z.routes = z.routes.filter(
-			r => usedZoneRoutes.includes(r) || (r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute || r.realm != game.currentRealm || r.isLocked
+			r => usedZoneRoutes.includes(r) || (r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute || r.realm != game.currentRealm || r.isLocked,
 		);
 		z.routesChanged = true;
 		z.display();

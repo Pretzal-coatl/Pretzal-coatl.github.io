@@ -31,7 +31,7 @@ export class Stuff<stuffName extends string> {
 		description: string,
 		colour: string,
 		count = 0,
-		effect: ((oldCount: number, newCount: number) => void) | null = null
+		effect: ((oldCount: number, newCount: number) => void) | null = null,
 	) {
 		this.name = name;
 		this.icon = icon;
@@ -71,9 +71,9 @@ export class Stuff<stuffName extends string> {
 				{
 					"Iron Axe": "Woodcutting",
 					"Iron Pick": "Mining",
-					"Iron Hammer": "Smithing"
+					"Iron Hammer": "Smithing",
 					// @ts-ignore
-				}[<String>this.name]
+				}[<String>this.name],
 			);
 			const combatValue = Math.pow(stat.value, 0.01 * this.count * (1 + 0.1 * prestige.level));
 			if (this.node) this.node.querySelector(".description")!.innerHTML = this.description.replace("{}", writeNumber(combatValue * 100, 1));
@@ -132,10 +132,9 @@ export function calcCombatStats() {
 export function getStatBonus(name: anyStatName, mult: number) {
 	/* Prestige, place to add stat increases */
 	let stat = getStat(name);
-	return (oldAmount: number, amount: number) =>
-		stat.getBonus((Math.floor(amount + 0.01) - Math.floor(oldAmount + 0.01)) * mult * (1 + 0.1 * prestige.level));
+	return (oldAmount: number, amount: number) => stat.getBonus((Math.floor(amount + 0.01) - Math.floor(oldAmount + 0.01)) * mult * (1 + 0.1 * prestige.level));
 }
-export type anyStuffName = typeof stuff[number]["name"];
+export type anyStuffName = (typeof stuff)[number]["name"];
 export const stuff = [
 	/* Prestige, place to add stat increases */ new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),
 	new Stuff("Salt", "⌂", "A pile of salt.  You're not hungry, so what's this good for?", "#ffffff", 0),
@@ -152,7 +151,7 @@ export const stuff = [
 		"An suit of iron armour.  This should help you take more hits. (+5 health)  Max 1 armour per clone.",
 		"#777777",
 		0,
-		calcCombatStats
+		calcCombatStats,
 	),
 	new Stuff("Steel Bar", "❚", "A steel rod.", "#333333", 0),
 	new Stuff("Steel Bridge", "⎶", "A small steel bridge.", "#222222", 0),
@@ -164,7 +163,7 @@ export const stuff = [
 		"A suit of steel armour.  This should help you take more hits. (+15 health)  Max 1 armour per clone.",
 		"#222222",
 		0,
-		calcCombatStats
+		calcCombatStats,
 	),
 	new Stuff(
 		"Iron Axe",
@@ -172,7 +171,7 @@ export const stuff = [
 		"An iron axe.  Gives +15 or +15% to Woodcutting (whichever is greater), and applies 1% of your Woodcutting skill to combat ({}%).",
 		"#777777",
 		0,
-		getStatBonus("Woodcutting", 15)
+		getStatBonus("Woodcutting", 15),
 	),
 	new Stuff(
 		"Iron Pick",
@@ -180,7 +179,7 @@ export const stuff = [
 		"An iron pickaxe.  Gives +15 or +15% to Mining (whichever is greater), and applies 1% of your Mining skill to combat ({}%).",
 		"#777777",
 		0,
-		getStatBonus("Mining", 15)
+		getStatBonus("Mining", 15),
 	),
 	new Stuff(
 		"Iron Hammer",
@@ -188,7 +187,7 @@ export const stuff = [
 		"An iron hammer.  Gives +15 or +15% to Smithing (whichever is greater), and applies 1% of your Smithing skill to combat ({}%).",
 		"#777777",
 		0,
-		getStatBonus("Smithing", 15)
+		getStatBonus("Smithing", 15),
 	),
 	new Stuff("+1 Sword", ")", "A magical sword.  Sharp! (+4 attack)  Max 1 weapon per clone.", "#688868", 0, calcCombatStats),
 	new Stuff("+1 Shield", "[", "A magical shield.  This should help you not die. (+4 defense)  Max 1 shield per clone.", "#688868", 0, calcCombatStats),
@@ -198,8 +197,8 @@ export const stuff = [
 		"A suit of magical armour.  This should help you take more hits. (+25 health)  Max 1 armour per clone.",
 		"#688868",
 		0,
-		calcCombatStats
-	)
+		calcCombatStats,
+	),
 ];
 
 export function setContrast(colour: string) {
@@ -248,7 +247,7 @@ export function getEquipHealth(stuff: simpleStuffList) {
 	const equipmentHealth: { [key in simpleStuffList[number]["name"]]?: number } = {
 		"Iron Armour": 5 * (1 + 0.1 * prestige.level),
 		"Steel Armour": 15 * (1 + 0.1 * prestige.level),
-		"+1 Armour": 25 * (1 + 0.1 * prestige.level)
+		"+1 Armour": 25 * (1 + 0.1 * prestige.level),
 	};
 	return stuff.reduce((a, s) => a + (equipmentHealth[s.name] || 0) * s.count, 0);
 }

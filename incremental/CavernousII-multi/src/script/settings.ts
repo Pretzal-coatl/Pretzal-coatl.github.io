@@ -46,7 +46,7 @@ export const settings: settings = {
 	statGrindPerSec: false,
 	longWait: 5000,
 	minStatGain: 0,
-	pauseOnPortal: false
+	pauseOnPortal: false,
 };
 
 export function setSetting<T, Y extends any[]>(toggler: (...args: Y) => T, value: T, ...args: Y) {
@@ -77,7 +77,7 @@ export enum AutoRestart {
 	WaitAny = 0,
 	RestartDone = 1,
 	RestartAlways = 2,
-	WaitAll = 3
+	WaitAll = 3,
 }
 
 export function toggleAutoRestart() {
@@ -206,10 +206,12 @@ export function loadSettings(savedSettings: settings) {
 }
 
 function getConfigBox(): HTMLElement {
-	return document.querySelector("#config-box") ??
-	(() => {
-		throw new Error("No config box found");
-	})();
+	return (
+		document.querySelector("#config-box") ??
+		(() => {
+			throw new Error("No config box found");
+		})()
+	);
 }
 
 export function hideConfig() {
@@ -277,7 +279,7 @@ const fixedKeybindings: { [key: string]: (event: KeyboardEvent) => void } = {
 	"^Backspace": () => clearQueues(),
 	"^KeyA": () => zones[game.currentZone].queues.forEach(q => ([q.selected, q.cursor] = [true, null])),
 	End: () => zones[game.displayZone].queues.forEach(q => (q.cursor = null)),
-	Home: () => zones[game.displayZone].queues.forEach(q => (q.cursor = -1))
+	Home: () => zones[game.displayZone].queues.forEach(q => (q.cursor = -1)),
 };
 
 const adjustableKeybindings: { [key: string]: (event: KeyboardEvent) => void } = {
@@ -403,7 +405,7 @@ const adjustableKeybindings: { [key: string]: (event: KeyboardEvent) => void } =
 		if (visibleX === null || visibleY === null) return;
 		addActionToQueue(`P${visibleX}:${visibleY};`);
 		(document.activeElement as HTMLElement).blur();
-	}
+	},
 };
 
 setTimeout(() => {

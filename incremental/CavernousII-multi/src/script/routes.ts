@@ -69,7 +69,7 @@ export class Route {
 				.map(s => {
 					return {
 						name: s.name,
-						count: Math.round((s.count - getStuff(s.name).min) * 1000) / 1000 /*forcing rounding*/
+						count: Math.round((s.count - getStuff(s.name).min) * 1000) / 1000 /*forcing rounding*/,
 					};
 				})
 				.filter(s => s.count > 0);
@@ -120,7 +120,10 @@ export class Route {
 		if (zone == 0) {
 			if (routeOptions.length == 0) return null;
 			let health = getStat("Health");
-			let route = routeOptions.find(r => r[1].every((s: { count: number; }) => s.count == 0) && r[2].every(h => Math.abs(h) < health.base + getEquipHealth(r[1]))) || [];
+			let route =
+				routeOptions.find(
+					r => r[1].every((s: { count: number }) => s.count == 0) && r[2].every(h => Math.abs(h) < health.base + getEquipHealth(r[1])),
+				) || [];
 			return route[0] ? [route[0]] : null;
 		}
 		for (let i = 0; i < routeOptions.length; i++) {
@@ -199,7 +202,7 @@ export class Route {
 			.map(s => {
 				return {
 					name: s.name,
-					count: Math.round((s.count - getStuff(s.name).min) * 1000) / 1000 /*forcing rounding*/
+					count: Math.round((s.count - getStuff(s.name).min) * 1000) / 1000 /*forcing rounding*/,
 				};
 			})
 			.filter(s => s.count > 0);
@@ -317,7 +320,9 @@ export class Route {
 			game.routes = game.routes.filter(e => e != prev);
 		}
 		game.routes.push(cur);
-		game.routes = game.routes.filter((r, i) => game.routes.findIndex(R => R.x == r.x && R.y == r.y && R.zone == r.zone && R.realm == r.realm) == i).map(r => new Route(r));
+		game.routes = game.routes
+			.filter((r, i) => game.routes.findIndex(R => R.x == r.x && R.y == r.y && R.zone == r.zone && R.realm == r.realm) == i)
+			.map(r => new Route(r));
 		markRoutesChanged();
 		return;
 	}
@@ -452,8 +457,8 @@ export function updateGrindStats() {
 				.map((_z, zone_i) =>
 					game.routes
 						.filter(t => t.zone == zone_i && t.realm == r.index)
-						.reduce((a, t) => a + (t.allDead ? 0.000005 : t.loadingFailed ? 0.005 : t.estimateRefineTimes()), 0)
-				)
+						.reduce((a, t) => a + (t.allDead ? 0.000005 : t.loadingFailed ? 0.005 : t.estimateRefineTimes()), 0),
+				),
 		);
 	let reachedCounts = realms
 		.filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
@@ -463,20 +468,22 @@ export function updateGrindStats() {
 				.map(
 					(z, zone_i) =>
 						z.mapLocations.flat().filter(l => l.type.name == "Mana-infused Rock").length !=
-						game.routes.filter(t => t.zone == zone_i && t.realm == r.index).length
-				)
+						game.routes.filter(t => t.zone == zone_i && t.realm == r.index).length,
+				),
 		);
 	let revisitCounts = realms
 		.filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
 		.map(r =>
 			zones
 				.filter(z => z.mapLocations.flat().length)
-				.map((_z, zone_i) => game.routes.filter(t => t.zone == zone_i && t.realm == r.index && t.invalidateCost && !t.allDead).length)
+				.map((_z, zone_i) => game.routes.filter(t => t.zone == zone_i && t.realm == r.index && t.invalidateCost && !t.allDead).length),
 		);
 	let skippedCounts = realms
 		.filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
 		.map(r =>
-			zones.filter(z => z.mapLocations.flat().length).map((_z, zone_i) => game.routes.filter(t => t.zone == zone_i && t.realm == r.index && t.noGrind).length)
+			zones
+				.filter(z => z.mapLocations.flat().length)
+				.map((_z, zone_i) => game.routes.filter(t => t.zone == zone_i && t.realm == r.index && t.noGrind).length),
 		);
 	const header = document.querySelector("#grind-stats-header")!;
 	const body = document.querySelector("#grind-stats")!;

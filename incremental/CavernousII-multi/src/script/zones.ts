@@ -91,7 +91,7 @@ export class Zone {
 			[x - 1, y],
 			[x + 1, y],
 			[x, y + 1],
-			[x, y - 1]
+			[x, y - 1],
 		]
 			.map(adj => {
 				if (adj[0] < 0 || adj[0] >= this.map[0].length || adj[1] < 0 || adj[1] >= this.map.length) return;
@@ -115,8 +115,8 @@ export class Zone {
 		for (let i = 1; i <= 9; i++) {
 			if (i > unlockedBarriers) this.map = this.map.map(row => row.replace(i.toString(), "█"));
 		}
-		this.mapLocations.forEach((ml) => {
-			ml.forEach((l) => {
+		this.mapLocations.forEach(ml => {
+			ml.forEach(l => {
 				l.reset();
 			});
 		});
@@ -158,8 +158,8 @@ export class Zone {
 			this.lastRoute = new ZoneRoute(this);
 			let sameRoute = this.routes.find(r => r.isSame(this.lastRoute!));
 			if (sameRoute) {
-				(sameRoute.mana = this.lastRoute.mana), sameRoute.mana;
-				(sameRoute.manaRequired = this.lastRoute.manaRequired), sameRoute.manaRequired;
+				((sameRoute.mana = this.lastRoute.mana), sameRoute.mana);
+				((sameRoute.manaRequired = this.lastRoute.manaRequired), sameRoute.manaRequired);
 				sameRoute.stuff = this.lastRoute.stuff;
 				sameRoute.require = this.lastRoute.require;
 				sameRoute.cloneHealth = this.lastRoute.cloneHealth;
@@ -194,11 +194,11 @@ export class Zone {
 				let reqs = (require || []).map(s => {
 					return {
 						name: s.name,
-						count: s.count
+						count: s.count,
 					};
 				});
 				for (let req of reqs) {
-					let thing = r.stuff.find((s: { name: string; }) => s.name == req.name);
+					let thing = r.stuff.find((s: { name: string }) => s.name == req.name);
 					if (!thing || req.count > thing.count) {
 						return false;
 					}
@@ -213,7 +213,8 @@ export class Zone {
 				});
 				let effectiveMana =
 					r.mana +
-					Math.floor(r.stuff.find((s: { name: string; }) => s.name == "Gold Nugget")?.count || 0) * (GOLD_VALUE * getRealmMult("Verdant Realm", true) - 1 / game.clones.length);
+					Math.floor(r.stuff.find((s: { name: string }) => s.name == "Gold Nugget")?.count || 0) *
+						(GOLD_VALUE * getRealmMult("Verdant Realm", true) - 1 / game.clones.length);
 				let result: [ZoneRoute, ZoneRoute["require"], number[], number] = [r, r.require, health, effectiveMana];
 				return result;
 			});
@@ -255,7 +256,7 @@ export class Zone {
 				s.resetMin();
 				return {
 					name: s.name,
-					count: s.count
+					count: s.count,
 				};
 			});
 	}
@@ -295,7 +296,7 @@ export class Zone {
 			} else {
 				game.zoneTimeNode.innerText = writeNumber(
 					Math.max(0, (zones[this.index + 1]?.zoneStartTime + 1 || game.queueTime) - 1 - (this.zoneStartTime || 0)) / 1000,
-					1
+					1,
 				);
 			}
 		};
@@ -353,7 +354,7 @@ export class Zone {
 					!zones[this.index - 1].sumRoute(
 						this.routes[i].require,
 						this.routes[i].cloneHealth.map((c: any[]) => c[0]),
-						this.routes[i].actionCount
+						this.routes[i].actionCount,
 					).length
 				) {
 					routeNode.classList.add("orphaned");
@@ -447,7 +448,7 @@ export function moveToZone(zone: string | number, complete = true) {
 		clearCursors();
 	}
 	game.currentZone = zone;
-	(document.querySelector<HTMLElement>("#barrier-mult")!).style.display = "none";
+	document.querySelector<HTMLElement>("#barrier-mult")!.style.display = "none";
 	zones[zone].enterZone();
 }
 
@@ -491,12 +492,12 @@ export const zones = [
 			"█#%█##♠#%████ Θ██☼#+█",
 			"██%███#█#%#██████+¤+█",
 			"█¤#¥██++██#£░╖√██████",
-			"█████████████████████"
+			"█████████████████████",
 		],
 		() => {
 			getMessage("Unlocked Duplication Rune").display();
 			getRune("Duplication").unlock();
-		}
+		},
 	),
 	new Zone(
 		"Zone 2",
@@ -521,12 +522,12 @@ export const zones = [
 			"██3████████████████",
 			"██««○♣¤████████████",
 			"████○██████████████",
-			"███████████████████"
+			"███████████████████",
 		],
 		() => {
 			getMessage("Unlocked Weaken Rune").display();
 			getRune("Weaken").unlock();
-		}
+		},
 	),
 	new Zone(
 		"Zone 3",
@@ -547,12 +548,12 @@ export const zones = [
 			"██#██%██#██░█%%█««████",
 			"█%#+█%○█##█¤█%%█░○████",
 			"██+¤█████████%██¤£████",
-			"██████████████████████"
+			"██████████████████████",
 		],
 		() => {
 			getMessage("Unlocked Wither Rune").display();
 			getRune("Wither").unlock();
-		}
+		},
 	),
 	new Zone(
 		"Zone 4",
@@ -575,13 +576,13 @@ export const zones = [
 			"█ ████}█+███c█«««██",
 			"█ ██^███♠♠♠+α+«████",
 			"█ m1+++♠♠████¤█████",
-			"███████████████████"
+			"███████████████████",
 		],
 		() => {
 			getMessage("Other Realms").display();
 			realms[0].unlock();
 			realms[1].unlock();
-		}
+		},
 	),
 	new Zone(
 		"Zone 5",
@@ -604,12 +605,12 @@ export const zones = [
 			"██«██0«████««╖█¤███",
 			"██+███s«««««███3███",
 			"██~~~¤██¤█████¤δ███",
-			"███████████████████"
+			"███████████████████",
 		],
 		() => {
 			getMessage("Further Realms").display();
 			realms[2].unlock();
-		}
+		},
 	),
 	new Zone(
 		"Zone 6",
@@ -636,13 +637,13 @@ export const zones = [
 			"██%<█2█╖  m+++██",
 			"█████╖╖╖██]██3██",
 			"████████████¤~██",
-			"████████████████"
+			"████████████████",
 		],
 		() => {
 			getMessage("Unlocked Teleport Runes").display();
 			getRune("Teleport To").unlock();
 			getRune("Teleport From").unlock();
-		}
+		},
 	),
 	new Zone(
 		"Zone 7",
@@ -665,12 +666,12 @@ export const zones = [
 			"██+╖╖╖♣█+╖♣╖+█1█¤█",
 			"████+█████+███ ╖╖█",
 			"████████████████)█",
-			"██████████████████"
+			"██████████████████",
 		],
 		() => {
 			getMessage("Compounding Realm").display();
 			realms[3].unlock();
-		}
+		},
 	),
 	new Zone(
 		"Zone 8",
@@ -693,11 +694,11 @@ export const zones = [
 			"███■1+╖╖╖δδδ████",
 			"███¤████████████",
 			"███33■■■++++¤███",
-			"████████████████"
+			"████████████████",
 		],
 		() => {
 			getMessage("Unlocked Pump Rune").display();
 			getRune("Pump").unlock();
-		}
-	)
+		},
+	),
 ];

@@ -68,8 +68,7 @@ export class Stat<statName extends anyStatName> {
 		if (!this.learnable) {
 			return;
 		}
-		const scalingStart =
-			99 + getRealmMult("Compounding Realm") * (1 + prestige.level) + prestige.level * 20; /* Prestige place to add Scaling Stat bonus */
+		const scalingStart = 99 + getRealmMult("Compounding Realm") * (1 + prestige.level) + prestige.level * 20; /* Prestige place to add Scaling Stat bonus */
 		const increaseAt = (this.base + 1) ** ((10 / 9) * (this.base > scalingStart ? scalingStart / this.base : 1) ** 0.05) - 1;
 		const val = (this.current + 1) ** (0.9 * (this.base > scalingStart ? scalingStart / this.base : 1) ** 0.05) - (this.base + 1);
 		if (val < 0) {
@@ -112,14 +111,14 @@ export class Stat<statName extends anyStatName> {
 		if (this.name === "Mana") {
 			this.effectNode.innerText = `${writeNumber(
 				this.current < 100 ? this.current + this.bonus : this.current * (1 + this.bonus / 100),
-				1
+				1,
 			)} (${writeNumber(this.base, 1)})`;
 		} else if (!this.learnable) {
 			this.effectNode.innerText = writeNumber(this.current < 100 ? this.current + this.bonus : this.current * (1 + this.bonus / 100), 1);
 		} else {
 			this.effectNode.innerText = `${writeNumber(
 				this.current < 100 ? this.current + this.bonus : this.current * (1 + this.bonus / 100),
-				2
+				2,
 			)} (${writeNumber(this.base, 2)})`;
 			let increaseRequired;
 			const scalingStart =
@@ -260,7 +259,7 @@ export const stats: Stat<anyStatName>[] = [
 	new Stat("Chronomancy", "", "Your command of magic has expanded, even affecting the flow of time! (It helps you resist the leeching of time barriers)", 0),
 	new Stat("Attack", "", "How much damage your wild flailing does. (Weapons increase all game.clones' stats)", 0, false),
 	new Stat("Defense", "", "How well you avoid taking damage. (Shields increase all game.clones' stats)", 0, false),
-	new Stat("Health", "♥", "How many hits you can take until you're nothing more than meat. (Armour increases all game.clones' stats)", 10, false)
+	new Stat("Health", "♥", "How many hits you can take until you're nothing more than meat. (Armour increases all game.clones' stats)", 10, false),
 ];
 
 export function getStat<nameType extends anyStatName>(name: nameType): Stat<nameType> {

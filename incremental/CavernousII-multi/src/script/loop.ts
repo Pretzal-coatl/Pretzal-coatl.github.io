@@ -36,7 +36,7 @@ export function resetLoop(noLoad = false, saveGame = true) {
 	stuff.forEach(s => {
 		s.count = 0;
 	});
-	stats.forEach((s) => {
+	stats.forEach(s => {
 		s.reset();
 		s.update();
 	});

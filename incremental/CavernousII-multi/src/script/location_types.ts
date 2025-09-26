@@ -27,7 +27,7 @@ export class LocationType<locationTypeName extends string = string> {
 		nextCost: ((this: LocationType, completions: number, priorCompletions: number, zone: Zone, x: number, y: number) => string) | null = null,
 		enterCount: number = 1,
 		canWorkTogether = true,
-		startWater = 0
+		startWater = 0,
 	) {
 		this.name = name;
 		this.symbol = symbol;
@@ -76,7 +76,7 @@ export function getLocationType(name: string): LocationType | undefined {
 	return locationTypes.find(a => a.name == name);
 }
 
-export type anyLocationTypeName = typeof locationTypes[number]["name"];
+export type anyLocationTypeName = (typeof locationTypes)[number]["name"];
 
 export const locationTypes = [
 	new LocationType("Solid Rock", "█", "Some kind of rock, too hard to dig through.", null, null, null),
@@ -94,7 +94,7 @@ export const locationTypes = [
 		"A wall of rock salt.  It only takes so long to mine it because you want to sort out the salt and not carry a ton of gravel with you.",
 		"Mine Salt",
 		null,
-		null
+		null,
 	),
 	new LocationType(
 		"Mana-infused Rock",
@@ -103,7 +103,7 @@ export const locationTypes = [
 		"Mine",
 		"Collect Mana",
 		storeCompletions,
-		startCollectManaCost
+		startCollectManaCost,
 	),
 	new LocationType<"Mana Spring">(
 		"Mana Spring",
@@ -112,7 +112,7 @@ export const locationTypes = [
 		"Walk",
 		"Collect Mana",
 		storeCompletions,
-		startCollectManaCost
+		startCollectManaCost,
 	),
 	new LocationType(
 		"Strange Machine",
@@ -121,7 +121,7 @@ export const locationTypes = [
 		"Walk",
 		"Activate Machine",
 		null,
-		getNextActivateCost
+		getNextActivateCost,
 	),
 	new LocationType(
 		"Vaporizer",
@@ -129,7 +129,7 @@ export const locationTypes = [
 		"A machine for extracting the magic right out of gold. ({MANA_PER_GOLD} mana per gold)",
 		"Walk",
 		"Turn Gold to Mana",
-		null
+		null,
 	),
 	new LocationType("Fountain", "^", "A healing fountain, activated by the runes around its base.", "Walk", "Heal", null, null, undefined, false),
 	new LocationType("Bottomless Pit", " ", "A bottomless pit.", "Cross Pit", null, null),
@@ -141,7 +141,7 @@ export const locationTypes = [
 		null,
 		null,
 		null,
-		Infinity
+		Infinity,
 	),
 	new LocationType("Goblin", "g", "An ugly humanoid more likely to try and kill you than to let you by.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Goblin Chieftain", "c", "This one is uglier than the last two.  Probably meaner, too.\n{STATS}", "Attack Creature", null, null),
@@ -151,7 +151,7 @@ export const locationTypes = [
 		"The largest of the goblins.  You're going to have to work hard to take him down.\n{STATS}",
 		"Attack Creature",
 		null,
-		null
+		null,
 	),
 	new LocationType("Skeleton", "s", "An undead.  It's not very dangerous, but it is resilient.\n{STATS}", "Attack Creature", null, null),
 	new LocationType(
@@ -160,7 +160,7 @@ export const locationTypes = [
 		"A towering golem made out of finely crafted stone.  There aren't even any chinks in its armour!\n{STATS}",
 		"Attack Creature",
 		null,
-		null
+		null,
 	),
 	new LocationType("Guardian", "X", "This massive creature exudes an aura of implacable doom.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Weaken Rune", "W", "Weakens adjacent creatures.", "Walk", null, null),
@@ -178,7 +178,7 @@ export const locationTypes = [
 		"You can find gems studded in the walls here.  Each time you extract a gem from this tile (in one reset), it gets a bit harder to get the next one.",
 		"Mine Gem",
 		"Collect Gem",
-		null
+		null,
 	),
 	new LocationType(
 		"Gem Tunnel",
@@ -186,7 +186,7 @@ export const locationTypes = [
 		"You can find gems studded in the walls here.  Each time you extract a gem from this tile (in one reset), it gets a bit harder to get the next one.",
 		"Mine Gem",
 		"Collect Gem",
-		null
+		null,
 	),
 	new LocationType("Furnace", "╬", "A large box full of fire.", "Walk", "Make Iron Bars", null),
 	new LocationType("Anvil - Bridge", "⎶", "An anvil on which you can make a bridge out of {'0':2,'1':4} iron bars.", "Walk", "Create Bridge", null),
@@ -196,7 +196,7 @@ export const locationTypes = [
 		"An anvil on which you can make a bridge out of {'0':2,'1':4} iron bars.  These pits are a bit wider than the others, so it'll take a bit longer to craft the bridge (though your old ones still work for some reason).",
 		"Walk",
 		"Create Long Bridge",
-		null
+		null,
 	),
 	new LocationType("Anvil - Sword", ")", "An anvil on which you can make a sword out of {'0':3,'1':6} iron bars.", "Walk", "Create Sword", null),
 	new LocationType("Anvil - Shield", "[", "An anvil on which you can make a shield out of {'0':5,'1':10} iron bars.", "Walk", "Create Shield", null),
@@ -207,7 +207,7 @@ export const locationTypes = [
 		"A large box full of fire.  This one has a slot for coal and a slot for iron bars.",
 		"Walk",
 		"Make Steel Bars",
-		null
+		null,
 	),
 	new LocationType(
 		"Anvil - Upgrade Bridge",
@@ -215,7 +215,7 @@ export const locationTypes = [
 		"An anvil on which you can upgrade an iron bridge into a steel bridge using {'0':1,'1':2} steel bar.",
 		"Walk",
 		"Upgrade Bridge",
-		null
+		null,
 	),
 	new LocationType(
 		"Anvil - Upgrade Sword",
@@ -223,7 +223,7 @@ export const locationTypes = [
 		"An anvil on which you can upgrade an iron sword into a steel sword using {'0':2,'1':4} steel bars.",
 		"Walk",
 		"Upgrade Sword",
-		null
+		null,
 	),
 	new LocationType(
 		"Anvil - Upgrade Shield",
@@ -231,7 +231,7 @@ export const locationTypes = [
 		"An anvil on which you can upgrade an iron shield into a steel shield using {'0':2,'1':4} steel bars.",
 		"Walk",
 		"Upgrade Shield",
-		null
+		null,
 	),
 	new LocationType(
 		"Anvil - Upgrade Armour",
@@ -239,7 +239,7 @@ export const locationTypes = [
 		"An anvil on which you can upgrade an iron suit of armour into a steel suit of armour using {'0':2,'1':4} steel bars.",
 		"Walk",
 		"Upgrade Armour",
-		null
+		null,
 	),
 	new LocationType("Portal", "Θ", "A portal to another zone.", "Walk", "Portal", null),
 	new LocationType("Complete Goal", "√", "A strange energy field where you can obtain additional powers.", "Complete Goal", null, null),
@@ -249,7 +249,7 @@ export const locationTypes = [
 		"A giant mushroom which grows quickly.  It's harder to cut the longer you wait. (Growth: 1+{'0':0.1,'2':0.5}t)",
 		"Chop",
 		null,
-		null
+		null,
 	),
 	new LocationType(
 		"Kudzushroom",
@@ -260,7 +260,7 @@ export const locationTypes = [
 		null,
 		null,
 		Infinity,
-		false
+		false,
 	),
 	new LocationType(
 		"Sporeshroom",
@@ -268,7 +268,7 @@ export const locationTypes = [
 		"A giant mushroom which grows quickly.  While you cut it, it lets out poisonous spores, injuring your game.clones cutting it for 1 damage per second. (Growth: 1+{'0':0.1,'2':0.5}t)",
 		"Spore Chop",
 		null,
-		null
+		null,
 	),
 	new LocationType(
 		"Oystershroom",
@@ -276,7 +276,7 @@ export const locationTypes = [
 		"A giant mushroom which grows extremely quickly.  You don't think you've ever seen a mushroom grow that fast. (Growth: 1+{'0':0.2,'2':1}t)",
 		"Oyster Chop",
 		null,
-		null
+		null,
 	),
 	new LocationType(
 		"Springshroom",
@@ -288,7 +288,7 @@ export const locationTypes = [
 		null,
 		undefined,
 		true,
-		0.001
+		0.001,
 	),
 	new LocationType(
 		"Anvil - Axe",
@@ -296,7 +296,7 @@ export const locationTypes = [
 		"An anvil on which you can make an axe out of {'0':'an iron bar','1':'2 iron bars'}.  This probably won't be useful to you for at least a few zones.",
 		"Walk",
 		"Create Axe",
-		null
+		null,
 	),
 	new LocationType("Anvil - Pick", "¥", "An anvil on which you can make a pick out of {'0':'an iron bar','1':'2 iron bars'}.", "Walk", "Create Pick", null),
 	new LocationType(
@@ -305,7 +305,7 @@ export const locationTypes = [
 		"An anvil on which you can make a hammer out of {'0':'an iron bar','1':'2 iron bars'}.",
 		"Walk",
 		"Create Hammer",
-		null
+		null,
 	),
 	new LocationType("Spring", "0", "Deep water - it'll spread out and drown you if you're not careful!", "Walk", null, null, null, undefined, true, 1),
 	new LocationType("Sword Enchanter", "|", "An anvil on which you can enchant a steel sword using {'0':3,'1':6} gems.", "Walk", "Enchant Sword", null),
@@ -316,7 +316,7 @@ export const locationTypes = [
 		"An anvil on which you can enchant a steel suit of armour using {'0':3,'1':6} gems.",
 		"Walk",
 		"Enchant Armour",
-		null
+		null,
 	),
 	new LocationType(
 		"Timelike Barrier",
@@ -324,7 +324,7 @@ export const locationTypes = [
 		"A wall made of a strange energy that saps your mana. {'3':'Its duration does not compound.'}",
 		"Enter Barrier",
 		null,
-		null
+		null,
 	),
 	new LocationType(
 		"Timelike Barrier",
@@ -332,7 +332,7 @@ export const locationTypes = [
 		"A wall made of a strange energy that saps your mana. {'3':'Its duration does not compound.'}",
 		"Enter Barrier",
 		null,
-		null
+		null,
 	),
 	new LocationType(
 		"Timelike Barrier",
@@ -340,10 +340,10 @@ export const locationTypes = [
 		"A wall made of a strange energy that saps your mana. {'3':'Its duration does not compound.'}",
 		"Enter Barrier",
 		null,
-		null
+		null,
 	),
 	new LocationType("Exit", "!", "A door.  Opening to the outside world", "Exit", null, null),
-	new LocationType("Not a location", "", "", null, null)
+	new LocationType("Not a location", "", "", null, null),
 ];
 
 if (new URL(document.location.href).searchParams.get("save") === "separate") {

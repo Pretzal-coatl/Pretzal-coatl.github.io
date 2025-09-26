@@ -91,7 +91,7 @@ export class Action<actionName extends anyActionName = anyActionName> {
 		complete: (loc: MapLocation, clone: Clone, action: ActionInstance) => boolean | void,
 		attemptStart: Action["attemptStart"] | null = null,
 		tickExtra: Action["tick"] | null = null,
-		specialDuration: Action["specialDuration"] = () => 1
+		specialDuration: Action["specialDuration"] = () => 1,
 	) {
 		this.name = name;
 		this.baseDuration = baseDuration;
@@ -200,7 +200,7 @@ export function getDuplicationAmount(loc: MapLocation) {
 		[x - 1, y + 1],
 		[x + 1, y + 1],
 		[x + 1, y - 1],
-		[x - 1, y - 1]
+		[x - 1, y - 1],
 	];
 	rune_locs.forEach(([X, Y]) => {
 		amount += (+(zone.map[Y][X] == "d") * Math.round((1 + getRune("Duplication").upgradeCount * 0.25) * (1 + 0.1 * prestige.level) * 1000)) / 1000;
@@ -407,7 +407,7 @@ function spreadDamage(damage: number, clone: Clone) {
 let combatTools: [Stuff<anyStuffName>, number, Stat<anyStatName>][] = [
 	/* Prestige place to increase tool stats */ [getStuff("Iron Axe"), 0.01 * 1 /*+0.1*prestige.level*/, getStat("Woodcutting")],
 	[getStuff("Iron Pick"), 0.01 * 1 /*+0.1*prestige.level*/, getStat("Mining")],
-	[getStuff("Iron Hammer"), 0.01 * 1 /*+0.1*prestige.level*/, getStat("Smithing")]
+	[getStuff("Iron Hammer"), 0.01 * 1 /*+0.1*prestige.level*/, getStat("Smithing")],
 ];
 
 export function combatDuration() {
@@ -526,7 +526,7 @@ export function tickWither(usedTime: number, loc: MapLocation) {
 		shrooms.includes(zones[game.currentZone].map[y - 1][x]) ? zones[game.currentZone].mapLocations[y - 1][x] : null,
 		shrooms.includes(zones[game.currentZone].map[y][x - 1]) ? zones[game.currentZone].mapLocations[y][x - 1] : null,
 		shrooms.includes(zones[game.currentZone].map[y + 1][x]) ? zones[game.currentZone].mapLocations[y + 1][x] : null,
-		shrooms.includes(zones[game.currentZone].map[y][x + 1]) ? zones[game.currentZone].mapLocations[y][x + 1] : null
+		shrooms.includes(zones[game.currentZone].map[y][x + 1]) ? zones[game.currentZone].mapLocations[y][x + 1] : null,
 	].filter((p): p is NonNullable<typeof p> => p !== null);
 	if (wither.upgradeCount > 0) {
 		adjacentPlants.push(
@@ -534,8 +534,8 @@ export function tickWither(usedTime: number, loc: MapLocation) {
 				shrooms.includes(zones[game.currentZone].map[y - 1][x - 1]) ? zones[game.currentZone].mapLocations[y - 1][x - 1] : null,
 				shrooms.includes(zones[game.currentZone].map[y + 1][x - 1]) ? zones[game.currentZone].mapLocations[y + 1][x - 1] : null,
 				shrooms.includes(zones[game.currentZone].map[y + 1][x + 1]) ? zones[game.currentZone].mapLocations[y + 1][x + 1] : null,
-				shrooms.includes(zones[game.currentZone].map[y - 1][x + 1]) ? zones[game.currentZone].mapLocations[y - 1][x + 1] : null
-			].filter((p): p is NonNullable<typeof p> => p !== null)
+				shrooms.includes(zones[game.currentZone].map[y - 1][x + 1]) ? zones[game.currentZone].mapLocations[y - 1][x + 1] : null,
+			].filter((p): p is NonNullable<typeof p> => p !== null),
 		);
 	}
 	adjacentPlants.forEach(loc => {
@@ -555,7 +555,7 @@ function completeWither(loc: MapLocation) {
 		shrooms.includes(zones[game.currentZone].map[y - 1][x]) ? zones[game.currentZone].mapLocations[y - 1][x] : null,
 		shrooms.includes(zones[game.currentZone].map[y][x - 1]) ? zones[game.currentZone].mapLocations[y][x - 1] : null,
 		shrooms.includes(zones[game.currentZone].map[y + 1][x]) ? zones[game.currentZone].mapLocations[y + 1][x] : null,
-		shrooms.includes(zones[game.currentZone].map[y][x + 1]) ? zones[game.currentZone].mapLocations[y][x + 1] : null
+		shrooms.includes(zones[game.currentZone].map[y][x + 1]) ? zones[game.currentZone].mapLocations[y][x + 1] : null,
 	].filter(p => p);
 	if (getRune("Wither").upgradeCount > 0) {
 		adjacentPlants.push(
@@ -563,8 +563,8 @@ function completeWither(loc: MapLocation) {
 				shrooms.includes(zones[game.currentZone].map[y - 1][x - 1]) ? zones[game.currentZone].mapLocations[y - 1][x - 1] : null,
 				shrooms.includes(zones[game.currentZone].map[y + 1][x - 1]) ? zones[game.currentZone].mapLocations[y + 1][x - 1] : null,
 				shrooms.includes(zones[game.currentZone].map[y + 1][x + 1]) ? zones[game.currentZone].mapLocations[y + 1][x + 1] : null,
-				shrooms.includes(zones[game.currentZone].map[y - 1][x + 1]) ? zones[game.currentZone].mapLocations[y - 1][x + 1] : null
-			].filter(p => p)
+				shrooms.includes(zones[game.currentZone].map[y - 1][x + 1]) ? zones[game.currentZone].mapLocations[y - 1][x + 1] : null,
+			].filter(p => p),
 		);
 	}
 	if (!adjacentPlants.length) return false;
@@ -582,7 +582,7 @@ function predictWither(location: MapLocation) {
 		shrooms.includes(zones[game.currentZone].map[y - 1][x]) ? zones[game.currentZone].mapLocations[y - 1][x] : null,
 		shrooms.includes(zones[game.currentZone].map[y][x - 1]) ? zones[game.currentZone].mapLocations[y][x - 1] : null,
 		shrooms.includes(zones[game.currentZone].map[y + 1][x]) ? zones[game.currentZone].mapLocations[y + 1][x] : null,
-		shrooms.includes(zones[game.currentZone].map[y][x + 1]) ? zones[game.currentZone].mapLocations[y][x + 1] : null
+		shrooms.includes(zones[game.currentZone].map[y][x + 1]) ? zones[game.currentZone].mapLocations[y][x + 1] : null,
 	].filter((p): p is NonNullable<typeof p> => p !== null);
 	if (wither.upgradeCount > 0) {
 		adjacentPlants.push(
@@ -590,8 +590,8 @@ function predictWither(location: MapLocation) {
 				shrooms.includes(zones[game.currentZone].map[y - 1][x - 1]) ? zones[game.currentZone].mapLocations[y - 1][x - 1] : null,
 				shrooms.includes(zones[game.currentZone].map[y + 1][x - 1]) ? zones[game.currentZone].mapLocations[y + 1][x - 1] : null,
 				shrooms.includes(zones[game.currentZone].map[y + 1][x + 1]) ? zones[game.currentZone].mapLocations[y + 1][x + 1] : null,
-				shrooms.includes(zones[game.currentZone].map[y - 1][x + 1]) ? zones[game.currentZone].mapLocations[y - 1][x + 1] : null
-			].filter((p): p is NonNullable<typeof p> => p !== null)
+				shrooms.includes(zones[game.currentZone].map[y - 1][x + 1]) ? zones[game.currentZone].mapLocations[y - 1][x + 1] : null,
+			].filter((p): p is NonNullable<typeof p> => p !== null),
 		);
 	}
 	if (!adjacentPlants.length) return 0;
@@ -620,7 +620,7 @@ function tickSpore(_usedTime: number, _loc: MapLocation, baseTime: number, clone
 
 function completeBarrier(loc: MapLocation) {
 	zones[game.currentZone].manaDrain += BARRIER_DRAIN;
-	(document.querySelector<HTMLElement>("#barrier-mult")!).style.display = "block";
+	document.querySelector<HTMLElement>("#barrier-mult")!.style.display = "block";
 	document.querySelector("#current-barrier-mult")!.innerHTML = `x${zones[game.currentZone].manaDrain + 1}`;
 	setMined(loc.x, loc.y);
 }
@@ -701,7 +701,7 @@ enum ACTION {
 	CREATE_PICK = "Create Pick",
 	CREATE_HAMMER = "Create Hammer",
 	ENTER_BARRIER = "Enter Barrier",
-	EXIT = "Exit"
+	EXIT = "Exit",
 }
 
 export type anyActionName = `${ACTION}`;
@@ -713,61 +713,61 @@ export const actions: anyAction[] = [
 		"Long Wait",
 		() => settings.longWait,
 		[["Speed", 1]],
-		() => {}
+		() => {},
 	),
 	new Action(
 		"Mine",
 		1000,
 		[
 			["Mining", 1],
-			["Speed", 0.2]
+			["Speed", 0.2],
 		],
-		completeMine
+		completeMine,
 	),
 	new Action(
 		"Mine Travertine",
 		10000,
 		[
 			["Mining", 1],
-			["Speed", 0.2]
+			["Speed", 0.2],
 		],
-		completeMine
+		completeMine,
 	),
 	new Action(
 		"Mine Granite",
 		350000,
 		[
 			["Mining", 1],
-			["Speed", 0.2]
+			["Speed", 0.2],
 		],
-		completeMine
+		completeMine,
 	),
 	new Action(
 		"Mine Basalt",
 		4000000,
 		[
 			["Mining", 1],
-			["Speed", 0.2]
+			["Speed", 0.2],
 		],
-		completeMine
+		completeMine,
 	),
 	new Action(
 		"Mine Chert",
 		50000000,
 		[
 			["Mining", 1],
-			["Speed", 0.2]
+			["Speed", 0.2],
 		],
-		completeMine
+		completeMine,
 	),
 	new Action(
 		"Mine Gold",
 		1000,
 		[
 			["Mining", 1],
-			["Speed", 0.2]
+			["Speed", 0.2],
 		],
-		completeGoldMine
+		completeGoldMine,
 	),
 	new Action("Mine Iron", 2500, [["Mining", 2]], completeIronMine),
 	new Action("Mine Coal", 5000, [["Mining", 2]], completeCoalMine),
@@ -777,21 +777,21 @@ export const actions: anyAction[] = [
 		100000,
 		[
 			["Mining", 0.75],
-			["Gemcraft", 0.25]
+			["Gemcraft", 0.25],
 		],
-		completeMine
+		completeMine,
 	),
 	new Action(
 		"Collect Gem",
 		100000,
 		[
 			["Smithing", 0.1],
-			["Gemcraft", 1]
+			["Gemcraft", 1],
 		],
 		completeCollectGem,
 		null,
 		null,
-		mineGemCost
+		mineGemCost,
 	),
 	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, canMineMana, tickCollectMana, mineManaRockCost),
 	new Action("Activate Machine", 1000, [], completeActivateMachine, startActivateMachine),
@@ -804,10 +804,10 @@ export const actions: anyAction[] = [
 		simpleRequire(
 			[
 				["Iron Bar", 1],
-				["Coal", 1]
+				["Coal", 1],
 			],
-			true
-		)
+			true,
+		),
 	),
 	new Action("Turn Gold to Mana", 1000, [["Magic", 1]], completeGoldMana, simpleRequire([["Gold Nugget", 1]], true)),
 	new Action(
@@ -815,20 +815,20 @@ export const actions: anyAction[] = [
 		3000,
 		[
 			["Smithing", 1],
-			["Speed", 0.3]
+			["Speed", 0.3],
 		],
 		completeCrossPit,
-		haveBridge
+		haveBridge,
 	),
 	new Action(
 		"Cross Lava",
 		6000,
 		[
 			["Smithing", 1],
-			["Speed", 0.3]
+			["Speed", 0.3],
 		],
 		completeCrossLava,
-		haveBridge
+		haveBridge,
 	),
 	new Action("Create Bridge", 5000, [["Smithing", 1]], simpleCreate([["Iron Bridge", 1]]), simpleRequire([["Iron Bar", 2]])),
 	new Action("Create Long Bridge", 50000, [["Smithing", 1]], simpleCreate([["Iron Bridge", 1]]), simpleRequire([["Iron Bar", 2]])),
@@ -839,8 +839,8 @@ export const actions: anyAction[] = [
 		simpleCreate([["Steel Bridge", 1]]),
 		simpleRequire([
 			["Steel Bar", 1],
-			["Iron Bridge", 1]
-		])
+			["Iron Bridge", 1],
+		]),
 	),
 	new Action("Create Sword", 7500, [["Smithing", 1]], simpleCreate([["Iron Sword", 1]]), canMakeEquip([["Iron Bar", 3]], "Sword")),
 	new Action(
@@ -850,21 +850,21 @@ export const actions: anyAction[] = [
 		simpleCreate([["Steel Sword", 1]]),
 		simpleRequire([
 			["Steel Bar", 2],
-			["Iron Sword", 1]
-		])
+			["Iron Sword", 1],
+		]),
 	),
 	new Action(
 		"Enchant Sword",
 		3000000,
 		[
 			["Smithing", 0.5],
-			["Gemcraft", 0.5]
+			["Gemcraft", 0.5],
 		],
 		simpleCreate([["+1 Sword", 1]]),
 		simpleRequire([
 			["Gem", 3],
-			["Steel Sword", 1]
-		])
+			["Steel Sword", 1],
+		]),
 	),
 	new Action("Create Shield", 12500, [["Smithing", 1]], simpleCreate([["Iron Shield", 1]]), canMakeEquip([["Iron Bar", 5]], "Shield")),
 	new Action(
@@ -874,21 +874,21 @@ export const actions: anyAction[] = [
 		simpleCreate([["Steel Shield", 1]]),
 		simpleRequire([
 			["Steel Bar", 2],
-			["Iron Shield", 1]
-		])
+			["Iron Shield", 1],
+		]),
 	),
 	new Action(
 		"Enchant Shield",
 		3000000,
 		[
 			["Smithing", 0.5],
-			["Gemcraft", 0.5]
+			["Gemcraft", 0.5],
 		],
 		simpleCreate([["+1 Shield", 1]]),
 		simpleRequire([
 			["Gem", 3],
-			["Steel Shield", 1]
-		])
+			["Steel Shield", 1],
+		]),
 	),
 	new Action("Create Armour", 10000, [["Smithing", 1]], simpleCreate([["Iron Armour", 1]]), canMakeEquip([["Iron Bar", 4]], "Armour")),
 	new Action(
@@ -898,21 +898,21 @@ export const actions: anyAction[] = [
 		simpleCreate([["Steel Armour", 1]]),
 		simpleRequire([
 			["Steel Bar", 2],
-			["Iron Armour", 1]
-		])
+			["Iron Armour", 1],
+		]),
 	),
 	new Action(
 		"Enchant Armour",
 		3000000,
 		[
 			["Smithing", 0.5],
-			["Gemcraft", 0.5]
+			["Gemcraft", 0.5],
 		],
 		simpleCreate([["+1 Armour", 1]]),
 		simpleRequire([
 			["Gem", 3],
-			["Steel Armour", 1]
-		])
+			["Steel Armour", 1],
+		]),
 	),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight, combatDuration),
 	new Action("Teleport", 1, [["Runic Lore", 1]], completeTeleport, startTeleport, null, predictTeleport),
@@ -926,9 +926,9 @@ export const actions: anyAction[] = [
 		1,
 		[
 			["Magic", 0.5],
-			["Runic Lore", 0.5]
+			["Runic Lore", 0.5],
 		],
-		activatePortal
+		activatePortal,
 	),
 	new Action("Complete Goal", 1000, [["Speed", 1]], completeGoal),
 	new Action(
@@ -936,38 +936,38 @@ export const actions: anyAction[] = [
 		getChopTime(1000, 0.1),
 		[
 			["Woodcutting", 1],
-			["Speed", 0.2]
+			["Speed", 0.2],
 		],
-		completeMine
+		completeMine,
 	),
 	new Action(
 		"Kudzu Chop",
 		getChopTime(1000, 0.1),
 		[
 			["Woodcutting", 1],
-			["Speed", 0.2]
+			["Speed", 0.2],
 		],
-		completeMove
+		completeMove,
 	),
 	new Action(
 		"Spore Chop",
 		getChopTime(1000, 0.1),
 		[
 			["Woodcutting", 1],
-			["Speed", 0.2]
+			["Speed", 0.2],
 		],
 		completeMine,
 		null,
-		tickSpore
+		tickSpore,
 	),
 	new Action(
 		"Oyster Chop",
 		getChopTime(1000, 0.2),
 		[
 			["Woodcutting", 1],
-			["Speed", 0.2]
+			["Speed", 0.2],
 		],
-		completeMine
+		completeMine,
 	),
 	new Action("Create Axe", 2500, [["Smithing", 1]], simpleCreate([["Iron Axe", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Create Pick", 2500, [["Smithing", 1]], simpleCreate([["Iron Pick", 1]]), simpleRequire([["Iron Bar", 1]])),
@@ -985,10 +985,10 @@ export const actions: anyAction[] = [
 			["Runic Lore", 0.25],
 			["Combat", 0.25],
 			["Gemcraft", 0.25],
-			["Chronomancy", 0.25]
+			["Chronomancy", 0.25],
 		],
-		completeGame
-	)
+		completeGame,
+	),
 ];
 
 export function getAction<actionName extends anyActionName>(name: actionName): anyAction {

@@ -15,10 +15,13 @@ import { ZoneRoute } from "./zone_routes";
 import { recalculateMana, zones } from "./zones";
 
 function getVersion(): number {
-	return document.querySelector<HTMLElement>("#version")?.innerText
-    .split(".")
-    .map((e, i) => parseInt(e, 36) / 100 ** i)
-    .reduce((v, e) => v + e) ?? 0;
+	return (
+		document
+			.querySelector<HTMLElement>("#version")
+			?.innerText.split(".")
+			.map((e, i) => parseInt(e, 36) / 100 ** i)
+			.reduce((v, e) => v + e) ?? 0
+	);
 }
 
 const URLParams = new URL(document.location.href).searchParams;
@@ -48,7 +51,7 @@ interface saveGame {
 		saveTime: number;
 		timeBanked: number;
 	};
-	messageData: [typeof messages[number]["name"], boolean][];
+	messageData: [(typeof messages)[number]["name"], boolean][];
 	settings: settings;
 	routes: Exclude<Route, ["log", "usedRoutes"]>[];
 	savedRoutes?: string;
@@ -70,7 +73,7 @@ export let save = async function save() {
 	const playerStats = stats.map(s => {
 		return {
 			name: s.name,
-			base: s.base
+			base: s.base,
 		};
 	});
 	const zoneData = zones.map(zone => {
@@ -88,17 +91,17 @@ export let save = async function save() {
 			locations: zoneLocations,
 			queues: zone.queues ? zone.queues.map(queue => queue.map(q => q.actionID)) : [[]],
 			routes: zone.routes,
-			goal: zone.goalComplete
+			goal: zone.goalComplete,
 		};
 	});
 	const cloneData = {
-		count: game.clones.length
+		count: game.clones.length,
 	};
 	const time = {
 		saveTime: Date.now(),
 		timeBanked: game.timeBanked,
 	};
-	const messageData = messages.map(m => [m.name, m.displayed] as [typeof m["name"], boolean]);
+	const messageData = messages.map(m => [m.name, m.displayed] as [(typeof m)["name"], boolean]);
 	const savedRoutes = JSON.parse(
 		JSON.stringify(game.routes, (key, value) => {
 			if (key == "log") {
@@ -108,19 +111,19 @@ export let save = async function save() {
 				return value ? value.map((r: any) => r.id) : undefined;
 			}
 			return value;
-		})
+		}),
 	);
 	const runeData = runes.map(r => {
 		return {
 			name: r.name,
-			upgradeCount: r.upgradeCount
+			upgradeCount: r.upgradeCount,
 		};
 	});
 	const machines = realms.map(r => r.machineCompletions);
 	const realmData = realms.map(r => {
 		return {
 			maxMult: r.maxMult,
-			completed: r.completed
+			completed: r.completed,
 		};
 	});
 	/* prestige data */
@@ -128,7 +131,7 @@ export let save = async function save() {
 		level: prestige.level,
 		prestigepoints: prestige.prestigepoints,
 		prestigecount: prestige.prestigecount,
-		GameComplete: prestige.GameComplete
+		GameComplete: prestige.GameComplete,
 	};
 
 	let saveGame: saveGame = {
@@ -298,7 +301,7 @@ export function displaySaveClick(event: MouseEvent) {
 }
 
 function applyCustomStyling() {
-    if (settings.debug_verticalBlocksJustify) {
-        (document.querySelector(".vertical-blocks") as HTMLElement).style.justifyContent = settings.debug_verticalBlocksJustify;
-    }
+	if (settings.debug_verticalBlocksJustify) {
+		(document.querySelector(".vertical-blocks") as HTMLElement).style.justifyContent = settings.debug_verticalBlocksJustify;
+	}
 }

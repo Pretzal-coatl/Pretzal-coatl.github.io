@@ -32,7 +32,7 @@ export class Rune<runeName extends anyRuneName = anyRuneName> {
 		description: () => string,
 		createEvent: ((location: MapLocation) => void) | null,
 		chargeEvent: ((location: MapLocation) => void) | null,
-		activateAction?: anyActionName
+		activateAction?: anyActionName,
 	) {
 		this.name = name;
 		this.icon = icon;
@@ -149,7 +149,7 @@ export function canPlaceTeleport() {
 	return CanStartReturnCode.Now;
 }
 
-export function getRune<runeName extends typeof runes[number]["name"]>(name: runeName) {
+export function getRune<runeName extends (typeof runes)[number]["name"]>(name: runeName) {
 	return runes.find(a => a.name == name) as Rune<runeName>;
 }
 
@@ -161,13 +161,13 @@ export const runes: Rune[] = [
 		"W",
 		simpleRequire([
 			["Iron Bar", 1],
-			["Gold Nugget", 1]
+			["Gold Nugget", 1],
 		]),
 		0,
 		() =>
 			`This rune weakens any orthogonally adjacent enemies,  decreasing their attack and defense by 1.<br>Requires:<br>{'0':'1 Iron Bar<br>1 Gold Nugget', '1':'2 Iron Bars<br>2 Gold Nuggets'}`,
 		weakenCreatures,
-		null
+		null,
 	),
 	new Rune(
 		"Wither",
@@ -175,7 +175,7 @@ export const runes: Rune[] = [
 		simpleRequire([
 			["Salt", 1],
 			["Iron Ore", 1],
-			["Gold Nugget", 1]
+			["Gold Nugget", 1],
 		]),
 		0,
 		() =>
@@ -188,7 +188,7 @@ export const runes: Rune[] = [
 			}', '1':'2 Salt<br>2 Iron Ore${getRealm("Verdant Realm").completed ? "" : "<br>2 Gold Nuggets"}'}`,
 		null,
 		null,
-		"Charge Wither"
+		"Charge Wither",
 	),
 	new Rune(
 		"Duplication",
@@ -201,7 +201,7 @@ export const runes: Rune[] = [
 			} of each (orthogonally or diagonally) adjacent resource (when mined), though each rune placed in a zone costs twice as much to charge as the last.`,
 		createChargableRune,
 		null,
-		"Charge Duplication"
+		"Charge Duplication",
 	),
 	new Rune(
 		"Teleport To",
@@ -212,7 +212,7 @@ export const runes: Rune[] = [
 			`This rune allows someone or something to come through from another place.  Only one can be placed,  and it must be charged after placement.  Use a pathfind action right after teleporting to fix the path prediction.`,
 		null,
 		null,
-		"Charge Teleport"
+		"Charge Teleport",
 	),
 	new Rune(
 		"Teleport From",
@@ -223,20 +223,20 @@ export const runes: Rune[] = [
 			`This rune allows someone to slip beyond to another place.  Interact with it after inscribing it to activate it.<br>Requires:<br>{'0':'2 Iron Ore', '1':'4 Iron Ore'}`,
 		null,
 		null,
-		"Teleport"
+		"Teleport",
 	),
 	new Rune(
 		"Pump",
 		"P",
 		simpleRequire([
 			["Iron Bar", 3],
-			["Steel Bar", 1]
+			["Steel Bar", 1],
 		]),
 		0,
 		() =>
 			`This rune drains water from surrounding spaces.  It drains log_2(Runic Lore) / 25 water per second from its space and a quarter that from the 4 adjacent spaces.<br>Requires:<br>{'0':'3 Iron Bars<br>1 Steel Bar', '1':'6 Iron Bars<br>2 Steel Bars'}`,
 		null,
 		null,
-		"Pump"
-	)
+		"Pump",
+	),
 ];

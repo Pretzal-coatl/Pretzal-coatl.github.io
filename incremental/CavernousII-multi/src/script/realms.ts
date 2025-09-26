@@ -31,7 +31,7 @@ export class Realm {
 		activateMachine: (() => void) | null = null,
 		extraDescription: (() => string) | null = null,
 		multPerRock: number = 0,
-		maxMult: number = Infinity
+		maxMult: number = Infinity,
 	) {
 		this.name = name;
 		this.description = description;
@@ -142,7 +142,7 @@ export function getRealmComplete(realm: Realm) {
 			wither.upgradeCount = 3;
 			wither.isInscribable = simpleRequire([
 				["Salt", 1],
-				["Iron Ore", 1]
+				["Iron Ore", 1],
 			]);
 			wither.updateDescription();
 		}
@@ -155,7 +155,7 @@ export const verdantMapping: { [key: string]: string } = {
 	"«": "♣", // Travertine -> Kudzushroom
 	"╖": "α", // Granite -> Sporeshroom
 	"╣": "§", // Basalt -> Oystershroom
-	"■": "δ" // Chert -> Springshroom (you can't get here, but still...)
+	"■": "δ", // Chert -> Springshroom (you can't get here, but still...)
 };
 
 export function convertMapToVerdant(map: Zone["map"], zoneNumber: number): string[] {
@@ -163,7 +163,7 @@ export function convertMapToVerdant(map: Zone["map"], zoneNumber: number): strin
 	return map.map(row =>
 		[...row]
 			.map(cell => (zoneNumber > 6 && notReUnlocked ? "█" : zoneNumber == 6 && cell == "Θ" && notReUnlocked ? "♠" : verdantMapping[cell] || cell))
-			.join("")
+			.join(""),
 	);
 }
 
@@ -174,8 +174,8 @@ realms.push(
 		"Core Realm",
 		"Where you started.  Hopefully, how you'll leave this cave complex.",
 		() => game.clones.length - prestige.level,
-		() => Clone.addNewClone()
-	)
+		() => Clone.addNewClone(),
+	),
 );
 
 realms.push(
@@ -189,8 +189,8 @@ realms.push(
 			getRune("Duplication").upgradeCount++;
 			getRune("Duplication").updateDescription();
 			getMessage("Upgraded Duplication Rune").display(true);
-		}
-	)
+		},
+	),
 );
 
 realms.push(
@@ -209,8 +209,8 @@ realms.push(
 		},
 		getVerdantMultDesc,
 		0.0005,
-		2
-	)
+		2,
+	),
 );
 
 realms.push(
@@ -224,8 +224,8 @@ realms.push(
 			getMessage("Time Barriers").display();
 		},
 		getCompoundingMultDesc,
-		0.1
-	)
+		0.1,
+	),
 );
 
 export function getRealm(name: string) {

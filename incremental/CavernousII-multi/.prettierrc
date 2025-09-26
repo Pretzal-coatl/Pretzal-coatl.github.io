@@ -4,7 +4,6 @@
   "useTabs": true,
   "printWidth": 160,
   "singleQuote": false,
-  "trailingComma": "none",
   "arrowParens": "avoid",
   "endOfLine": "auto"
 }
