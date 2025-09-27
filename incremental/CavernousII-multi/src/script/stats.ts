@@ -105,9 +105,11 @@ export class Stat<statName extends anyStatName> {
 				return;
 			}
 			this.createNode();
-			this.effectNode = this.node!.querySelector(".effect") as HTMLElement;
-			this.descriptionNode = this.node!.querySelector(".description") as HTMLElement;
+			if (!this.node) return;
+			this.effectNode = this.node.querySelector<HTMLElement>(".effect");
+			this.descriptionNode = this.node.querySelector<HTMLElement>(".description");
 		}
+		if (!this.effectNode || !this.descriptionNode) return;
 		if (this.name === "Mana") {
 			this.effectNode.innerText = `${writeNumber(
 				this.current < 100 ? this.current + this.bonus : this.current * (1 + this.bonus / 100),
@@ -166,11 +168,8 @@ export class Stat<statName extends anyStatName> {
 	}
 
 	createNode(): void {
-		// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-		const statTemplate = document.querySelector("#stat-template") as HTMLElement | null;
-		if (statTemplate === null) {
-			throw new Error("No stat template");
-		}
+		const statTemplate = document.querySelector<HTMLElement>("#stat-template");
+		if (statTemplate === null) return;
 		this.node = statTemplate.cloneNode(true) as HTMLElement;
 		this.node.id = "stat_" + this.name.replace(" ", "-");
 		this.node.querySelector(".name")!.innerHTML = this.name;
@@ -264,6 +263,12 @@ export const stats: Stat<anyStatName>[] = [
 
 export function getStat<nameType extends anyStatName>(name: nameType): Stat<nameType> {
 	return stats.find(a => a.name === name) as Stat<nameType>;
+}
+
+export function getStatBonus(name: anyStatName, mult: number) {
+	/* Prestige, place to add stat increases */
+	let stat = getStat(name);
+	return (oldAmount: number, amount: number) => stat.getBonus((Math.floor(amount + 0.01) - Math.floor(oldAmount + 0.01)) * mult * (1 + 0.1 * prestige.level));
 }
 
 export function getBaseMana(zone: number = game.currentZone, realm: number = game.currentRealm): number {

@@ -1,14 +1,17 @@
+import { game } from "./game.ts";
 import { showIntermediateLocation, stopHovering } from "./highlights.ts";
 import { resetLoop } from "./loop.ts";
 import { currentLoopLog } from "./loop_log.ts";
 import { viewCell } from "./map.ts";
 import { hideMessages, viewMessage, viewMessages } from "./messages.ts";
+import { multiworld } from "./multiworld.ts";
 import { prestigeGame } from "./prestige.ts";
 import { addActionToQueue, clearCursors, exportQueues, importQueues, longExportQueues, longImportQueues, selectClone, setCursor } from "./queues.ts";
 import { loadRoute, Route, updateGrindStats } from "./routes.ts";
 import { displaySaveClick, exportGame, importGame, save } from "./save.ts";
 import { adjustableKeybindings, fixedKeybindings, hideConfig, toggleAutoRestart, toggleBankedTime, toggleFollowZone, toggleGrindMana, toggleGrindStats, toggleLoadPrereqs, togglePauseOnPortal, toggleRunning, toggleStatGrindPerSec, toggleTimeline, toggleUseWASD, toggleWarnings, viewConfig } from "./settings.ts";
 import { findUsedZoneRoutes } from "./zone_routes.ts";
+import { zones } from "./zones.ts";
 
 Object.assign(window, {
 	addActionToQueue,
@@ -53,6 +56,7 @@ Object.assign(window, {
 	viewMessages,
 
 	prestigeGame,
+	multiworld,
 });
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
@@ -279,7 +283,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 			</div>
 			<div class="queue-time">
 				<div id="queue-actions">Actions: <span id="actions-spent"></span></div>
-				<span class="barrier-related" id="barrier-mult">Barrier mult: <span id="current-barrier-mult">1</span><br></span>
+				<span class="barrier-related" id="barrier-mult" ${zones[game.currentZone].manaDrain && 'style="display: block"'}>Barrier mult: <span id="current-barrier-mult">${zones[game.currentZone].manaDrain + 1}</span><br></span>
 				Zone time: <span id="time-spent-zone">0</span>s<br>
 				Time spent: <span id="time-spent">0</span>s
 			</div>

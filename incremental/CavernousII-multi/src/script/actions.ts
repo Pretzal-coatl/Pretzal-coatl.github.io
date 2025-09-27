@@ -620,8 +620,6 @@ function tickSpore(_usedTime: number, _loc: MapLocation, baseTime: number, clone
 
 function completeBarrier(loc: MapLocation) {
 	zones[game.currentZone].manaDrain += BARRIER_DRAIN;
-	document.querySelector<HTMLElement>("#barrier-mult")!.style.display = "block";
-	document.querySelector("#current-barrier-mult")!.innerHTML = `x${zones[game.currentZone].manaDrain + 1}`;
 	setMined(loc.x, loc.y);
 }
 

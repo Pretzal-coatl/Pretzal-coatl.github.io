@@ -67,6 +67,7 @@ export function toggleBankedTime() {
 
 export function toggleRunning() {
 	settings.running = !settings.running;
+	if (!document.querySelector("#running-toggle")) return;
 	document.querySelector("#running-toggle")!.innerHTML = settings.running ? "Running" : "Paused";
 	document.querySelector("#running-toggle")!.closest(".option")!.classList.toggle("option-highlighted", !settings.running);
 	document.title = "Cavernous II" + (settings.running ? "" : " - Paused");
@@ -81,6 +82,7 @@ export enum AutoRestart {
 }
 
 export function toggleAutoRestart() {
+	if (!document.querySelector("#auto-restart-toggle")) return;
 	const autoRestartText = ["Wait when any complete", "Restart when complete", "Restart always", "Wait when all complete"];
 	settings.autoRestart = (settings.autoRestart + 1) % autoRestartText.length;
 	document.querySelector("#auto-restart-toggle")!.innerHTML = autoRestartText[settings.autoRestart];
@@ -100,6 +102,7 @@ export function toggleUseWASD() {
 }
 
 export function toggleGrindMana(event?: KeyboardEvent) {
+	if (!document.querySelector("#grind-mana-toggle")!) return;
 	if (event?.ctrlKey || event?.metaKey) {
 		Route.invalidateRouteCosts();
 		return;
@@ -125,24 +128,29 @@ export function toggleGrindStats() {
 }
 
 export function toggleLoadPrereqs() {
+	if (!document.querySelector("#load-prereq-toggle")) return;
 	settings.loadPrereqs = !settings.loadPrereqs;
 	document.querySelector("#load-prereq-toggle")!.innerHTML = settings.loadPrereqs ? "Load prereqs" : "Load only zone route";
 	return settings.loadPrereqs;
 }
 
 export function toggleWarnings() {
+	if (!document.querySelector("#follow-zone-toggle")) return;
 	settings.warnings = !settings.warnings;
 	document.querySelector("#warnings")!.innerHTML = settings.warnings ? "Showing warnings" : "Not showing warnings";
 	return settings.warnings;
 }
 
 export function toggleFollowZone() {
+	if (!document.querySelector("#follow-zone-toggle")) return;
 	settings.followZone = !settings.followZone;
 	document.querySelector("#follow-zone-toggle")!.innerHTML = settings.followZone ? "Follow on zone complete" : "Stay on selected zone";
 	return settings.followZone;
 }
 
 export function toggleTimeline() {
+	if (!document.querySelector("#timeline-toggle")) return;
+
 	settings.timeline = !settings.timeline;
 	document.querySelector("#timeline-toggle")!.innerHTML = settings.timeline ? "Showing timeline" : "Hiding timeline";
 	document.querySelector<HTMLElement>("#timelines")!.hidden = !settings.timeline;
@@ -150,6 +158,7 @@ export function toggleTimeline() {
 }
 
 export function toggleStatGrindPerSec() {
+	if (!document.querySelector("#stat-grind-per-sec")) return;
 	settings.statGrindPerSec = !settings.statGrindPerSec;
 	document.querySelector("#stat-grind-per-sec")!.innerHTML = settings.statGrindPerSec ? "Stat grind strategy: Per sec" : "Stat grind strategy: Total";
 	return settings.statGrindPerSec;

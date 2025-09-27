@@ -448,7 +448,6 @@ export function moveToZone(zone: string | number, complete = true) {
 		clearCursors();
 	}
 	game.currentZone = zone;
-	document.querySelector<HTMLElement>("#barrier-mult")!.style.display = "none";
 	zones[zone].enterZone();
 }
 

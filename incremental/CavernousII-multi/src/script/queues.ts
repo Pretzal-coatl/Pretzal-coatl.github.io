@@ -54,7 +54,9 @@ export class QueueAction {
 
 	get node() {
 		if (this.domNode) return this.domNode;
-		this.domNode = createActionNode(this.actionID);
+		const actionNode = createActionNode(this.actionID);
+		if (!actionNode) return;
+		this.domNode = actionNode;
 		if (this.done == ActionStatus.Complete) {
 			this.domNode.classList.add("started");
 			this.domNode.style.backgroundSize = "0%";
@@ -63,15 +65,15 @@ export class QueueAction {
 	}
 
 	drawProgress() {
-		if (this.isProgressQueued) return;
+		if (this.isProgressQueued || !this.node) return;
 		this.isProgressQueued = true;
 		setTimeout(() => {
 			if (this.done == ActionStatus.Started || this.done == ActionStatus.Complete) {
-				this.node.classList.add("started");
+				this.node!.classList.add("started");
 				if (this.currentAction) {
 					let percent = 1 - this.currentAction.remainingDuration / this.currentAction.startingDuration;
 					percent *= 100;
-					this.node.style.backgroundSize = `${Math.max(0, percent)}%`;
+					this.node!.style.backgroundSize = `${Math.max(0, percent)}%`;
 					if (percent < this.lastProgress + 100 / (0.5 * 60)) {
 						// 0.5 second @ 60fps
 						this.queue.displayActionProgress(percent);
@@ -80,11 +82,11 @@ export class QueueAction {
 					}
 					this.lastProgress = isNaN(percent) ? 0 : percent;
 				} else {
-					this.node.style.backgroundSize = "100%";
+					this.node!.style.backgroundSize = "100%";
 				}
 			} else {
-				this.node.classList.remove("started");
-				this.node.style.backgroundSize = "0%";
+				this.node!.classList.remove("started");
+				this.node!.style.backgroundSize = "0%";
 			}
 			this.isProgressQueued = false;
 		});
@@ -433,9 +435,9 @@ export class ActionQueue extends Array<QueueAction> {
 		game.clones[this.index].isSelected = newVal;
 		showCursorLocations();
 		if (this.selected) {
-			this.node.parentElement!.classList.add("selected-clone");
+			this.node?.parentElement!.classList.add("selected-clone");
 		} else {
-			this.node.parentElement!.classList.remove("selected-clone");
+			this.node?.parentElement!.classList.remove("selected-clone");
 		}
 		showFinalLocation();
 	}
@@ -483,14 +485,14 @@ export class ActionQueue extends Array<QueueAction> {
 
 		if (this.cursor == null) {
 			this.push(newAction);
-			this.queueNode?.append(newAction.node);
+			this.queueNode?.append(newAction.node!);
 		} else if (this.cursor >= 0) {
 			this.splice(this.cursor + 1, 0, newAction);
-			this[this.cursor].node.insertAdjacentElement("afterend", newAction.node);
+			this[this.cursor].node?.insertAdjacentElement("afterend", newAction.node!);
 			this.cursor++;
 		} else {
 			this.unshift(newAction);
-			this.queueNode?.insertAdjacentElement("afterbegin", newAction.node);
+			this.queueNode?.insertAdjacentElement("afterbegin", newAction.node!);
 			this.cursor++;
 		}
 		this.scrollQueue();
@@ -500,10 +502,10 @@ export class ActionQueue extends Array<QueueAction> {
 		if (this.cursor === null) {
 			const action = this.pop();
 			if (action === undefined) return;
-			action.node.remove();
+			action.node?.remove();
 		} else {
 			if (this.length == 0 || this.cursor == -1) return;
-			this.splice(this.cursor, 1)[0].node.remove();
+			this.splice(this.cursor, 1)[0].node?.remove();
 			this.cursor--;
 		}
 	}
@@ -527,7 +529,7 @@ export class ActionQueue extends Array<QueueAction> {
 	}
 
 	displayActionProgress(percent: number) {
-		if (!this.progressNode) this.progressNode = this.node.parentNode?.querySelector(".work-progress") as HTMLElement | null;
+		if (!this.progressNode) this.progressNode = this.node?.parentNode?.querySelector(".work-progress") as HTMLElement | null;
 		if (!this.progressNode) return;
 		this.progressNode.style.width = percent + "%";
 	}
@@ -537,21 +539,22 @@ export class ActionQueue extends Array<QueueAction> {
 	}
 
 	scrollQueue() {
-		if (this.isScrolling) return;
+		if (!this.node || this.isScrolling) return;
 		this.isScrolling = true;
 		setTimeout(() => {
-			if (!actionBarWidth) return setActionBarWidth(this.node);
-			this.node.parentElement!.scrollLeft = Math.max((this.cursor !== null ? this.cursor : this.length) * 16 - actionBarWidth / 2, 0);
+			if (!actionBarWidth) return setActionBarWidth(this.node!);
+			this.node!.parentElement!.scrollLeft = Math.max((this.cursor !== null ? this.cursor : this.length) * 16 - actionBarWidth / 2, 0);
 			// Potentially take active action into account
 			this.isScrolling = false;
 		});
 	}
 
-	get node(): HTMLElement {
+	get node(): HTMLElement | undefined {
 		if (this.queueNode !== null) return this.queueNode;
 		this.queueNode = document.querySelector<HTMLElement>(`#queue${this.index} > .queue-inner`);
 		if (this.queueNode !== null) return this.queueNode;
 		const queueTemplate = document.querySelector("#queue-template");
+		if (!queueTemplate) return;
 		if (queueTemplate === null) throw new Error("No queue template found");
 		const node = queueTemplate.cloneNode(true) as HTMLElement;
 		node.id = `queue${this.index}`;
@@ -562,7 +565,7 @@ export class ActionQueue extends Array<QueueAction> {
 	}
 
 	clear() {
-		this.splice(0, this.length).forEach(action => action.node.remove());
+		this.splice(0, this.length).forEach(action => action.node?.remove());
 		this.cursor = null;
 		countMultipleActions();
 	}
@@ -637,7 +640,7 @@ export function clearQueues() {
 
 export function createActionNode(action: string) {
 	const actionTemplate = document.querySelector("#action-template");
-	if (actionTemplate === null) throw new Error("No action template found");
+	if (actionTemplate === null) return;
 
 	let actionNode = actionTemplate.cloneNode(true) as HTMLElement;
 	actionNode.removeAttribute("id");
@@ -677,7 +680,7 @@ export function countMultipleActions() {
 	});
 	zones[game.displayZone].queues.forEach(queue => {
 		const queueNode = queue.node;
-		let nodes = queueNode.children;
+		let nodes = queueNode?.children;
 		let actionCount = 0;
 		let countedType = null;
 		for (let j = 0; j <= queue.length; j++) {
@@ -689,7 +692,7 @@ export function countMultipleActions() {
 				node.style.left = `${(j - actionCount) * 16 + 2}px`;
 				node.style.width = `${actionCount * 16 - 2}px`;
 				if (actionCount > 9) node.classList.add("double-digit");
-				queueNode.insertBefore(node, nodes[j - actionCount]);
+				queueNode?.insertBefore(node, nodes![j - actionCount]);
 				actionCount = 0;
 				countedType = null;
 			}
@@ -710,24 +713,24 @@ export function clearWorkProgressBars() {
 
 export function redrawQueues() {
 	zones[game.displayZone].queues.forEach(q => {
+		if (!q.node) return;
 		while (q.node.lastChild) {
-			q.node.removeChild(q.node.lastChild);
+			q.node?.removeChild(q.node.lastChild);
 		}
 		for (let action of q) {
 			let node = action.node;
-			q.node.append(node);
+			q.node.append(node!);
 		}
 	});
 	resetQueueHighlights();
 	countMultipleActions();
 	let timelineEl = document.querySelector(`#timelines`);
-	if (timelineEl === null) throw new Error("Timelines node not found");
-	while (timelineEl.lastChild) {
+	while (timelineEl?.lastChild) {
 		timelineEl.removeChild(timelineEl.lastChild);
 	}
 
 	for (const c of game.clones) {
-		timelineEl.append(c.timeLineElements[game.displayZone]);
+		timelineEl?.append(c.timeLineElements[game.displayZone]);
 	}
 	clearWorkProgressBars();
 }

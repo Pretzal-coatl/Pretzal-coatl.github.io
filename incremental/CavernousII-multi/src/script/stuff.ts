@@ -3,7 +3,7 @@ import { game } from "./game";
 import { hammerSVG, rightArrowSVG } from "./icons";
 import { prestige } from "./prestige";
 import type { Route } from "./routes";
-import { getStat, type anyStatName } from "./stats";
+import { getStat, getStatBonus } from "./stats";
 import { ZoneRoute } from "./zone_routes";
 
 export type simpleStuffList = {
@@ -19,7 +19,7 @@ export class Stuff<stuffName extends string> {
 	description: string;
 	colour: string;
 	count: number;
-	index: number = -1;
+	index: number | null = null;
 	node: HTMLElement | null;
 	countNode: HTMLElement | null;
 	min: number;
@@ -42,14 +42,11 @@ export class Stuff<stuffName extends string> {
 		this.countNode = null;
 		this.min = 0;
 		this.effect = effect;
-
-		setTimeout(() => {
-			this.index = stuff.findIndex(s => s === this);
-		});
 	}
 
 	update(newCount = 0) {
 		if (this.node === null) this.createNode();
+		if (!this.countNode) return;
 		this.count += newCount;
 		if (this.effect !== null) {
 			this.effect(this.count - newCount, this.count);
@@ -80,11 +77,16 @@ export class Stuff<stuffName extends string> {
 		}
 	}
 
+	setIndex() {
+		this.index = stuff.findIndex(s => s === this);
+	}
+
 	createNode() {
 		if (this.node) return;
 		let stuffTemplate = document.querySelector("#stuff-template");
-		if (stuffTemplate === null) {
-			throw new Error("No stuff template");
+		if (stuffTemplate === null) return;
+		if (!this.index) {
+			this.setIndex();
 		}
 		this.node = stuffTemplate.cloneNode(true) as HTMLElement;
 		this.node.id = "stuff_" + this.name.replace(" ", "_");
@@ -93,7 +95,7 @@ export class Stuff<stuffName extends string> {
 		this.node.querySelector(".description")!.innerHTML = this.description.replace("{}", "0");
 		this.node.style.color = setContrast(this.colour);
 		this.node.style.backgroundColor = this.colour;
-		this.node.style.order = this.index.toString();
+		this.node.style.order = this.index!.toString();
 		document.querySelector("#stuff-inner")!.appendChild(this.node);
 		this.countNode = this.node.querySelector(".count")! as HTMLElement;
 	}
@@ -129,11 +131,6 @@ export function calcCombatStats() {
 	game.clones.forEach(c => c.styleDamage());
 }
 
-export function getStatBonus(name: anyStatName, mult: number) {
-	/* Prestige, place to add stat increases */
-	let stat = getStat(name);
-	return (oldAmount: number, amount: number) => stat.getBonus((Math.floor(amount + 0.01) - Math.floor(oldAmount + 0.01)) * mult * (1 + 0.1 * prestige.level));
-}
 export type anyStuffName = (typeof stuff)[number]["name"];
 export const stuff = [
 	/* Prestige, place to add stat increases */ new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),
