@@ -75,7 +75,7 @@ export function prestigeGame() {
 }
 
 function resetprogress() {
-	/*sets game.clones to 0*/
+	/*sets clones to 0*/
 	game.clones = [];
 	/*Resets Zones, maybe change so map doesn't reset?*/
 	zones.forEach(z => {

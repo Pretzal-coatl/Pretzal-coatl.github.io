@@ -133,10 +133,11 @@ export function calcCombatStats() {
 
 export type anyStuffName = (typeof stuff)[number]["name"];
 export const stuff = [
-	/* Prestige, place to add stat increases */ new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),
+	/* Prestige, place to add stat increases */
+	new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),
 	new Stuff("Salt", "⌂", "A pile of salt.  You're not hungry, so what's this good for?", "#ffffff", 0),
 	new Stuff("Iron Ore", "•", "A chunk of iron ore.  Not useful in its current form.", "#777777", 0),
-	new Stuff("Gem", "☼", "A gem, pulled from the ground.  Gives +2.5 (or +2.5%) to Magic.", "#90ee90", 0, getStatBonus("Magic", 2.5)),
+	new Stuff("Gem", "☼", "A gem, pulled from the ground.  Gives +2.5 (or +2.5%) to Magic.", "#90ee90", 0, () => getStatBonus("Magic", 2.5)),
 	new Stuff("Coal", "○", "A chunk of coal.  Burns hot.", "#222222", 0),
 	new Stuff("Iron Bar", "❚", "An iron rod.  Has a faint smell of bacon.", "#777777", 0),
 	new Stuff("Iron Bridge", "⎶", "A small iron bridge.", "#777777", 0),
@@ -168,7 +169,7 @@ export const stuff = [
 		"An iron axe.  Gives +15 or +15% to Woodcutting (whichever is greater), and applies 1% of your Woodcutting skill to combat ({}%).",
 		"#777777",
 		0,
-		getStatBonus("Woodcutting", 15),
+		() => getStatBonus("Woodcutting", 15),
 	),
 	new Stuff(
 		"Iron Pick",
@@ -176,7 +177,7 @@ export const stuff = [
 		"An iron pickaxe.  Gives +15 or +15% to Mining (whichever is greater), and applies 1% of your Mining skill to combat ({}%).",
 		"#777777",
 		0,
-		getStatBonus("Mining", 15),
+		() => getStatBonus("Mining", 15),
 	),
 	new Stuff(
 		"Iron Hammer",
@@ -184,7 +185,7 @@ export const stuff = [
 		"An iron hammer.  Gives +15 or +15% to Smithing (whichever is greater), and applies 1% of your Smithing skill to combat ({}%).",
 		"#777777",
 		0,
-		getStatBonus("Smithing", 15),
+		() => getStatBonus("Smithing", 15),
 	),
 	new Stuff("+1 Sword", ")", "A magical sword.  Sharp! (+4 attack)  Max 1 weapon per clone.", "#688868", 0, calcCombatStats),
 	new Stuff("+1 Shield", "[", "A magical shield.  This should help you not die. (+4 defense)  Max 1 shield per clone.", "#688868", 0, calcCombatStats),

@@ -265,7 +265,7 @@ export const locationTypes = [
 	new LocationType(
 		"Sporeshroom",
 		"α",
-		"A giant mushroom which grows quickly.  While you cut it, it lets out poisonous spores, injuring your game.clones cutting it for 1 damage per second. (Growth: 1+{'0':0.1,'2':0.5}t)",
+		"A giant mushroom which grows quickly.  While you cut it, it lets out poisonous spores, injuring your clones cutting it for 1 damage per second. (Growth: 1+{'0':0.1,'2':0.5}t)",
 		"Spore Chop",
 		null,
 		null,
