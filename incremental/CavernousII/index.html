@@ -27,6 +27,7 @@
 	<script type="text/javascript" defer src="dist/script/clones.js"></script>
 	<script type="text/javascript" defer src="dist/script/loop_log.js"></script>
 	<script type="text/javascript" defer src="dist/script/messages.js"></script>
+	<script type="text/javascript" defer src="dist/script/prestige.js"></script>
 
 	<script type="text/javascript" defer src="dist/script/main.js"></script>
 
@@ -271,15 +272,14 @@
 				<div class="block">
 					Bonuses
 					<div class="description big-description">
-						Prestige Count: <span id="prestigecount"></span><br />
-						Bonuses listed per prestige<br />
-						Bonus Clones: 1 <br />
-						Faster Stats: 10% faster<br />
-						Mana Scaling: 95% cost (dimishing at 0.75 per)<br />
-						Bonus Resouces: 10% more (stacks with Duplication Rune)<br />
-						Better Equipment: 10% more (not including weapons)<br />
-						Stat Soft Cap: +1x Compound scaling and +20 base<br />
-						Bonus Zones: TBD<br />
+						Prestige Count: <span id="prestigecount">0</span><br />
+						Bonuses:<br />
+						Bonus Clones: <span id="prestigeval0">0</span><br />
+						Faster Stats: <span id="prestigeval1">0</span>% faster<br />
+						Mana Scaling: <span id="prestigeval2">100</span>% cost<br />
+						Bonus Resouces: <span id="prestigeval3">0</span>% more (stacks with Duplication Rune)<br />
+						Better Equipment: <span id="prestigeval4">0</span>% more (not including weapons)<br />
+						Stat Soft Cap: +<span id="prestigeval5a">1</span>x Compound scaling and +<span id="prestigeval5b">0</span> base<br />
 					</div>	
 				</div>	
 			</h3>
@@ -441,6 +441,12 @@
 		<div id="message-wrapper">
 			<h3 id="message-title"></h3>
 			<div id="message-text"></div>
+		</div>
+	</div>
+	<div id="prestige-box" onclick="hidePrestige()" hidden>
+		<div id="prestige-wrapper">
+			<h3 id="prestige-title"></h3>
+			<div id="prestige-text"></div>
 		</div>
 	</div>
 	<div id="config-box" onclick="hideConfig()" hidden>
