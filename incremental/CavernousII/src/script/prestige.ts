@@ -1,3 +1,8 @@
+const prestigeBox: HTMLElement =
+	document.querySelector("#prestige-box") ??
+	(() => {
+		throw new Error("No config box found");
+	})();
 
 /** *************************************Super Prestiges ********************************************/
 var GameComplete = 0;
@@ -55,6 +60,18 @@ function prestigeGame() {
 		resetprogress();
         loadPrestigeBonuses();
 	}
+}
+
+function getPrestigeBonuses(level: number) {
+	return [
+		writeNumber(level),
+		writeNumber(10 * level),
+		writeNumber(100 * 0.95 ** (level ** 0.75), 2),
+		writeNumber(10 * level),
+		writeNumber(10 * level),
+		writeNumber(1 + level),
+		writeNumber(20 * level),
+	]
 }
 
 function loadPrestigeBonuses() {
@@ -123,6 +140,27 @@ function resetprogress() {
 	resetLoop();
 	save();
 	window.location.reload();
+}
+
+function viewPrestige() {
+	const prestigeAvailable = canPrestige();
+	document.querySelector("#prestige-title")!.innerHTML = `Prestige ${prestigeAvailable ? '(Available!)' : '(Not yet available)'}`;
+	const text = prestigeBox.querySelector("#prestige-text")!;
+	const currentBonuses = getPrestigeBonuses(prestigecount);
+	const prestigeBonuses = getPrestigeBonuses(prestigecount + 1);
+	text.innerHTML = `Bonus Clones: +${currentBonuses[0]} → +${prestigeBonuses[0]}<br/>
+	Stat Gains: +${currentBonuses[1]}% → +${prestigeBonuses[1]}%<br/>
+	Mana Mining: +${currentBonuses[2]}% → +${prestigeBonuses[2]}%<br/>
+	Bonus Resources: +${currentBonuses[3]}% → +${prestigeBonuses[3]}%<br/>
+	Equipment Bonuses: +${currentBonuses[4]}% → +${prestigeBonuses[4]}%<br/>
+	Stat Soft Cap: ${currentBonuses[5]}x + ${currentBonuses[6]} → ${prestigeBonuses[5]}x + ${prestigeBonuses[6]}`;
+
+	prestigeBox.querySelector<HTMLElement>("#prestige-button")!.hidden = !prestigeAvailable;
+	prestigeBox.hidden = false;
+}
+
+function hidePrestige(): void {
+	prestigeBox.hidden = true;
 }
 
 /** ****************************************** Prestiges ********************************************/

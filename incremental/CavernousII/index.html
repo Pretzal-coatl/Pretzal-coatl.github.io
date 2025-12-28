@@ -283,7 +283,7 @@
 					</div>	
 				</div>	
 			</h3>
-			<div class="option block clickable option--half-width" ondblclick="prestigeGame()">
+			<div class="option block clickable option--half-width" onclick="viewPrestige()">
 				<span class="name">Prestige</span>
 				<div class="description">Prestige and get points.</div>
 			</div>
@@ -447,6 +447,10 @@
 		<div id="prestige-wrapper">
 			<h3 id="prestige-title"></h3>
 			<div id="prestige-text"></div>
+			<div id="prestige-button" class="hidden option block clickable option--half-width" onclick="prestigeGame()">
+				<span class="name">Prestige</span>
+				<div class="description">Prestige and get points.</div>
+			</div>
 		</div>
 	</div>
 	<div id="config-box" onclick="hideConfig()" hidden>

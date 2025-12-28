@@ -13,7 +13,7 @@ function getLocationTypeBySymbol(symbol) {
 function writeNumber(value, decimals = 0) {
     if (value < 10 ** -(decimals + 1))
         value = 0;
-    if (value > 100)
+    else if (value > 100)
         decimals = Math.min(decimals, 1);
     return value.toFixed(decimals);
 }

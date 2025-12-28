@@ -1276,7 +1276,7 @@ td:hover:after {
 	display: block;
 }
 
-#message-box {
+#message-box, #prestige-box {
 	position: fixed;
 	top: 0;
 	bottom: 0;
@@ -1286,7 +1286,7 @@ td:hover:after {
 	z-index: 100;
 }
 
-#message-wrapper {
+#message-wrapper, #prestige-wrapper {
 	position: absolute;
 	top: 30%;
 	left: 20%;
@@ -1303,7 +1303,7 @@ td:hover:after {
 	cursor: pointer;
 }
 
-#message-text {
+#message-text, #prestige-text {
 	max-height: 40vh;
 	overflow-y: auto;
 	scrollbar-width: thin;
@@ -1596,5 +1596,9 @@ hr {
 
 .hidden-action,
 .block-row.hidden-action {
+	display: none;
+}
+
+.block[hidden] {
 	display: none;
 }
