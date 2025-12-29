@@ -446,6 +446,13 @@ function duplicateDuration() {
     }
     return 2 ** (runes - 1);
 }
+function transmuteDuration() {
+    let runes = 0;
+    for (let y = 0; y < zones[currentZone].map.length; y++) {
+        runes += zones[currentZone].map[y].split(/\$/).length - 1;
+    }
+    return 2 ** (runes - 1);
+}
 function completeChargeRune(loc) {
     setMined(loc.x, loc.y, zones[currentZone].map[loc.y + zones[currentZone].yOffset][loc.x + zones[currentZone].xOffset].toLowerCase());
 }
@@ -622,6 +629,8 @@ var ACTION;
     ACTION["CREATE_HAMMER"] = "Create Hammer";
     ACTION["ENTER_BARRIER"] = "Enter Barrier";
     ACTION["EXIT"] = "Exit";
+    ACTION["TRANSMUTE"] = "Transmute";
+    ACTION["CHARGE_TRANSMUTATION"] = "Charge Transmutation";
 })(ACTION || (ACTION = {}));
 const actions = [
     new Action("Walk", 100, [["Speed", 1]], completeMove),
@@ -762,7 +771,8 @@ const actions = [
         ["Combat", 0.25],
         ["Gemcraft", 0.25],
         ["Chronomancy", 0.25]
-    ], completeGame)
+    ], completeGame),
+    new Action("Transmute", 50000, [["Runic Lore", 1]], completeChargeRune, startChargableRune, null, transmuteDuration),
 ];
 function getAction(name) {
     return actions.find(a => a.name == name);

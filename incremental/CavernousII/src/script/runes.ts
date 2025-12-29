@@ -144,7 +144,7 @@ function getRune<runeName extends typeof runes[number]["name"]>(name: runeName) 
 	return runes.find(a => a.name == name) as Rune<runeName>;
 }
 
-type anyRuneName = "Weaken" | "Wither" | "Duplication" | "Teleport To" | "Teleport From" | "Pump";
+type anyRuneName = "Weaken" | "Wither" | "Duplication" | "Teleport To" | "Teleport From" | "Pump" | "Transmutation";
 
 const runes: Rune[] = [
 	new Rune(
@@ -229,5 +229,16 @@ const runes: Rune[] = [
 		null,
 		null,
 		"Pump"
-	)
+	),
+	new Rune(
+		"Transmutation",
+		"$",
+		() => CanStartReturnCode.Now,
+		1000,
+		() =>
+			`This rune transmutes all surrounding iron, salt, and coal into gold.`,
+		createChargableRune,
+		null,
+		"Transmute"
+	),
 ];

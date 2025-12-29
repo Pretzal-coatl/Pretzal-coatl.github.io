@@ -62,6 +62,7 @@ const classMapping: classMappingType = {
 	D: ["rune-dup", "Duplication Rune"],
 	d: ["rune-dup-charged", "Duplication Rune"],
 	P: ["rune-pump", "Pump Rune"],
+	"$": ["rune-trans", "Transmutation Rune"],
 	"○": ["coal", "Coal"],
 	"☼": ["gem", "Gem"],
 	"©": ["mined-gem", "Gem Tunnel"],
