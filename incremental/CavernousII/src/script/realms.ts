@@ -121,7 +121,7 @@ function getVerdantMultDesc() {
 }
 
 function getCompoundingMultDesc() {
-	return `Stat slowdown start: ${writeNumber(99 + getRealmMult("Compounding Realm", true), 4)}`;
+	return `Stat slowdown start: ${writeNumber(99 + getRealmMult("Compounding Realm", true) * (1 + prestige[5].level) + prestige[5].level * 20, 4)}`;
 }
 
 function getRealmComplete(realm: Realm) {
@@ -216,6 +216,50 @@ realms.push(
 		},
 		getCompoundingMultDesc,
 		0.1
+	)
+);
+
+realms.push(
+	// Water everywhere, slowly dying.
+	new Realm(
+		"Drowning Realm",
+		"A realm where everything is underwater.  All air pockets are replaced with water that gets deeper and deeper.",
+		() => getRealm("Drowning Realm").machineCompletions + 2,
+		() => {
+			getRealm("Drowning Realm").machineCompletions++;
+			getMessage("Time Barriers").display();
+		},
+		getCompoundingMultDesc,
+		0.1
+	)
+);
+
+realms.push(
+	// Stat checks, instead.
+	new Realm(
+		"Monster Realm",
+		"A realm where monsters are everywhere!  You can cross those gaps on the bodies of your fallen victims!",
+		() => getRealm("Monster Realm").machineCompletions + 2,
+		() => {
+			getRealm("Monster Realm").machineCompletions++;
+			getMessage("Time Barriers").display();
+		},
+		getCompoundingMultDesc,
+		0.1
+	)
+);
+
+realms.push(
+	// Runes on the walls boost the monsters and make things harder.
+	new Realm(
+		"Runic Realm",
+		"A realm where magic permeates.  Wall runes effect the squares around them.  You'll learn how to employ your magic more effectively",
+		() => (getRune("Duplication").upgradeCount || 0) + 3,
+		() => {
+			getRune("Duplication").upgradeCount++;
+			getRune("Duplication").updateDescription();
+			getMessage("Upgraded Duplication Rune").display(true);
+		}
 	)
 );
 

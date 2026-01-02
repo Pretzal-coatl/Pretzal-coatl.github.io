@@ -499,6 +499,14 @@ function duplicateDuration() {
 	return 2 ** (runes - 1);
 }
 
+function transmuteDuration() {
+	let runes = 0;
+	for (let y = 0; y < zones[currentZone].map.length; y++) {
+		runes += zones[currentZone].map[y].split(/\$/).length - 1;
+	}
+	return 2 ** (runes - 1);
+}
+
 function completeChargeRune(loc: MapLocation) {
 	setMined(loc.x, loc.y, zones[currentZone].map[loc.y + zones[currentZone].yOffset][loc.x + zones[currentZone].xOffset].toLowerCase());
 }
@@ -686,7 +694,9 @@ enum ACTION {
 	CREATE_PICK = "Create Pick",
 	CREATE_HAMMER = "Create Hammer",
 	ENTER_BARRIER = "Enter Barrier",
-	EXIT = "Exit"
+	EXIT = "Exit",
+	TRANSMUTE = "Transmute",
+	CHARGE_TRANSMUTATION = "Charge Transmutation"
 }
 
 type anyActionName = `${ACTION}`;
@@ -973,7 +983,8 @@ const actions: anyAction[] = [
 			["Chronomancy", 0.25]
 		],
 		completeGame
-	)
+	),
+	new Action("Transmute", 50000, [["Runic Lore", 1]], completeChargeRune, startChargableRune, null, transmuteDuration)
 ];
 
 function getAction<actionName extends anyActionName>(name: actionName): anyAction {

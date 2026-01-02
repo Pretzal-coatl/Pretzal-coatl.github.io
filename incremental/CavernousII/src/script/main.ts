@@ -16,7 +16,7 @@ function getLocationTypeBySymbol(symbol: LocationType["symbol"]) {
 
 function writeNumber(value: number, decimals = 0) {
 	if (value < 10 ** -(decimals + 1)) value = 0;
-	if (value > 100) decimals = Math.min(decimals, 1);
+	else if (value > 100) decimals = Math.min(decimals, 1);
 	return value.toFixed(decimals);
 }
 
@@ -41,145 +41,6 @@ function redrawTimeNode() {
 
 window.ondrop = e => e.preventDefault();
 
-/** *************************************Super Prestiges ********************************************/
-var GameComplete = 0;
-class PrestigePoints {
-	value: number;
-	constructor(value: number) {
-		this.value = value;
-	}
-}
-
-var prestigepoints = 0;
-var prestigecount = 0;
-
-class Prestige {
-	name: string;
-	level: number;
-	nextcost: number;
-	total: number;
-	constructor(name: string, level: number, nextcost: number = 0, total: number = 0) {
-		this.name = name;
-		this.level = level;
-		this.nextcost = nextcost;
-		this.total = total;
-	}
-}
-
-/*
-class Prestige {
-  constructor() {
-    this.GameComplete = 0;
-    this.Points = 0;
-    this.BonusClones = 0;
-    this.FasterStats = 0;
-    this.ManaScaling = 0;
-    this.BonusResc = 0;
-    this.BetterEquip = 0;
-    this.SoftCap = 0;
-    this.BonusZones = 0;
-  }
-}
-*/
-
-var prestige = [
-	new Prestige("BonusClones", 0),
-	new Prestige("FasterStats", 0),
-	new Prestige("ManaScaling", 0),
-	new Prestige("BonusResc", 0),
-	new Prestige("BetterEquip", 0),
-	new Prestige("SoftCap", 0),
-	new Prestige("BonusZones", 0)
-];
-
-function prestigeGame() {
-	/* Dangerous, should fix */
-	if (GameComplete == 1 || prestigecount == 0) {
-		exportGame();
-		GameComplete = 0;
-		prestigepoints += 90;
-		prestigecount += 1;
-		prestige[0].level += 1;
-		prestige[1].level += 1;
-		prestige[2].level += 1;
-		prestige[3].level += 1;
-		prestige[4].level += 1;
-		prestige[5].level += 1;
-		prestige[6].level += 1;
-		resetprogress();
-	}
-}
-
-function resetprogress() {
-	/*sets clones to 0*/
-	clones = [];
-	/*Resets Zones, maybe change so map doesn't reset?*/
-	zones.forEach(z => {
-		z.queues = ActionQueue.fromJSON([]);
-		z.mapLocations = [];
-		while (z.mapLocations.length < z.map.length) {
-			z.mapLocations.push([]);
-		}
-		z.routes = [];
-		if (z.node != null) {
-			z.node.parentNode!.removeChild(z.node);
-		}
-		z.node = null;
-		z.goalComplete = false;
-	});
-	/*sets stats to 0*/
-	stats.forEach(s => {
-		s.base = 0;
-	});
-	stats[12].base = 10;
-	/*reset realms*/
-	realms.forEach(re => {
-		re.locked = true;
-		re.completed = false;
-		re.machineCompletions = 0;
-	});
-	realms[0].unlock();
-	/*resets runes*/
-	runes.forEach(r => {
-		r.unlocked = false;
-		r.node = null;
-		r.upgradeCount = 0;
-	});
-	/*clear route*/
-	routes = [];
-	grindRoutes = [];
-	/*sets mana to base*/
-	getStat("Mana").base = 5;
-	/*resets camera*/
-	currentZone = 0;
-	currentRealm = 0;
-	/*Initialize*/
-	Clone.addNewClone();
-	for (let i = 0; i < prestige[0].level; ++i) {
-		Clone.addNewClone();
-	}
-	/*Remove Message*/
-	messages.forEach(m => {
-		m.displayed = true;
-	});
-	resetLoop();
-	save();
-	window.location.reload();
-}
-
-// Fix Prestige Values for Hover - need help
-/*
-    let prestigenumber= document.querySelector("prestigenumber") = writeNumber(prestigecount);
-    document.querySelector("prestigeval0") = writeNumber(prestige[0].level);
-    document.querySelector("prestigeval1") = writeNumber(0.1*prestige[1].level);
-    document.querySelector("prestigeval2") = writeNumber(0.95 ** (prestige[2].level ** 0.75));
-    document.querySelector("prestigeval3") = writeNumber(0.1*prestige[3].level);
-    document.querySelector("prestigeval4") = writeNumber(0.1*prestige[4].level);
-    document.querySelector("prestigeval5a") = writeNumber(1+prestige[5].level);
-    document.querySelector("prestigeval5b") = writeNumber(20*prestige[5].level);
-    document.querySelector("prestigeval6") = writeNumber(prestige[6].level);
-*/
-
 /** ****************************************** Prestiges ********************************************/
 
 let resetting = false;
@@ -188,15 +49,15 @@ function resetLoop(noLoad = false, saveGame = true) {
 	if (resetting) return;
 	shouldReset = false;
 	resetting = true;
-	const mana = getStat("Mana"); /* Cleaned up my additions as is handled during initilization */
+	const mana = getStat("Mana"); /* Prestige These messages could be removed after first game completion */
 	if (getMessage("Time Travel").display(zones[0].manaGain == 0 && realms[currentRealm].name == "Core Realm" && prestigecount == 0))
 		setSetting(toggleAutoRestart, 3);
 	else getMessage("Persisted Programming").display();
-	if (mana.base == 5.5) getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);
-	if (mana.base == 6) getMessage("Strip Mining").display();
-	if (mana.base == 7.4) getMessage("Buy More Time").display();
-	if (routes.length == 3) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
-	if (queueTime > 50000) getMessage("Looper's Log: Supplemental").display();
+	if (mana.base == 5.5 && prestigecount == 0) getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);
+	if (mana.base == 6 && prestigecount == 0) getMessage("Strip Mining").display();
+	if (mana.base == 7.4 && prestigecount == 0) getMessage("Buy More Time").display();
+	if (routes.length == 3 && prestigecount == 0) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
+	if (queueTime > 50000 && prestigecount == 0) getMessage("Looper's Log: Supplemental").display();
 	if (mana.current > 0) {
 		currentLoopLog.finalize();
 	}
@@ -495,6 +356,7 @@ function load() {
 		prestige[5].level = saveGame.prestigeArray.value5;
 		prestige[6].level = saveGame.prestigeArray.value6;
 	}
+	loadPrestigeBonuses();
 
 	loadSettings(saveGame.settings);
 

@@ -130,6 +130,7 @@ const runes = [
     new Rune("Pump", "P", simpleRequire([
         ["Iron Bar", 3],
         ["Steel Bar", 1]
-    ]), 0, () => `This rune drains water from surrounding spaces.  It drains log_2(Runic Lore) / 25 water per second from its space and a quarter that from the 4 adjacent spaces.<br>Requires:<br>{'0':'3 Iron Bars<br>1 Steel Bar', '1':'6 Iron Bars<br>2 Steel Bars'}`, null, null, "Pump")
+    ]), 0, () => `This rune drains water from surrounding spaces.  It drains log_2(Runic Lore) / 25 water per second from its space and a quarter that from the 4 adjacent spaces.<br>Requires:<br>{'0':'3 Iron Bars<br>1 Steel Bar', '1':'6 Iron Bars<br>2 Steel Bars'}`, null, null, "Pump"),
+    new Rune("Transmutation", "$", () => CanStartReturnCode.Now, 1000, () => `This rune transmutes all surrounding iron, salt, and coal into gold.`, createChargableRune, null, "Transmute"),
 ];
 //# sourceMappingURL=runes.js.map

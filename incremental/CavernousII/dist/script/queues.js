@@ -788,4 +788,32 @@ function longImportQueues(queueString) {
         longImportQueues(tempQueues);
     }
 }
+function copySelectedQueue() {
+    const exportQueue = zones[displayZone].queues.find(queue => queue.selected) || zones[displayZone].queues[0];
+    const exportString = queueToString(exportQueue);
+    navigator.clipboard.writeText(JSON.stringify(exportString));
+}
+function pasteToQueues() {
+    let queueString = prompt("Input your queue");
+    if (!queueString)
+        return;
+    const tempQueues = zones[displayZone].queues.slice();
+    try {
+        let newQueue = JSON.parse(queueString);
+        if (typeof newQueue != "string") {
+            alert("Could not import queues - no queue found.");
+            return;
+        }
+        zones[displayZone].queues.filter(queue => queue.selected).forEach(queue => {
+            queue.clear();
+            queue.fromString(newQueue);
+        });
+        redrawQueues();
+    }
+    catch {
+        alert("Could not paste to queues.");
+        zones[displayZone].queues = tempQueues;
+        redrawQueues();
+    }
+}
 //# sourceMappingURL=queues.js.map
