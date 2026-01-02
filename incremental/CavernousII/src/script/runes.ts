@@ -235,10 +235,9 @@ const runes: Rune[] = [
 		"$",
 		() => CanStartReturnCode.Now,
 		1000,
-		() =>
-			`This rune transmutes all surrounding iron, salt, and coal into gold.`,
+		() => `This rune transmutes all surrounding iron, salt, and coal into gold.`,
 		createChargableRune,
 		null,
 		"Transmute"
-	),
+	)
 ];

@@ -696,7 +696,7 @@ enum ACTION {
 	ENTER_BARRIER = "Enter Barrier",
 	EXIT = "Exit",
 	TRANSMUTE = "Transmute",
-	CHARGE_TRANSMUTATION = "Charge Transmutation",
+	CHARGE_TRANSMUTATION = "Charge Transmutation"
 }
 
 type anyActionName = `${ACTION}`;
@@ -984,7 +984,7 @@ const actions: anyAction[] = [
 		],
 		completeGame
 	),
-	new Action("Transmute", 50000, [["Runic Lore", 1]], completeChargeRune, startChargableRune, null, transmuteDuration),
+	new Action("Transmute", 50000, [["Runic Lore", 1]], completeChargeRune, startChargableRune, null, transmuteDuration)
 ];
 
 function getAction<actionName extends anyActionName>(name: actionName): anyAction {

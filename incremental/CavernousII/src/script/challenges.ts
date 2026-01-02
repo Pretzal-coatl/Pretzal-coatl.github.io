@@ -10,12 +10,7 @@ class Challenge {
 	maxMult: number;
 	completed: boolean = false;
 
-	constructor(
-		name: string,
-		description: string,
-		multPerRock: number = 0,
-		maxMult: number = Infinity
-	) {
+	constructor(name: string, description: string, multPerRock: number = 0, maxMult: number = Infinity) {
 		this.name = name;
 		this.description = description;
 		this.multPerRock = multPerRock;
@@ -61,8 +56,5 @@ class Challenge {
 const challenges: Challenge[] = [];
 challenges.push(
 	// Default realm, no special effects. /* Prestige have clones.length remove prestige bonus clones from cost */
-	new Challenge(
-		"Core Realm",
-		"Where you started.  Hopefully, how you'll leave this cave complex.",
-	)
+	new Challenge("Core Realm", "Where you started.  Hopefully, how you'll leave this cave complex.")
 );

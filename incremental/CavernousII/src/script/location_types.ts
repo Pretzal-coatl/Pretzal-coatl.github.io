@@ -338,7 +338,7 @@ const locationTypes = [
 	new LocationType("Exit", "!", "A door.  Opening to the outside world", "Exit", null, null),
 	new LocationType("Transmutation Rune", "$", "This rune transmutes resources in the 8 tiles next to it.", "Walk", null, null),
 	new LocationType("Transmutation Rune - Charged", "$", "This rune increases the yield of mining in the 8 tiles next to it.", "Walk", null, null),
-	new LocationType("Not a location", "", "", null, null),
+	new LocationType("Not a location", "", "", null, null)
 ];
 
 if (new URL(document.location.href).searchParams.get("save") === "separate") {

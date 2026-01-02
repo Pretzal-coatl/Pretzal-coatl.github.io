@@ -811,10 +811,12 @@ function pasteToQueues() {
 			alert("Could not import queues - no queue found.");
 			return;
 		}
-		zones[displayZone].queues.filter(queue => queue.selected).forEach(queue => {
-			queue.clear();
-			queue.fromString(newQueue);
-		});
+		zones[displayZone].queues
+			.filter(queue => queue.selected)
+			.forEach(queue => {
+				queue.clear();
+				queue.fromString(newQueue);
+			});
 		redrawQueues();
 	} catch {
 		alert("Could not paste to queues.");

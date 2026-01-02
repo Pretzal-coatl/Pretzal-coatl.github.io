@@ -40,7 +40,7 @@ var prestige = [
 ];
 
 function canPrestige() {
-    return GameComplete == 1 || prestigecount == 0;
+	return GameComplete == 1 || prestigecount == 0;
 }
 
 function prestigeGame() {
@@ -58,7 +58,7 @@ function prestigeGame() {
 		prestige[5].level += 1;
 		prestige[6].level += 1;
 		resetprogress();
-        loadPrestigeBonuses();
+		loadPrestigeBonuses();
 	}
 }
 
@@ -70,19 +70,19 @@ function getPrestigeBonuses(level: number) {
 		writeNumber(10 * level),
 		writeNumber(10 * level),
 		writeNumber(1 + level),
-		writeNumber(20 * level),
-	]
+		writeNumber(20 * level)
+	];
 }
 
 function loadPrestigeBonuses() {
-    document.querySelector("#prestigecount")!.innerHTML = writeNumber(prestigecount);
-    document.querySelector("#prestigeval0")!.innerHTML = writeNumber(prestige[0].level);
-    document.querySelector("#prestigeval1")!.innerHTML = writeNumber(10*prestige[1].level);
-    document.querySelector("#prestigeval2")!.innerHTML = writeNumber(0.95 ** (prestige[2].level ** 0.75) * 100);
-    document.querySelector("#prestigeval3")!.innerHTML = writeNumber(10*prestige[3].level);
-    document.querySelector("#prestigeval4")!.innerHTML = writeNumber(10*prestige[4].level);
-    document.querySelector("#prestigeval5a")!.innerHTML = writeNumber(1+prestige[5].level);
-    document.querySelector("#prestigeval5b")!.innerHTML = writeNumber(20*prestige[5].level);
+	document.querySelector("#prestigecount")!.innerHTML = writeNumber(prestigecount);
+	document.querySelector("#prestigeval0")!.innerHTML = writeNumber(prestige[0].level);
+	document.querySelector("#prestigeval1")!.innerHTML = writeNumber(10 * prestige[1].level);
+	document.querySelector("#prestigeval2")!.innerHTML = writeNumber(0.95 ** (prestige[2].level ** 0.75) * 100);
+	document.querySelector("#prestigeval3")!.innerHTML = writeNumber(10 * prestige[3].level);
+	document.querySelector("#prestigeval4")!.innerHTML = writeNumber(10 * prestige[4].level);
+	document.querySelector("#prestigeval5a")!.innerHTML = writeNumber(1 + prestige[5].level);
+	document.querySelector("#prestigeval5b")!.innerHTML = writeNumber(20 * prestige[5].level);
 }
 
 function resetprogress() {
@@ -144,7 +144,7 @@ function resetprogress() {
 
 function viewPrestige() {
 	const prestigeAvailable = canPrestige();
-	document.querySelector("#prestige-title")!.innerHTML = `Prestige ${prestigeAvailable ? '(Available!)' : '(Not yet available)'}`;
+	document.querySelector("#prestige-title")!.innerHTML = `Prestige ${prestigeAvailable ? "(Available!)" : "(Not yet available)"}`;
 	const text = prestigeBox.querySelector("#prestige-text")!;
 	const currentBonuses = getPrestigeBonuses(prestigecount);
 	const prestigeBonuses = getPrestigeBonuses(prestigecount + 1);
