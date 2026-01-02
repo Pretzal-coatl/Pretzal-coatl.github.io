@@ -49,15 +49,15 @@ function resetLoop(noLoad = false, saveGame = true) {
 	if (resetting) return;
 	shouldReset = false;
 	resetting = true;
-	const mana = getStat("Mana"); /* Cleaned up my additions as is handled during initilization */
+	const mana = getStat("Mana"); /* Prestige These messages could be removed after first game completion */
 	if (getMessage("Time Travel").display(zones[0].manaGain == 0 && realms[currentRealm].name == "Core Realm" && prestigecount == 0))
 		setSetting(toggleAutoRestart, 3);
 	else getMessage("Persisted Programming").display();
-	if (mana.base == 5.5) getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);
-	if (mana.base == 6) getMessage("Strip Mining").display();
-	if (mana.base == 7.4) getMessage("Buy More Time").display();
-	if (routes.length == 3) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
-	if (queueTime > 50000) getMessage("Looper's Log: Supplemental").display();
+	if (mana.base == 5.5 && prestigecount == 0) getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);
+	if (mana.base == 6 && prestigecount == 0) getMessage("Strip Mining").display();
+	if (mana.base == 7.4 && prestigecount == 0) getMessage("Buy More Time").display();
+	if (routes.length == 3 && prestigecount == 0) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
+	if (queueTime > 50000 && prestigecount == 0) getMessage("Looper's Log: Supplemental").display();
 	if (mana.current > 0) {
 		currentLoopLog.finalize();
 	}
